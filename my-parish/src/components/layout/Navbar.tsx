@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Navbar() {
   const [isParafiaOpen, setIsParafiaOpen] = useState(false);
@@ -20,7 +21,7 @@ export default function Navbar() {
   const handleMouseLeave = (setIsOpen: (value: boolean) => void, timeoutRef: React.MutableRefObject<NodeJS.Timeout | null>) => {
     timeoutRef.current = setTimeout(() => {
       setIsOpen(false);
-    }, 200); // Increased delay for better UX
+    }, 200);
   };
 
   return (
@@ -28,7 +29,16 @@ export default function Navbar() {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-3 group">
-            <span className="text-2xl font-bold text-primary transition-all duration-300 group-hover:scale-105">
+            <div className="relative w-10 h-10">
+              <Image
+                src="/witraz_logo.jpg"
+                alt="Logo"
+                width={40}
+                height={40}
+                className="rounded-full object-cover"
+              />
+            </div>
+            <span className="text-2xl font-bold italic transition-all duration-300 group-hover:scale-105">
               Moja Parafia
             </span>
           </Link>

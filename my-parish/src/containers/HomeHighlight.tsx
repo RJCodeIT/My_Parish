@@ -14,11 +14,11 @@ export default function HomeHighlight() {
               href="/ogloszenia"
               className="block hover:transform hover:scale-[1.02] transition-all h-full"
             >
-              <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-6 border border-gray-200 h-full flex flex-col">
+              <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-6 border border-neutral/30 h-full flex flex-col">
                 <h2 className="text-xl font-bold text-primary mb-2 text-center">
                   Ogłoszenia duszpasterskie
                 </h2>
-                <p className="text-gray-600 italic text-center mt-auto">
+                <p className="text-neutral italic text-center mt-auto">
                   Ogłoszenia Duszpasterskie – VIII Niedziela Zwykła rok C
                 </p>
               </div>
@@ -27,17 +27,17 @@ export default function HomeHighlight() {
               href="/intencje-mszalne"
               className="block hover:transform hover:scale-[1.02] transition-all h-full"
             >
-              <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-6 border border-gray-200 h-full flex flex-col">
+              <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-6 border border-neutral/30 h-full flex flex-col">
                 <h2 className="text-xl font-bold text-primary mb-2 text-center">
                   Intencje Mszalne
                 </h2>
-                <p className="text-gray-600 italic text-center mt-auto">
+                <p className="text-neutral italic text-center mt-auto">
                   INTENCJE MSZALNE 2 – 9 III 2025 r.
                 </p>
               </div>
             </Link>
           </div>
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-6 border border-gray-200">
+          <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-6 border border-neutral/30">
             <h2 className="text-xl font-bold text-primary mb-4 text-center">
               Polecane
             </h2>
@@ -52,14 +52,14 @@ export default function HomeHighlight() {
             </div>
           </div>
         </div>
-        <div className="h-full">
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-6 border border-gray-200 h-full">
-            <div className="relative w-full h-full">
+        <div className="h-full flex items-center">
+          <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-6 border border-neutral/30 w-full">
+            <div className="relative w-full aspect-[3/4] max-w-[300px] mx-auto">
               <Image
-                src="/patronSaint.png"
-                alt="Patron Parafii"
+                src="/witraz.jpg"
+                alt="Witraż"
                 fill
-                className="object-contain"
+                className="object-cover rounded-lg"
                 priority
               />
             </div>
