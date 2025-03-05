@@ -2,6 +2,7 @@
 import { useState } from "react";
 import ParishCard from "@/components/ui/ParishCard";
 import Pagination from "@/components/ui/Pagination";
+import PageContainer from "@/components/layout/PageContainer";
 
 const mockNews = [
   {
@@ -63,23 +64,21 @@ export default function Intentions() {
           </span>
         </h1>
       </div>
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-7xl mx-auto bg-gradient-to-br from-amber-50/50 to-stone-50/50 backdrop-blur-sm rounded-xl shadow-lg p-8 border border-amber-100/20">
-          {currentNews.map((news, index) => (
-            <ParishCard
-              key={index}
-              title={news.title}
-              subtitle={news.subtitle}
-              date={news.date}
-            />
-          ))}
-          <Pagination
-            itemsPerPage={itemsPerPage}
-            totalItems={mockNews.length}
-            onPageChange={setCurrentPage}
+      <PageContainer>
+        {currentNews.map((news, index) => (
+          <ParishCard
+            key={index}
+            title={news.title}
+            subtitle={news.subtitle}
+            date={news.date}
           />
-        </div>
-      </div>
+        ))}
+        <Pagination
+          itemsPerPage={itemsPerPage}
+          totalItems={mockNews.length}
+          onPageChange={setCurrentPage}
+        />
+      </PageContainer>
     </div>
   );
 }

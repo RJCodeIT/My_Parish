@@ -1,5 +1,9 @@
+import PageContainer from "@/components/layout/PageContainer";
+
 export default function Chapels() {
   return (
-    <div>Kapliczki i inne</div>
-  )
+    <PageContainer>
+      <span>Kapiliczki i inne</span>
+    </PageContainer>
+  );
 }

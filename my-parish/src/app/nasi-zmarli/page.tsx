@@ -1,5 +1,9 @@
+import PageContainer from "@/components/layout/PageContainer";
+
 export default function Memorial() {
   return (
-    <div>Nasi zmarli</div>
-  )
+    <PageContainer>
+      <span>Nasi zmarli</span>
+    </PageContainer>
+  );
 }

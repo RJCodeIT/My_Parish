@@ -1,5 +1,9 @@
+import PageContainer from "@/components/layout/PageContainer";
+
 export default function Contact() {
   return (
-    <div>Kontakt</div>
-  )
+    <PageContainer>
+      <span>Kontakt</span>
+    </PageContainer>
+  );
 }

@@ -1,5 +1,9 @@
+import PageContainer from "@/components/layout/PageContainer";
+
 export default function Counseling() {
   return (
-    <div>Poradnia życia rodzinnego</div>
-  )
+    <PageContainer>
+      <span>Poradnia życia rodzinnego</span>
+    </PageContainer>
+  );
 }

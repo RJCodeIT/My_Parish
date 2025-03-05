@@ -1,5 +1,9 @@
+import PageContainer from "@/components/layout/PageContainer";
+
 export default function Groups() {
   return (
-    <div>Grupy parafialne</div>
-  )
+    <PageContainer>
+      <span>Grupy parafialne</span>
+    </PageContainer>
+  );
 }

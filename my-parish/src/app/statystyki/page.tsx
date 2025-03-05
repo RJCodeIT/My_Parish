@@ -1,5 +1,9 @@
+import PageContainer from "@/components/layout/PageContainer";
+
 export default function Statistics() {
   return (
-    <div>Statystyki</div>
-  )
+    <PageContainer>
+      <span>Statystyki</span>
+    </PageContainer>
+  );
 }

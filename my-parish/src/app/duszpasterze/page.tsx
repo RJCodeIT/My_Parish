@@ -1,5 +1,9 @@
+import PageContainer from "@/components/layout/PageContainer";
+
 export default function Priests() {
   return (
-    <div>Duszpasterze</div>
-  )
+    <PageContainer>
+      <span>Duszpastersterze</span>
+    </PageContainer>
+  );
 }
