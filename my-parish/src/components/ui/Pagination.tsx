@@ -33,8 +33,8 @@ export default function Pagination({ itemsPerPage, onPageChange, totalItems }: P
           onClick={() => handlePageChange(i)}
           className={`w-12 h-12 flex items-center justify-center rounded-xl font-semibold text-lg transition-all ${
             currentPage === i
-              ? 'bg-primary/10 text-primary shadow-lg scale-110 border-2 border-primary font-bold'
-              : 'bg-white text-primary hover:bg-primary/5 border-2 border-primary/20 hover:border-primary/50'
+              ? 'bg-secondary/20 text-primary shadow-lg scale-110 border-2 border-secondary font-bold'
+              : 'bg-white text-primary hover:bg-neutral/10 border-2 border-neutral/20 hover:border-neutral/50'
           }`}
         >
           {i}
@@ -54,8 +54,8 @@ export default function Pagination({ itemsPerPage, onPageChange, totalItems }: P
         disabled={currentPage === 1}
         className={`w-12 h-12 flex items-center justify-center rounded-xl font-bold text-lg transition-all ${
           currentPage === 1
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-200'
-            : 'bg-white text-primary hover:bg-primary/5 border-2 border-primary/20 hover:border-primary/50'
+            ? 'bg-neutral/10 text-neutral/40 cursor-not-allowed border-2 border-neutral/20'
+            : 'bg-white text-primary hover:bg-neutral/10 border-2 border-neutral/20 hover:border-neutral/50'
         }`}
       >
         «
@@ -65,8 +65,8 @@ export default function Pagination({ itemsPerPage, onPageChange, totalItems }: P
         disabled={currentPage === 1}
         className={`w-12 h-12 flex items-center justify-center rounded-xl font-bold text-lg transition-all ${
           currentPage === 1
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-200'
-            : 'bg-white text-primary hover:bg-primary/5 border-2 border-primary/20 hover:border-primary/50'
+            ? 'bg-neutral/10 text-neutral/40 cursor-not-allowed border-2 border-neutral/20'
+            : 'bg-white text-primary hover:bg-neutral/10 border-2 border-neutral/20 hover:border-neutral/50'
         }`}
       >
         ‹
@@ -79,8 +79,8 @@ export default function Pagination({ itemsPerPage, onPageChange, totalItems }: P
         disabled={currentPage === totalPages}
         className={`w-12 h-12 flex items-center justify-center rounded-xl font-bold text-lg transition-all ${
           currentPage === totalPages
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-200'
-            : 'bg-white text-primary hover:bg-primary/5 border-2 border-primary/20 hover:border-primary/50'
+            ? 'bg-neutral/10 text-neutral/40 cursor-not-allowed border-2 border-neutral/20'
+            : 'bg-white text-primary hover:bg-neutral/10 border-2 border-neutral/20 hover:border-neutral/50'
         }`}
       >
         ›
@@ -90,8 +90,8 @@ export default function Pagination({ itemsPerPage, onPageChange, totalItems }: P
         disabled={currentPage === totalPages}
         className={`w-12 h-12 flex items-center justify-center rounded-xl font-bold text-lg transition-all ${
           currentPage === totalPages
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-200'
-            : 'bg-white text-primary hover:bg-primary/5 border-2 border-primary/20 hover:border-primary/50'
+            ? 'bg-neutral/10 text-neutral/40 cursor-not-allowed border-2 border-neutral/20'
+            : 'bg-white text-primary hover:bg-neutral/10 border-2 border-neutral/20 hover:border-neutral/50'
         }`}
       >
         »

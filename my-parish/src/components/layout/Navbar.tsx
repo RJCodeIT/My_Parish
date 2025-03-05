@@ -24,12 +24,11 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm sticky top-0 z-50">
+    <nav className="bg-white/90 backdrop-blur-md border-b border-neutral/20 shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-3 group">
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent 
-                           transition-all duration-300 group-hover:scale-105">
+            <span className="text-2xl font-bold text-primary transition-all duration-300 group-hover:scale-105">
               Moja Parafia
             </span>
           </Link>

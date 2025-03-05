@@ -9,7 +9,7 @@ export default function RecommendationCard({ title, href }: RecommendationCardPr
   return (
     <Link 
       href={href} 
-      className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow h-24"
+      className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm border border-neutral/20 hover:shadow-md hover:border-secondary/50 transition-all h-24"
     >
       <h3 className="font-semibold text-primary text-center">{title}</h3>
     </Link>
