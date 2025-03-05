@@ -19,8 +19,18 @@ body {
 }
 
 .nav-link {
-  @apply text-lg font-semibold transition-colors duration-200;
+  @apply text-lg font-medium transition-all duration-300 relative py-2;
   color: var(--primary-color);
+}
+
+.nav-link::after {
+  content: '';
+  @apply absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-300;
+  background-color: var(--secondary-color);
+}
+
+.nav-link:hover::after {
+  @apply w-full;
 }
 
 .nav-link:hover {
@@ -28,10 +38,28 @@ body {
 }
 
 .dropdown-menu {
-  @apply bg-white/95 backdrop-blur-sm border border-gray-200 shadow-xl rounded-lg;
+  @apply bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg rounded-lg 
+         transform opacity-0 scale-95 transition-all duration-200 origin-top;
+  animation: dropdownFadeIn 0.2s ease-out forwards;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .dropdown-item {
-  @apply px-4 py-2 hover:bg-gray-100 transition-colors duration-200;
+  @apply px-4 py-2.5 hover:bg-gray-50/80 transition-colors duration-200 text-base
+         first:rounded-t-lg last:rounded-b-lg flex items-center;
   color: var(--primary-color);
+}
+
+.dropdown-item:hover {
+  color: var(--secondary-color);
 }

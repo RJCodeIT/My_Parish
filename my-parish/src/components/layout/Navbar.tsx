@@ -20,53 +20,56 @@ export default function Navbar() {
   const handleMouseLeave = (setIsOpen: (value: boolean) => void, timeoutRef: React.MutableRefObject<NodeJS.Timeout | null>) => {
     timeoutRef.current = setTimeout(() => {
       setIsOpen(false);
-    }, 100);
+    }, 200); // Increased delay for better UX
   };
 
   return (
-    <nav className="bg-white/80 backdrop-blur-sm border-b border-gray-200 shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-5">
+    <nav className="bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm sticky top-0 z-50">
+      <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-xl font-bold text-primary">Moja Parafia</span>
+          <Link href="/" className="flex items-center space-x-3 group">
+            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent 
+                           transition-all duration-300 group-hover:scale-105">
+              Moja Parafia
+            </span>
           </Link>
           
           <div className="flex items-center space-x-8">
             <Link href="/" className="nav-link">Home</Link>
             
             <div 
-              className="relative"
+              className="relative group"
               onMouseEnter={() => handleMouseEnter(setIsParafiaOpen, parafiaTimeoutRef)}
               onMouseLeave={() => handleMouseLeave(setIsParafiaOpen, parafiaTimeoutRef)}
             >
               <button className="nav-link">Parafia</button>
               {isParafiaOpen && (
-                <div className="dropdown-menu absolute left-0 mt-2 w-56 z-50">
-                  <Link href="/kosciol" className="dropdown-item block">Kościół</Link>
-                  <Link href="/historia" className="dropdown-item block">Historia</Link>
-                  <Link href="/kapliczki-i-inne" className="dropdown-item block">Kapliczki i inne</Link>
-                  <Link href="/duszpasterze" className="dropdown-item block">Duszpasterze</Link>
-                  <Link href="/inwestycje" className="dropdown-item block">Inwestycje</Link>
+                <div className="dropdown-menu absolute left-1/2 mt-1 w-56 -translate-x-1/2">
+                  <Link href="/kosciol" className="dropdown-item">Kościół</Link>
+                  <Link href="/historia" className="dropdown-item">Historia</Link>
+                  <Link href="/kapliczki-i-inne" className="dropdown-item">Kapliczki i inne</Link>
+                  <Link href="/duszpasterze" className="dropdown-item">Duszpasterze</Link>
+                  <Link href="/inwestycje" className="dropdown-item">Inwestycje</Link>
                 </div>
               )}
             </div>
 
             <div 
-              className="relative"
+              className="relative group"
               onMouseEnter={() => handleMouseEnter(setIsDuszpasterstwoOpen, duszpasterstwoTimeoutRef)}
               onMouseLeave={() => handleMouseLeave(setIsDuszpasterstwoOpen, duszpasterstwoTimeoutRef)}
             >
               <button className="nav-link">Duszpasterstwo</button>
               {isDuszpasterstwoOpen && (
-                <div className="dropdown-menu absolute left-0 mt-2 w-72 z-50">
-                  <Link href="/kancelaria" className="dropdown-item block">Kancelaria</Link>
-                  <Link href="/porzadek-mszy-swietych" className="dropdown-item block">Porządek Mszy Świętych</Link>
-                  <Link href="/nabozenstwa" className="dropdown-item block">Nabożeństwa</Link>
-                  <Link href="/sakramenty" className="dropdown-item block">Sakramenty</Link>
-                  <Link href="/grupy-parafialne" className="dropdown-item block">Grupy parafialne</Link>
-                  <Link href="/poradnia-zycia-rodzinnego" className="dropdown-item block">Poradnia życia rodzinnego</Link>
-                  <Link href="/statystyki" className="dropdown-item block">Statystyki</Link>
-                  <Link href="/nasi-zmarli" className="dropdown-item block">Nasi zmarli</Link>
+                <div className="dropdown-menu absolute left-1/2 mt-1 w-72 -translate-x-1/2">
+                  <Link href="/kancelaria" className="dropdown-item">Kancelaria</Link>
+                  <Link href="/porzadek-mszy-swietych" className="dropdown-item">Porządek Mszy Świętych</Link>
+                  <Link href="/nabozenstwa" className="dropdown-item">Nabożeństwa</Link>
+                  <Link href="/sakramenty" className="dropdown-item">Sakramenty</Link>
+                  <Link href="/grupy-parafialne" className="dropdown-item">Grupy parafialne</Link>
+                  <Link href="/poradnia-zycia-rodzinnego" className="dropdown-item">Poradnia życia rodzinnego</Link>
+                  <Link href="/statystyki" className="dropdown-item">Statystyki</Link>
+                  <Link href="/nasi-zmarli" className="dropdown-item">Nasi zmarli</Link>
                 </div>
               )}
             </div>
