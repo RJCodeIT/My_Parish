@@ -1,5 +1,8 @@
 export default function AdminDashboard() {
   return (
-    <div>Strona główna Admina</div>
+    <div>
+      <div>Strona główna admina</div>
+      <div>Wyszukiwanie parafian i grup</div>
+    </div>
   )
 }
