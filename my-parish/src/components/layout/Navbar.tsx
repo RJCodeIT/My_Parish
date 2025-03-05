@@ -24,63 +24,59 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-sky-200 text-white py-4 shadow-md">
-      <div className="container mx-auto flex justify-center space-x-6 relative">
-        <Link href="/" className="text-lg font-bold hover:text-gray-300">Home</Link>
-        
-        <div 
-          className="relative"
-          onMouseEnter={() => handleMouseEnter(setIsParafiaOpen, parafiaTimeoutRef)}
-          onMouseLeave={() => handleMouseLeave(setIsParafiaOpen, parafiaTimeoutRef)}
-        >
-          <button className="text-lg font-bold hover:text-gray-300">
-            Parafia
-          </button>
-          {isParafiaOpen && (
+    <nav className="bg-white/80 backdrop-blur-sm border-b border-gray-200 shadow-md sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-5">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="flex items-center space-x-2">
+            <span className="text-xl font-bold text-primary">Moja Parafia</span>
+          </Link>
+          
+          <div className="flex items-center space-x-8">
+            <Link href="/" className="nav-link">Home</Link>
+            
             <div 
-              className="absolute left-0 mt-2 w-56 bg-white text-black shadow-lg rounded-md z-50"
+              className="relative"
               onMouseEnter={() => handleMouseEnter(setIsParafiaOpen, parafiaTimeoutRef)}
               onMouseLeave={() => handleMouseLeave(setIsParafiaOpen, parafiaTimeoutRef)}
             >
-              <Link href="/kosciol" className="block px-4 py-2 hover:bg-gray-200">Kościół</Link>
-              <Link href="/historia" className="block px-4 py-2 hover:bg-gray-200">Historia</Link>
-              <Link href="/kapliczki-i-inne" className="block px-4 py-2 hover:bg-gray-200">Kapliczki i inne</Link>
-              <Link href="/duszpasterze" className="block px-4 py-2 hover:bg-gray-200">Duszpasterze</Link>
-              <Link href="/inwestycje" className="block px-4 py-2 hover:bg-gray-200">Inwestycje</Link>
+              <button className="nav-link">Parafia</button>
+              {isParafiaOpen && (
+                <div className="dropdown-menu absolute left-0 mt-2 w-56 z-50">
+                  <Link href="/kosciol" className="dropdown-item block">Kościół</Link>
+                  <Link href="/historia" className="dropdown-item block">Historia</Link>
+                  <Link href="/kapliczki-i-inne" className="dropdown-item block">Kapliczki i inne</Link>
+                  <Link href="/duszpasterze" className="dropdown-item block">Duszpasterze</Link>
+                  <Link href="/inwestycje" className="dropdown-item block">Inwestycje</Link>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        <div 
-          className="relative"
-          onMouseEnter={() => handleMouseEnter(setIsDuszpasterstwoOpen, duszpasterstwoTimeoutRef)}
-          onMouseLeave={() => handleMouseLeave(setIsDuszpasterstwoOpen, duszpasterstwoTimeoutRef)}
-        >
-          <button className="text-lg font-bold hover:text-gray-300">
-            Duszpasterstwo
-          </button>
-          {isDuszpasterstwoOpen && (
             <div 
-              className="absolute left-0 mt-2 w-72 bg-white text-black shadow-lg rounded-md z-50"
+              className="relative"
               onMouseEnter={() => handleMouseEnter(setIsDuszpasterstwoOpen, duszpasterstwoTimeoutRef)}
               onMouseLeave={() => handleMouseLeave(setIsDuszpasterstwoOpen, duszpasterstwoTimeoutRef)}
             >
-              <Link href="/kancelaria" className="block px-4 py-2 hover:bg-gray-200">Kancelaria</Link>
-              <Link href="/porzadek-mszy-swietych" className="block px-4 py-2 hover:bg-gray-200">Porządek Mszy Świętych</Link>
-              <Link href="/nabozenstwa" className="block px-4 py-2 hover:bg-gray-200">Nabożeństwa</Link>
-              <Link href="/sakramenty" className="block px-4 py-2 hover:bg-gray-200">Sakramenty</Link>
-              <Link href="/grupy-parafialne" className="block px-4 py-2 hover:bg-gray-200">Grupy parafialne</Link>
-              <Link href="/poradnia-zycia-rodzinnego" className="block px-4 py-2 hover:bg-gray-200">Poradnia życia rodzinnego</Link>
-              <Link href="/statystyki" className="block px-4 py-2 hover:bg-gray-200">Statystyki</Link>
-              <Link href="/nasi-zmarli" className="block px-4 py-2 hover:bg-gray-200">Nasi zmarli</Link>
+              <button className="nav-link">Duszpasterstwo</button>
+              {isDuszpasterstwoOpen && (
+                <div className="dropdown-menu absolute left-0 mt-2 w-72 z-50">
+                  <Link href="/kancelaria" className="dropdown-item block">Kancelaria</Link>
+                  <Link href="/porzadek-mszy-swietych" className="dropdown-item block">Porządek Mszy Świętych</Link>
+                  <Link href="/nabozenstwa" className="dropdown-item block">Nabożeństwa</Link>
+                  <Link href="/sakramenty" className="dropdown-item block">Sakramenty</Link>
+                  <Link href="/grupy-parafialne" className="dropdown-item block">Grupy parafialne</Link>
+                  <Link href="/poradnia-zycia-rodzinnego" className="dropdown-item block">Poradnia życia rodzinnego</Link>
+                  <Link href="/statystyki" className="dropdown-item block">Statystyki</Link>
+                  <Link href="/nasi-zmarli" className="dropdown-item block">Nasi zmarli</Link>
+                </div>
+              )}
             </div>
-          )}
+            
+            <Link href="/intencje-mszalne" className="nav-link">Intencje Mszalne</Link>
+            <Link href="/ogloszenia" className="nav-link">Ogłoszenia</Link>
+            <Link href="/galeria" className="nav-link">Galeria</Link>
+            <Link href="/kontakt" className="nav-link">Kontakt</Link>
+          </div>
         </div>
-        
-        <Link href="/intencje-mszalne" className="text-lg font-bold hover:text-gray-300">Intencje Mszalne</Link>
-        <Link href="/ogloszenia" className="text-lg font-bold hover:text-gray-300">Ogłoszenia</Link>
-        <Link href="/galeria" className="text-lg font-bold hover:text-gray-300">Galeria</Link>
-        <Link href="/kontakt" className="text-lg font-bold hover:text-gray-300">Kontakt</Link>
       </div>
     </nav>
   );
