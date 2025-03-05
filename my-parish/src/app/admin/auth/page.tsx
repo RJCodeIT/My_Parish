@@ -25,16 +25,19 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
+      <div className="max-w-md w-full p-8 bg-[#FFF8E7]/80 backdrop-blur-sm rounded-xl shadow-xl border border-[#8B4513]/20">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="text-center text-3xl font-bold text-[#8B4513]">
             Panel administracyjny
           </h2>
+          <p className="mt-2 text-center text-sm text-[#8B4513]/80">
+            Zaloguj się aby zarządzać parafią
+          </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm space-y-4">
+        <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+          <div className="space-y-4">
             <div>
-              <label htmlFor="username" className="sr-only">
+              <label htmlFor="username" className="block text-sm font-medium text-[#8B4513] mb-1">
                 Login
               </label>
               <input
@@ -42,14 +45,17 @@ export default function Login() {
                 name="username"
                 type="text"
                 required
-                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Login"
+                className="block w-full px-3 py-2 border border-[#8B4513]/20 rounded-lg 
+                         text-[#8B4513] bg-white/70 
+                         focus:outline-none focus:ring-2 focus:ring-[#8B4513]/30 focus:border-[#8B4513]
+                         placeholder-[#8B4513]/50 transition-all duration-200"
+                placeholder="Wprowadź login"
                 value={formData.username}
                 onChange={handleChange}
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label htmlFor="password" className="block text-sm font-medium text-[#8B4513] mb-1">
                 Hasło
               </label>
               <input
@@ -57,8 +63,11 @@ export default function Login() {
                 name="password"
                 type="password"
                 required
-                className="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Hasło"
+                className="block w-full px-3 py-2 border border-[#8B4513]/20 rounded-lg 
+                         text-[#8B4513] bg-white/70 
+                         focus:outline-none focus:ring-2 focus:ring-[#8B4513]/30 focus:border-[#8B4513]
+                         placeholder-[#8B4513]/50 transition-all duration-200"
+                placeholder="Wprowadź hasło"
                 value={formData.password}
                 onChange={handleChange}
               />
@@ -68,7 +77,10 @@ export default function Login() {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              className="w-full py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white 
+                       bg-[#8B4513] hover:bg-[#8B4513]/90 
+                       focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8B4513]/50 
+                       transition-all duration-200"
             >
               Zaloguj
             </button>
