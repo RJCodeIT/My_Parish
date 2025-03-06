@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import Announcement from "@/models/Announcement";
 
-export async function GET() {
+export const GET = async () => {
   await connectToDatabase();
 
   try {
@@ -14,13 +14,28 @@ export async function GET() {
   }
 }
 
-export async function POST(req: Request) {
+export const POST = async (req: Request) => {
   await connectToDatabase();
 
   try {
-    const body = await req.json();
-    const newAnnouncement = new Announcement(body);
+    const formData = await req.formData();
+    
+    const title = formData.get('title') as string;
+    const date = formData.get('date') as string;
+    const extraInfo = formData.get('extraInfo') as string;
+    const content = JSON.parse(formData.get('content') as string);
+    const image = formData.get('image') as File;
+    const announcementData = {
+      title,
+      date,
+      extraInfo,
+      content,
+      image: image ? image.name : null,
+    };
+
+    const newAnnouncement = new Announcement(announcementData);
     await newAnnouncement.save();
+    
     return NextResponse.json(newAnnouncement, { status: 201 });
   } catch (error) {
     console.error('Error creating announcement:', error);
