@@ -50,7 +50,7 @@ export default function IntentionsForm() {
       await axios.post("/api/intentions", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      router.push("/admin/dashboard/ogloszenia");
+      router.push("/admin/dashboard/intencje");
     } catch (error) {
       console.error("Błąd podczas dodawania intencji", error);
       setError("Wystąpił błąd podczas dodawania intencji. Spróbuj ponownie.");
