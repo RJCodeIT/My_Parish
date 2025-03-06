@@ -18,9 +18,22 @@ export async function POST(req: Request) {
   await connectToDatabase();
 
   try {
-    const body = await req.json();
-    const newIntention = new Intention(body);
+    const formData = await req.formData();
+    const title = formData.get('title') as string;
+    const date = formData.get('date') as string;
+    const image = formData.get('image') as File | null;
+    const masses = JSON.parse(formData.get('masses') as string);
+
+    const intentionData = {
+      title,
+      date: date || new Date().toISOString(),
+      masses,
+      image: image ? await image.arrayBuffer() : undefined
+    };
+
+    const newIntention = new Intention(intentionData);
     await newIntention.save();
+    
     return NextResponse.json(newIntention, { status: 201 });
   } catch (error) {
     console.error('Błąd podczas dodawania intencji mszalnej', error);
