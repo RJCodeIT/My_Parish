@@ -64,4 +64,8 @@ const ParishionerSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-export default mongoose.model<IParishioner>("Parishioner", ParishionerSchema);
+const Parishioner =
+  mongoose.models.Parishioner ||
+  mongoose.model<IParishioner>("Parishioner", ParishionerSchema);
+
+export default Parishioner;

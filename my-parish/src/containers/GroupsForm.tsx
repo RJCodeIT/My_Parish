@@ -38,9 +38,8 @@ export default function GroupsForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-4 max-w-lg mx-auto bg-white shadow-md rounded-lg"
+      className="max-w-5xl mx-auto mt-12 p-6 bg-white rounded-lg shadow-md space-y-6"
     >
-      <h2 className="text-xl font-semibold mb-4">Dodaj nową grupę</h2>
       <Input
         label="Nazwa grupy"
         name="name"

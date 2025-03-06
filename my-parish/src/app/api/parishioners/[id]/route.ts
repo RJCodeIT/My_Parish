@@ -3,10 +3,18 @@ import { connectToDatabase } from "@/lib/db";
 import Parishioner from "@/models/Parishioner";
 
 // Pobranie parafianina po ID
-export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const id = params.id;
+  if (!id) {
+    return NextResponse.json({ message: "Missing ID" }, { status: 400 });
+  }
+
   await connectToDatabase();
   try {
-    const parishioner = await Parishioner.findById(params.id);
+    const parishioner = await Parishioner.findById(id);
     if (!parishioner) {
       return NextResponse.json({ message: "Parishioner not found" }, { status: 404 });
     }
@@ -17,11 +25,19 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
 }
 
 // Aktualizacja danych parafianina
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const id = params.id;
+  if (!id) {
+    return NextResponse.json({ message: "Missing ID" }, { status: 400 });
+  }
+
   await connectToDatabase();
   try {
-    const body = await req.json();
-    const updatedParishioner = await Parishioner.findByIdAndUpdate(params.id, body, { new: true, runValidators: true });
+    const body = await request.json();
+    const updatedParishioner = await Parishioner.findByIdAndUpdate(id, body, { new: true, runValidators: true });
     if (!updatedParishioner) {
       return NextResponse.json({ message: "Parishioner not found" }, { status: 404 });
     }
@@ -32,10 +48,18 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 // Usunięcie parafianina
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const id = params.id;
+  if (!id) {
+    return NextResponse.json({ message: "Missing ID" }, { status: 400 });
+  }
+
   await connectToDatabase();
   try {
-    const deletedParishioner = await Parishioner.findByIdAndDelete(params.id);
+    const deletedParishioner = await Parishioner.findByIdAndDelete(id);
     if (!deletedParishioner) {
       return NextResponse.json({ message: "Parishioner not found" }, { status: 404 });
     }
