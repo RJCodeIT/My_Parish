@@ -60,28 +60,28 @@ export default function AdminSidebar({
 
   return (
     <aside
-      className={`fixed left-0 w-64 bg-white shadow-md h-screen transition-transform duration-300 ${
+      className={`fixed left-0 w-64 bg-white/95 backdrop-blur-sm shadow-lg h-screen transition-transform duration-300 border-r border-neutral/10 ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >
-      <div className="p-4 flex justify-between items-center border-b">
-        <span className="text-lg font-semibold">Menu</span>
+      <div className="p-6 flex justify-between items-center border-b border-neutral/10">
+        <span className="text-xl font-semibold text-gray-800">Menu</span>
         <button
           onClick={toggleSidebar}
-          className="text-gray-700 hover:text-gray-900"
+          className="text-gray-600 hover:text-primary transition-colors"
         >
           <AiOutlineClose size={24} />
         </button>
       </div>
 
-      <nav className="space-y-1 p-4">
+      <nav className="p-4 space-y-2">
         {menuItems.map((item) => (
-          <div key={item.label} className="bg-gray-100 rounded-lg">
+          <div key={item.label} className="rounded-lg overflow-hidden">
             <button
               onClick={() => toggleSection(item.label)}
-              className="flex justify-between w-full px-4 py-2 text-gray-700 hover:bg-gray-200"
+              className="flex justify-between items-center w-full px-4 py-3 text-gray-700 hover:text-primary hover:bg-gray-50/80 transition-colors"
             >
-              {item.label}
+              <span className="font-medium">{item.label}</span>
               {openSections.includes(item.label) ? (
                 <AiOutlineUp size={16} />
               ) : (
@@ -89,15 +89,17 @@ export default function AdminSidebar({
               )}
             </button>
             {openSections.includes(item.label) && (
-              <div className="pl-4 bg-white border-l border-gray-300">
+              <div className="pl-4 bg-gray-50/50 border-l-2 border-primary/10">
                 {item.subItems.map((subItem) => {
                   const isActive = pathname === subItem.href;
                   return (
                     <Link
                       key={subItem.href}
                       href={subItem.href}
-                      className={`block px-4 py-2 text-gray-700 rounded-lg transition-colors ${
-                        isActive ? "bg-primary text-white" : "hover:bg-gray-100"
+                      className={`block px-4 py-2.5 rounded-lg transition-colors ${
+                        isActive
+                          ? "bg-primary text-white"
+                          : "text-gray-600 hover:text-primary hover:bg-gray-100/80"
                       }`}
                       onClick={toggleSidebar}
                     >

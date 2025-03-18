@@ -14,7 +14,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="min-h-screen flex bg-gray-50/50">
       <AdminSidebar
         isOpen={isSidebarOpen}
         toggleSidebar={() => setIsSidebarOpen(false)}
@@ -28,7 +28,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
         />
-        <main className="flex-1 p-8 overflow-auto">{children}</main>
+        <main className="flex-1 p-8 overflow-auto container mx-auto">
+          <div className="bg-white rounded-xl shadow-sm border border-neutral/10 p-6">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );
