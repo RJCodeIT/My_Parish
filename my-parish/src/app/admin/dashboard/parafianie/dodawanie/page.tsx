@@ -3,9 +3,9 @@ import ParishionersForm from "@/containers/ParishionersForm";
 
 export default function AddParishioner() {
   return (
-    <div>
-        <SectionTitle name="Dodawanie parafianina" />
-        <ParishionersForm />
+    <div className="space-y-16">
+      <SectionTitle name="Dodawanie parafianina" />
+      <ParishionersForm />
     </div>
   )
 }
