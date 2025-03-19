@@ -73,12 +73,14 @@ export default function GroupsForm() {
         value={formData.meetingSchedule}
         onChange={handleChange}
       />
-      <button
-        type="submit"
-        className="w-full bg-blue-500 text-white py-2 mt-4 rounded-lg hover:bg-blue-600"
-      >
-        Dodaj grupę
-      </button>
+      <div className="flex justify-end mt-4">
+        <button
+          type="submit"
+          className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+        >
+          Dodaj grupę
+        </button>
+      </div>
     </form>
   );
 }
