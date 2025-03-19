@@ -49,41 +49,95 @@ export default function NewsForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-5xl mx-auto mt-12 p-6 bg-white rounded-lg shadow-md space-y-6">
-      <h2 className="text-2xl font-semibold">Dodaj aktualność</h2>
-
+    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto mt-12 p-6 bg-white rounded-lg shadow-md space-y-8">
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
           {error}
         </div>
       )}
 
-      <Input label="Tytuł" name="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+      <div className="space-y-6">
+        <Input 
+          label="Tytuł" 
+          name="title" 
+          value={title} 
+          onChange={(e) => setTitle(e.target.value)} 
+          required 
+        />
 
-      <Input label="Podtytuł" name="subtitle" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} required />
+        <Input 
+          label="Podtytuł" 
+          name="subtitle" 
+          value={subtitle} 
+          onChange={(e) => setSubtitle(e.target.value)} 
+          required 
+        />
 
-      <div>
-        <label className="text-sm font-medium mb-1 block">Dodaj zdjęcie</label>
-        <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files?.[0] || null)} />
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Dodaj zdjęcie</label>
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => document.getElementById('image-upload')?.click()}
+              className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100"
+            >
+              Wybierz plik
+            </button>
+            <span className="text-sm text-gray-500">
+              {image ? image.name : "Nie wybrano pliku"}
+            </span>
+            <input
+              id="image-upload"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImage(e.target.files?.[0] || null)}
+              className="hidden"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Dodaj plik .docx</label>
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => document.getElementById('docx-upload')?.click()}
+              className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100"
+            >
+              Wybierz plik
+            </button>
+            <span className="text-sm text-gray-500">Nie wybrano pliku</span>
+            <input 
+              id="docx-upload"
+              type="file" 
+              accept=".docx" 
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Treść</label>
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="w-full min-h-[160px] px-4 py-2.5 text-gray-600 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+            placeholder="Treść aktualności..."
+            required
+            rows={6}
+          />
+        </div>
       </div>
 
-      <div>
-        <label className="text-sm font-medium mb-1 block">Dodaj plik .docx</label>
-        <input type="file" accept=".docx" onChange={handleFileUpload} />
+      <div className="flex justify-end">
+        <button
+          type="submit"
+          className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+        >
+          Dodaj aktualność
+        </button>
       </div>
-
-      <label className="text-sm font-medium mb-1 block">Treść</label>
-      <textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        className="border p-2 rounded w-full h-40"
-        placeholder="Treść aktualności..."
-        required
-      />
-
-      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-        Dodaj aktualność
-      </button>
     </form>
   );
 }

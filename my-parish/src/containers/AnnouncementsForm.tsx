@@ -68,84 +68,123 @@ export default function AnnouncementsForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-5xl mx-auto mt-12 p-6 bg-white rounded-lg shadow-md space-y-6"
+      className="max-w-4xl mx-auto mt-12 p-6 bg-white rounded-lg shadow-md space-y-8"
     >
-      <h2 className="text-2xl font-semibold">Dodaj ogłoszenie</h2>
+      <div className="space-y-6">
+        <Input
+          label="Tytuł"
+          name="title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
 
-      <Input
-        label="Tytuł"
-        name="title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        required
-      />
+        <Input
+          label="Data"
+          type="date"
+          name="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
 
-      <Input
-        label="Data"
-        type="date"
-        name="date"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-      />
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Dodaj zdjęcie</label>
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => document.getElementById('image-upload')?.click()}
+              className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100"
+            >
+              Wybierz plik
+            </button>
+            <span className="text-sm text-gray-500">
+              {image ? image.name : "Nie wybrano pliku"}
+            </span>
+            <input
+              id="image-upload"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImage(e.target.files?.[0] || null)}
+              className="hidden"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Dodaj plik .docx
+          </label>
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => document.getElementById('docx-upload')?.click()}
+              className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100"
+            >
+              Wybierz plik
+            </button>
+            <span className="text-sm text-gray-500">Nie wybrano pliku</span>
+            <input 
+              id="docx-upload"
+              type="file" 
+              accept=".docx" 
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h3 className="text-sm font-medium text-gray-700">Ogłoszenia</h3>
+          <button
+            type="button"
+            onClick={handleAddAnnouncement}
+            className="text-sm text-gray-600 hover:text-gray-900"
+          >
+            + Dodaj ogłoszenie
+          </button>
+        </div>
+        <div className="space-y-3">
+          {content.map((item, index) => (
+            <div key={item.order} className="flex items-center space-x-2">
+              <input
+                type="text"
+                value={item.text}
+                onChange={(e) => handleContentChange(index, e.target.value)}
+                className="w-full px-4 py-2 text-gray-600 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+                placeholder={`Ogłoszenie ${index + 1}`}
+              />
+              <button
+                type="button"
+                onClick={() => handleRemoveAnnouncement(index)}
+                className="text-gray-400 hover:text-red-500 transition-colors"
+              >
+                ✖
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <div>
-        <label className="text-sm font-medium mb-1 block">Dodaj zdjęcie</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImage(e.target.files?.[0] || null)}
+        <label className="block text-sm font-medium text-gray-700 mb-2">Dodatkowe informacje</label>
+        <textarea
+          value={extraInfo}
+          onChange={(e) => setExtraInfo(e.target.value)}
+          className="w-full min-h-[120px] px-4 py-2.5 text-gray-600 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+          rows={3}
         />
       </div>
 
-      <div>
-        <label className="text-sm font-medium mb-1 block">
-          Dodaj plik .docx
-        </label>
-        <input type="file" accept=".docx" onChange={handleFileUpload} />
-      </div>
-
-      <div className="space-y-3">
-        <h3 className="text-lg font-semibold">Ogłoszenia</h3>
-        {content.map((item, index) => (
-          <div key={item.order} className="flex items-center space-x-2">
-            <input
-              type="text"
-              value={item.text}
-              onChange={(e) => handleContentChange(index, e.target.value)}
-              className="border p-2 rounded w-full"
-              placeholder={`Ogłoszenie ${index + 1}`}
-            />
-            <button
-              type="button"
-              onClick={() => handleRemoveAnnouncement(index)}
-              className="text-red-500"
-            >
-              ✖
-            </button>
-          </div>
-        ))}
+      <div className="flex justify-end">
         <button
-          type="button"
-          onClick={handleAddAnnouncement}
-          className="text-blue-500"
+          type="submit"
+          className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
         >
-          + Dodaj ogłoszenie
+          Dodaj ogłoszenie
         </button>
       </div>
-
-      <textarea
-        placeholder="Dodatkowe informacje"
-        value={extraInfo}
-        onChange={(e) => setExtraInfo(e.target.value)}
-        className="border p-2 rounded w-full h-24"
-      />
-
-      <button
-        type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded"
-      >
-        Dodaj ogłoszenie
-      </button>
     </form>
   );
 }
