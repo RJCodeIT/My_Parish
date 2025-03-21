@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import SectionTitle from "@/components/layout/SectionTitle";
-import SearchForm from "@/components/ui/SearchForm";
+import AdminSearchBar from "@/components/ui/AdminSearchBar";
 import ParishionerCard from "@/components/ui/ParishionerCard";
 
 interface Parishioner {
@@ -24,11 +24,16 @@ interface Parishioner {
 
 export default function Parishioners() {
   const [parishioners, setParishioners] = useState<Parishioner[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     axios.get("/api/parishioners")
-      .then((res) => setParishioners(res.data))
-      .catch((err) => console.error("Błąd pobierania parafian:", err));
+      .then((response) => {
+        setParishioners(response.data);
+      })
+      .catch((error) => {
+        console.error("Błąd pobierania parafian:", error);
+      });
   }, []);
 
   const handleDelete = async (id: string) => {
@@ -42,14 +47,31 @@ export default function Parishioners() {
     }
   };
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query.toLowerCase());
+  };
+
+  const filteredParishioners = parishioners.filter((parishioner) => {
+    const searchStr = `${parishioner.firstName} ${parishioner.lastName} ${parishioner.address.street} ${parishioner.address.city} ${parishioner.phoneNumber} ${parishioner.email}`.toLowerCase();
+    return searchStr.includes(searchQuery);
+  });
+
   return (
     <div>
       <SectionTitle name="Parafianie" />
-      <SearchForm />
-      <div className="mt-4 space-y-4">
-        {parishioners.map((parishioner) => (
-          <ParishionerCard key={parishioner._id} parishioner={parishioner} onDelete={handleDelete} />
-        ))}
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-primary">Wszyscy Parafianie</h1>
+        </div>
+        <AdminSearchBar 
+          onSearch={handleSearch}
+          placeholder="Szukaj po imieniu, nazwisku, adresie lub emailu..."
+        />
+        <div className="mt-4 space-y-4">
+          {filteredParishioners.map((parishioner) => (
+            <ParishionerCard key={parishioner._id} parishioner={parishioner} onDelete={handleDelete} />
+          ))}
+        </div>
       </div>
     </div>
   );

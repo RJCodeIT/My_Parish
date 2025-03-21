@@ -4,7 +4,33 @@ import RecommendationCard from "@/components/ui/RecommendationCard";
 import recommendations from "@/const/recommendations";
 import PageContainer from "@/components/layout/PageContainer";
 
-export default function HomeHighlight() {
+interface SearchResults {
+  announcements: {
+    id: number;
+    title: string;
+    content: string;
+    date: string;
+  }[];
+  massIntentions: {
+    id: number;
+    title: string;
+    intentions: string[];
+    date: string;
+  }[];
+}
+
+interface HomeHighlightProps {
+  searchResults?: SearchResults;
+}
+
+export default function HomeHighlight({ searchResults }: HomeHighlightProps) {
+  const announcements = searchResults?.announcements?.[0] || {
+    title: "Ogłoszenia Duszpasterskie – VIII Niedziela Zwykła rok C",
+  };
+  const massIntentions = searchResults?.massIntentions?.[0] || {
+    title: "INTENCJE MSZALNE 2 – 9 III 2025 r.",
+  };
+
   return (
     <PageContainer>
       <div className="grid grid-cols-1 md:grid-cols-[2fr,1fr] gap-6">
@@ -19,7 +45,7 @@ export default function HomeHighlight() {
                   Ogłoszenia duszpasterskie
                 </h2>
                 <p className="text-neutral italic text-center mt-auto">
-                  Ogłoszenia Duszpasterskie – VIII Niedziela Zwykła rok C
+                  {announcements.title}
                 </p>
               </div>
             </Link>
@@ -32,7 +58,7 @@ export default function HomeHighlight() {
                   Intencje Mszalne
                 </h2>
                 <p className="text-neutral italic text-center mt-auto">
-                  INTENCJE MSZALNE 2 – 9 III 2025 r.
+                  {massIntentions.title}
                 </p>
               </div>
             </Link>
