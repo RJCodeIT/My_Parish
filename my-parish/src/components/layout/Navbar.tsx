@@ -44,7 +44,7 @@ export default function Navbar() {
           </Link>
           
           <div className="flex items-center space-x-8">
-            <Link href="/" className="nav-link">Home</Link>
+            <Link href="/" className="nav-link">Strona główna</Link>
             
             <div 
               className="relative group"

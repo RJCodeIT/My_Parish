@@ -7,17 +7,17 @@ const churchPhotos = [
     aspectRatio: "3/4",
   },
   {
-    src: "/kosciol-front.jpg",
+    src: "/witraz2.jpg",
     alt: "Fasada kościoła",
     aspectRatio: "4/3",
   },
   {
-    src: "/kosciol-inside.jpg",
+    src: "/witraz2.jpg",
     alt: "Wnętrze kościoła",
     aspectRatio: "16/9",
   },
   {
-    src: "/oltarz.jpg",
+    src: "/witraz.jpg",
     alt: "Ołtarz główny",
     aspectRatio: "3/4",
   },
