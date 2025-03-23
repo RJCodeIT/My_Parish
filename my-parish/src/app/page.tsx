@@ -32,7 +32,9 @@ export default function Home() {
   return (
     <div>
       <SectionTitle name="Aktualności" />
-      <SearchBar onSearch={handleSearch} placeholder="Szukaj w ogłoszeniach i intencjach..." />
+      <div className="mt-8">
+        <SearchBar onSearch={handleSearch} placeholder="Szukaj w ogłoszeniach i intencjach..." />
+      </div>
       <HomeHighlight searchResults={filteredData} />
       <NewsContainer />
     </div>
