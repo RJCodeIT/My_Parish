@@ -6,45 +6,30 @@ import PageContainer from "@/components/layout/PageContainer";
 
 const mockNews = [
   {
-    title: "Parafia w Krakowie",
-    subtitle: "Witamy w mojej parafii w Krakowie!",
-    date: "2024-01-01",
+    title: "Święto Parafialne",
+    subtitle: "Zapraszamy na coroczne święto naszej parafii!",
+    date: "2024-03-24",
   },
   {
-    title: "Parafia w Krakowie",
-    subtitle: "Witamy w mojej parafii w Krakowie!",
-    date: "2024-01-01",
+    title: "Rekolekcje Wielkopostne",
+    subtitle: "Przygotowanie duchowe do Świąt Wielkanocnych",
+    date: "2024-03-20",
   },
   {
-    title: "Parafia w Krakowie",
-    subtitle: "Witamy w mojej parafii w Krakowie!",
-    date: "2024-01-01",
+    title: "Pielgrzymka do Częstochowy",
+    subtitle: "Wspólny wyjazd na Jasną Górę",
+    date: "2024-03-15",
   },
   {
-    title: "Parafia w Krakowie",
-    subtitle: "Witamy w mojej parafii w Krakowie!",
-    date: "2024-01-01",
+    title: "Koncert Chóru Parafialnego",
+    subtitle: "Zapraszamy na występ naszego chóru",
+    date: "2024-03-10",
   },
   {
-    title: "Parafia w Krakowie",
-    subtitle: "Witamy w mojej parafii w Krakowie!",
-    date: "2024-01-01",
-  },
-  {
-    title: "Parafia w Krakowie",
-    subtitle: "Witamy w mojej parafii w Krakowie!",
-    date: "2024-01-01",
-  },
-  {
-    title: "Parafia w Krakowie",
-    subtitle: "Witamy w mojej parafii w Krakowie!",
-    date: "2024-01-01",
-  },
-  {
-    title: "Parafia w Krakowie",
-    subtitle: "Witamy w mojej parafii w Krakowie!",
-    date: "2024-01-01",
-  },
+    title: "Spotkanie Młodzieży",
+    subtitle: "Integracja i modlitwa dla młodych",
+    date: "2024-03-05",
+  }
 ];
 
 export default function NewsContainer() {
