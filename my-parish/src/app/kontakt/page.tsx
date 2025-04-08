@@ -15,37 +15,24 @@ export default function Contact() {
             </h2>
             
             <div className="space-y-6">
-              <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-neutral-500 mt-1 shrink-0" />
+              <div className="grid grid-cols-[auto_100px_1fr] gap-y-6 gap-x-3">
+                <MapPin className="w-5 h-5 text-neutral-500 self-center" />
+                <p className="text-neutral-600 self-center">Adres:</p>
+                <p className="text-neutral-900 self-center">Kościelna 7, 21-136 Firlej</p>
+                
+                <Phone className="w-5 h-5 text-neutral-500 self-center" />
+                <p className="text-neutral-600 self-center">Telefon:</p>
+                <p className="text-neutral-900 self-center">+48 123 456 789</p>
+                
+                <Mail className="w-5 h-5 text-neutral-500 self-center" />
+                <p className="text-neutral-600 self-center">Email:</p>
+                <p className="text-neutral-900 self-center">parafia@gmail.com</p>
+                
+                <Clock className="w-5 h-5 text-neutral-500 self-start mt-1" />
+                <p className="text-neutral-600 self-start mt-1">Godziny otwarcia:</p>
                 <div>
-                  <p className="text-neutral-600">Adres:</p>
-                  <p className="text-neutral-900">Kościelna 7</p>
-                  <p className="text-neutral-900">21-136 Firlej</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Phone className="w-5 h-5 text-neutral-500 mt-1 shrink-0" />
-                <div>
-                  <p className="text-neutral-600">Telefon:</p>
-                  <p className="text-neutral-900">+48 123 456 789</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 group p-3 rounded-lg transition-all duration-300 hover:bg-white/50">
-                <Mail className="w-5 h-5 text-neutral-500 mt-1 shrink-0 group-hover:text-blue-500 transition-colors duration-300" />
-                <div>
-                  <p className="text-neutral-600 text-sm">Email:</p>
-                  <p className="text-neutral-900 font-medium group-hover:text-blue-600 transition-colors duration-300">parafia@example.com</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 group p-3 rounded-lg transition-all duration-300 hover:bg-white/50">
-                <Clock className="w-5 h-5 text-neutral-500 mt-1 shrink-0 group-hover:text-blue-500 transition-colors duration-300" />
-                <div>
-                  <p className="text-neutral-600 text-sm">Godziny otwarcia kancelarii:</p>
-                  <p className="text-neutral-900 font-medium group-hover:text-blue-600 transition-colors duration-300">Poniedziałek - Piątek: 8:00 - 12:00</p>
-                  <p className="text-neutral-900 font-medium group-hover:text-blue-600 transition-colors duration-300">Sobota: 8:00 - 11:00</p>
+                  <p className="text-neutral-900">Poniedziałek - Piątek: 8:00 - 12:00</p>
+                  <p className="text-neutral-900">Sobota: 8:00 - 11:00</p>
                 </div>
               </div>
             </div>
