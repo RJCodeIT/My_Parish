@@ -1,16 +1,51 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Input from "@/components/ui/Input";
 import { useRouter } from "next/navigation";
 import { readFile } from "@/utils/readDocx";
 
-export default function AnnouncementsForm() {
+interface AnnouncementContent {
+  order: number;
+  text: string;
+}
+
+interface Announcement {
+  _id?: string;
+  title: string;
+  date: string;
+  imageUrl?: string;
+  content: AnnouncementContent[];
+  extraInfo?: string;
+}
+
+interface AnnouncementsFormProps {
+  initialData?: Announcement;
+  isEditMode?: boolean;
+}
+
+export default function AnnouncementsForm({ initialData, isEditMode = false }: AnnouncementsFormProps) {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
   const [image, setImage] = useState<File | null>(null);
+  const [existingImage, setExistingImage] = useState<string | undefined>(undefined);
   const [extraInfo, setExtraInfo] = useState("");
-  const [content, setContent] = useState<{ order: number; text: string }[]>([]);
+  const [content, setContent] = useState<AnnouncementContent[]>([]);
   const router = useRouter();
+
+  useEffect(() => {
+    if (initialData && isEditMode) {
+      console.log("Initial announcement data received in form:", initialData);
+      setTitle(initialData.title || "");
+      // Format date for input field (YYYY-MM-DD)
+      if (initialData.date) {
+        const formattedDate = new Date(initialData.date).toISOString().split('T')[0];
+        setDate(formattedDate);
+      }
+      setExistingImage(initialData.imageUrl);
+      setExtraInfo(initialData.extraInfo || "");
+      setContent(initialData.content || []);
+    }
+  }, [initialData, isEditMode]);
 
   const handleAddAnnouncement = () => {
     setContent([...content, { order: content.length + 1, text: "" }]);
@@ -39,29 +74,80 @@ export default function AnnouncementsForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("date", date || new Date().toISOString());
-    if (image) formData.append("image", image);
-    formData.append("extraInfo", extraInfo);
-    formData.append("content", JSON.stringify(content));
-
     try {
-      const response = await fetch('/api/announcements', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Accept': 'application/json',
+      let response;
+      
+      if (isEditMode && initialData?._id) {
+        // For edit mode, we need to handle the image upload separately
+        // First, prepare the announcement data as JSON
+        const announcementData = {
+          title,
+          date: date || new Date().toISOString(),
+          content,
+          extraInfo,
+          imageUrl: existingImage // Keep existing image URL if no new image
+        };
+        
+        // If there's a new image, upload it first
+        if (image) {
+          const imageFormData = new FormData();
+          imageFormData.append("image", image);
+          
+          const imageUploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            body: imageFormData
+          });
+          
+          if (imageUploadResponse.ok) {
+            const imageData = await imageUploadResponse.json();
+            announcementData.imageUrl = imageData.imageUrl;
+          } else {
+            throw new Error("Failed to upload image");
+          }
         }
-      });
+        
+        // Now update the announcement with JSON data
+        response = await fetch(`/api/announcements/${initialData._id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(announcementData)
+        });
+      } else {
+        // For create mode, continue using FormData
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("date", date || new Date().toISOString());
+        if (image) formData.append("image", image);
+        formData.append("extraInfo", extraInfo);
+        formData.append("content", JSON.stringify(content));
+        
+        response = await fetch('/api/announcements', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Accept': 'application/json',
+          }
+        });
+      }
       
       if (response.ok) {
+        if (isEditMode) {
+          alert("Ogłoszenie zaktualizowane pomyślnie!");
+        } else {
+          alert("Ogłoszenie dodane pomyślnie!");
+        }
         router.push("/admin/dashboard/ogloszenia");
       } else {
-        console.error("Błąd podczas dodawania ogłoszenia", await response.text());
+        const errorText = await response.text();
+        console.error("Błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " ogłoszenia", errorText);
+        alert("Wystąpił błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " ogłoszenia");
       }
     } catch (error) {
-      console.error("Błąd podczas dodawania ogłoszenia", error);
+      console.error("Błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " ogłoszenia", error);
+      alert("Wystąpił błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " ogłoszenia");
     }
   };
 
@@ -177,12 +263,12 @@ export default function AnnouncementsForm() {
         />
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end mt-4">
         <button
           type="submit"
           className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
         >
-          Dodaj ogłoszenie
+          {isEditMode ? "Zapisz zmiany" : "Dodaj ogłoszenie"}
         </button>
       </div>
     </form>

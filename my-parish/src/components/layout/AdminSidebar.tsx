@@ -20,7 +20,7 @@ const menuItems = [
     ],
   },
   {
-    label: "Ogłoszenia Mszalne",
+    label: "Ogłoszenia Duszpasterskie",
     subItems: [
       { href: "/admin/dashboard/ogloszenia", label: "Wszytskie Ogłoszenia" },
       { href: "/admin/dashboard/ogloszenia/dodawanie", label: "Dodaj Ogłoszenie" },
@@ -60,7 +60,7 @@ export default function AdminSidebar({
 
   return (
     <aside
-      className={`fixed left-0 w-64 bg-white/95 backdrop-blur-sm shadow-lg h-screen transition-transform duration-300 border-r border-neutral/10 ${
+      className={`fixed left-0 w-72 bg-white/95 backdrop-blur-sm shadow-lg h-screen transition-transform duration-300 border-r border-neutral/10 ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >

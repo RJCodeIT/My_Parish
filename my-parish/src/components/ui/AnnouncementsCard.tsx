@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { AiOutlineDown, AiOutlineUp, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 interface Announcement {
   _id: string;
@@ -19,17 +20,22 @@ interface AnnouncementCardProps {
 
 export default function AnnouncementCard({ announcement, onDelete }: AnnouncementCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const router = useRouter();
 
   const handleDelete = async () => {
     if (window.confirm(`Czy na pewno chcesz usunąć ogłoszenie: "${announcement.title}"?`)) {
       try {
-        await axios.delete(`/api/announcement/${announcement._id}`);
+        await axios.delete(`/api/announcements/${announcement._id}`);
         onDelete?.(announcement._id);
       } catch (error) {
         console.error("Błąd podczas usuwania ogłoszenia:", error);
         alert("Wystąpił błąd podczas usuwania ogłoszenia");
       }
     }
+  };
+
+  const handleEdit = () => {
+    router.push(`/admin/dashboard/ogloszenia/edycja/${announcement._id}`);
   };
 
   return (
@@ -40,6 +46,7 @@ export default function AnnouncementCard({ announcement, onDelete }: Announcemen
           <AiOutlineEdit 
             size={20} 
             className="cursor-pointer text-blue-500 hover:text-blue-700" 
+            onClick={handleEdit}
           />
           <AiOutlineDelete 
             size={20} 
