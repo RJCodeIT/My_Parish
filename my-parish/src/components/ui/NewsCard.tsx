@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { AiOutlineDown, AiOutlineUp, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import axios from "axios";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface News {
   _id: string;
@@ -19,6 +20,7 @@ interface NewsCardProps {
 
 export default function NewsCard({ news, onDelete }: NewsCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const router = useRouter();
 
   const handleDelete = async () => {
     if (window.confirm(`Czy na pewno chcesz usunąć aktualność: "${news.title}"?`)) {
@@ -32,6 +34,10 @@ export default function NewsCard({ news, onDelete }: NewsCardProps) {
     }
   };
 
+  const handleEdit = () => {
+    router.push(`/admin/dashboard/aktualnosci/edycja/${news._id}`);
+  };
+
   return (
     <div className="w-full border rounded-lg shadow-md p-4 bg-white mt-4">
       <div className="flex justify-between items-center">
@@ -40,6 +46,7 @@ export default function NewsCard({ news, onDelete }: NewsCardProps) {
           <AiOutlineEdit 
             size={20} 
             className="cursor-pointer text-blue-500 hover:text-blue-700" 
+            onClick={handleEdit}
           />
           <AiOutlineDelete 
             size={20} 

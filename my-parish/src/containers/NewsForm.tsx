@@ -1,17 +1,43 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Input from "@/components/ui/Input";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { readFile } from "@/utils/readDocx";
+import Image from "next/image";
 
-export default function NewsForm() {
+interface NewsData {
+  _id?: string;
+  title: string;
+  subtitle: string;
+  content: string;
+  imageUrl?: string;
+  date?: string;
+}
+
+interface NewsFormProps {
+  initialData?: NewsData;
+  isEditMode?: boolean;
+}
+
+export default function NewsForm({ initialData, isEditMode = false }: NewsFormProps) {
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [content, setContent] = useState("");
   const [image, setImage] = useState<File | null>(null);
+  const [existingImage, setExistingImage] = useState<string | undefined>("");
   const [error, setError] = useState("");
   const router = useRouter();
+
+  // Initialize form with existing data if in edit mode
+  useEffect(() => {
+    if (isEditMode && initialData) {
+      setTitle(initialData.title || "");
+      setSubtitle(initialData.subtitle || "");
+      setContent(initialData.content || "");
+      setExistingImage(initialData.imageUrl);
+    }
+  }, [isEditMode, initialData]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -26,25 +52,75 @@ export default function NewsForm() {
     e.preventDefault();
     setError("");
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("subtitle", subtitle);
-    formData.append("content", content);
-    if (image) formData.append("image", image);
-
     try {
-      const response = await axios.post("/api/news", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      
-      if (response.status === 201) {
-        router.push("/admin/dashboard/aktualnosci");
+      if (isEditMode && initialData?._id) {
+        // For edit mode, handle the image upload separately
+        // First, prepare the news data as JSON
+        const newsData = {
+          title,
+          subtitle,
+          content,
+          imageUrl: existingImage // Keep existing image URL if no new image
+        };
+        
+        // If there's a new image, upload it first
+        if (image) {
+          const imageFormData = new FormData();
+          imageFormData.append("image", image);
+          
+          const imageUploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            body: imageFormData
+          });
+          
+          if (imageUploadResponse.ok) {
+            const imageData = await imageUploadResponse.json();
+            newsData.imageUrl = imageData.imageUrl;
+          } else {
+            throw new Error("Failed to upload image");
+          }
+        }
+        
+        // Now update the news with JSON data
+        const fetchResponse = await fetch(`/api/news/${initialData._id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(newsData)
+        });
+        
+        if (fetchResponse.ok) {
+          alert("Aktualność zaktualizowana pomyślnie!");
+          router.push("/admin/dashboard/aktualnosci");
+        } else {
+          const errorText = await fetchResponse.text();
+          console.error("Błąd podczas aktualizacji aktualności", errorText);
+          setError("Wystąpił błąd podczas aktualizacji aktualności");
+        }
       } else {
-        setError("Wystąpił błąd podczas dodawania aktualności");
+        // For create mode, continue using FormData
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("subtitle", subtitle);
+        formData.append("content", content);
+        if (image) formData.append("image", image);
+
+        const response = await axios.post("/api/news", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        
+        if (response.status === 201) {
+          alert("Aktualność dodana pomyślnie!");
+          router.push("/admin/dashboard/aktualnosci");
+        } else {
+          setError("Wystąpił błąd podczas dodawania aktualności");
+        }
       }
     } catch (error) {
-      console.error("Błąd podczas dodawania aktualności", error);
-      setError("Wystąpił błąd podczas dodawania aktualności");
+      console.error("Błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " aktualności", error);
+      setError("Wystąpił błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " aktualności");
     }
   };
 
@@ -73,8 +149,24 @@ export default function NewsForm() {
           required 
         />
 
+        {existingImage && (
+          <div className="space-y-3">
+            <label className="block text-sm font-medium text-gray-700">Aktualne zdjęcie</label>
+            <div className="relative h-40 w-full max-w-md rounded-lg overflow-hidden">
+              <Image 
+                src={existingImage} 
+                alt="Aktualne zdjęcie" 
+                className="object-cover"
+                fill
+              />
+            </div>
+          </div>
+        )}
+
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Dodaj zdjęcie</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {existingImage ? "Zmień zdjęcie" : "Dodaj zdjęcie"}
+          </label>
           <div className="flex items-center space-x-2">
             <button
               type="button"
@@ -135,7 +227,7 @@ export default function NewsForm() {
           type="submit"
           className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
         >
-          Dodaj aktualność
+          {isEditMode ? "Zaktualizuj aktualność" : "Dodaj aktualność"}
         </button>
       </div>
     </form>
