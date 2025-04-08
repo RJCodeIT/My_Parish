@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { AiOutlineDown, AiOutlineUp, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import axios from "axios";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface Mass {
   time: string;
@@ -23,6 +24,7 @@ interface IntentionCardProps {
 
 export default function IntentionCard({ intention, onDelete }: IntentionCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const router = useRouter();
 
   const handleDelete = async () => {
     if (window.confirm(`Czy na pewno chcesz usunąć intencję: "${intention.title}"?`)) {
@@ -36,6 +38,10 @@ export default function IntentionCard({ intention, onDelete }: IntentionCardProp
     }
   };
 
+  const handleEdit = () => {
+    router.push(`/admin/dashboard/intencje/edycja/${intention._id}`);
+  };
+
   return (
     <div className="w-full border rounded-lg shadow-md p-4 bg-white mt-4">
       <div className="flex justify-between items-center">
@@ -44,6 +50,7 @@ export default function IntentionCard({ intention, onDelete }: IntentionCardProp
           <AiOutlineEdit 
             size={20} 
             className="cursor-pointer text-blue-500 hover:text-blue-700" 
+            onClick={handleEdit}
           />
           <AiOutlineDelete 
             size={20} 

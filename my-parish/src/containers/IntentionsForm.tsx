@@ -1,17 +1,54 @@
 "use client"
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Input from "@/components/ui/Input";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { readFile } from "@/utils/readDocx";
+import Image from 'next/image';
 
-export default function IntentionsForm() {
+interface Mass {
+  time: string;
+  intention: string;
+}
+
+interface IntentionData {
+  _id?: string;
+  title: string;
+  date: string;
+  imageUrl?: string;
+  masses: Mass[];
+}
+
+interface IntentionsFormProps {
+  initialData?: IntentionData;
+  isEditMode?: boolean;
+}
+
+export default function IntentionsForm({ initialData, isEditMode = false }: IntentionsFormProps) {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
   const [image, setImage] = useState<File | null>(null);
+  const [existingImage, setExistingImage] = useState<string | undefined>("");
   const [masses, setMasses] = useState<{ time: string; intention: string }[]>([]);
   const [error, setError] = useState("");
   const router = useRouter();
+
+  // Initialize form with existing data if in edit mode
+  useEffect(() => {
+    if (isEditMode && initialData) {
+      setTitle(initialData.title || "");
+      
+      // Format date for input field (YYYY-MM-DD)
+      if (initialData.date) {
+        const dateObj = new Date(initialData.date);
+        const formattedDate = dateObj.toISOString().split('T')[0];
+        setDate(formattedDate);
+      }
+      
+      setExistingImage(initialData.imageUrl);
+      setMasses(initialData.masses || []);
+    }
+  }, [isEditMode, initialData]);
 
   const handleAddMass = () => {
     setMasses([...masses, { time: "", intention: "" }]);
@@ -40,20 +77,76 @@ export default function IntentionsForm() {
     e.preventDefault();
     setError("");
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("date", date || new Date().toISOString());
-    if (image) formData.append("image", image);
-    formData.append("masses", JSON.stringify(masses));
-
     try {
-      await axios.post("/api/intentions", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      router.push("/admin/dashboard/intencje");
+      if (isEditMode && initialData?._id) {
+        // For edit mode, handle the image upload separately
+        // First, prepare the intention data as JSON
+        const intentionData = {
+          title,
+          date: date || new Date().toISOString(),
+          masses,
+          imageUrl: existingImage // Keep existing image URL if no new image
+        };
+        
+        // If there's a new image, upload it first
+        if (image) {
+          const imageFormData = new FormData();
+          imageFormData.append("image", image);
+          
+          const imageUploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            body: imageFormData
+          });
+          
+          if (imageUploadResponse.ok) {
+            const imageData = await imageUploadResponse.json();
+            intentionData.imageUrl = imageData.imageUrl;
+          } else {
+            throw new Error("Failed to upload image");
+          }
+        }
+        
+        // Now update the intention with JSON data
+        const fetchResponse = await fetch(`/api/intentions/${initialData._id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(intentionData)
+        });
+        
+        if (fetchResponse.ok) {
+          alert("Intencja zaktualizowana pomyślnie!");
+          router.push("/admin/dashboard/intencje");
+        } else {
+          const errorText = await fetchResponse.text();
+          console.error("Błąd podczas aktualizacji intencji", errorText);
+          setError("Wystąpił błąd podczas aktualizacji intencji. Spróbuj ponownie.");
+        }
+      } else {
+        // For create mode, continue using FormData
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("date", date || new Date().toISOString());
+        if (image) formData.append("image", image);
+        formData.append("masses", JSON.stringify(masses));
+        
+        const axiosResponse = await axios.post("/api/intentions", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        
+        if (axiosResponse.status === 200) {
+          alert("Intencja dodana pomyślnie!");
+          router.push("/admin/dashboard/intencje");
+        } else {
+          console.error("Błąd podczas dodawania intencji", axiosResponse.statusText);
+          setError("Wystąpił błąd podczas dodawania intencji. Spróbuj ponownie.");
+        }
+      }
     } catch (error) {
-      console.error("Błąd podczas dodawania intencji", error);
-      setError("Wystąpił błąd podczas dodawania intencji. Spróbuj ponownie.");
+      console.error("Błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " intencji", error);
+      setError("Wystąpił błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " intencji. Spróbuj ponownie.");
     }
   };
 
@@ -85,8 +178,24 @@ export default function IntentionsForm() {
         </div>
 
         <div className="space-y-8">
+          {existingImage && (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-gray-700">Aktualne zdjęcie</label>
+              <div className="relative h-40 w-full max-w-md rounded-lg overflow-hidden">
+                <Image 
+                  src={existingImage} 
+                  alt="Aktualne zdjęcie" 
+                  className="object-cover"
+                  fill
+                />
+              </div>
+            </div>
+          )}
+          
           <div className="space-y-3">
-            <label className="block text-sm font-medium text-gray-700">Dodaj zdjęcie</label>
+            <label className="block text-sm font-medium text-gray-700">
+              {existingImage ? "Zmień zdjęcie" : "Dodaj zdjęcie"}
+            </label>
             <input 
               type="file" 
               accept="image/*" 
@@ -169,7 +278,7 @@ export default function IntentionsForm() {
           type="submit" 
           className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
         >
-          Dodaj intencję
+          {isEditMode ? "Zaktualizuj intencję" : "Dodaj intencję"}
         </button>
       </div>
     </form>
