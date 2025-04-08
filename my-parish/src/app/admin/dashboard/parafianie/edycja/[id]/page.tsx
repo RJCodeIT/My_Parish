@@ -41,6 +41,7 @@ export default function EditParishioner({ params }: { params: { id: string } }) 
     const fetchParishioner = async () => {
       try {
         const response = await axios.get(`/api/parishioners/${params.id}`);
+        console.log("Fetched parishioner data:", response.data);
         setParishioner(response.data);
         setLoading(false);
       } catch (err) {
@@ -87,7 +88,12 @@ export default function EditParishioner({ params }: { params: { id: string } }) 
           &larr; Wróć
         </button>
       </div>
-      {parishioner && <ParishionersForm initialData={parishioner} isEditMode={true} />}
+      {parishioner && (
+        <ParishionersForm 
+          initialData={parishioner} 
+          isEditMode={true} 
+        />
+      )}
     </div>
   );
 }

@@ -64,18 +64,45 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
 
   useEffect(() => {
     if (initialData && isEditMode) {
+      console.log("Initial data received in form:", initialData);
+      
       // Ensure all sacrament types exist in the form
       const allSacraments = Object.keys(SACRAMENT_LABELS).map(type => {
         const existingSacrament = initialData.sacraments.find(s => s.type === type);
         return existingSacrament || { type, date: "" };
       });
 
-      setFormData({
+      // Format date strings properly for input fields (YYYY-MM-DD)
+      const formattedData = {
         ...initialData,
-        sacraments: allSacraments
-      });
+        // Convert date strings to proper format for date inputs
+        dateOfBirth: initialData.dateOfBirth ? formatDateForInput(initialData.dateOfBirth) : "",
+        sacraments: allSacraments.map(s => ({
+          ...s,
+          date: s.date ? formatDateForInput(s.date) : ""
+        }))
+      };
+      
+      console.log("Formatted data for form:", formattedData);
+      setFormData(formattedData);
     }
   }, [initialData, isEditMode]);
+
+  // Helper function to format dates for input fields
+  const formatDateForInput = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return "";
+      }
+      // Format as YYYY-MM-DD
+      return date.toISOString().split('T')[0];
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "";
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
