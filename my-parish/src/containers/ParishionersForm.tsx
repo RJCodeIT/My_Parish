@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 
 const SACRAMENT_LABELS: { [key: string]: string } = {
@@ -12,22 +13,69 @@ const SACRAMENT_LABELS: { [key: string]: string } = {
   anointingOfTheSick: "Namaszczenie Chorych",
 };
 
-export default function ParishionersForm() {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    dateOfBirth: "",
-    phoneNumber: "",
-    email: "",
-    address: {
-      street: "",
-      houseNumber: "",
-      postalCode: "",
-      city: "",
-    },
-    sacraments: Object.keys(SACRAMENT_LABELS).map((key) => ({ type: key, date: "" })),
-    notes: "",
-  });
+interface Sacrament {
+  type: string;
+  date: string;
+}
+
+interface Address {
+  street: string;
+  houseNumber: string;
+  postalCode: string;
+  city: string;
+}
+
+interface ParishionerData {
+  _id?: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  phoneNumber: string;
+  email: string;
+  address: Address;
+  sacraments: Sacrament[];
+  notes: string;
+}
+
+interface ParishionersFormProps {
+  initialData?: ParishionerData;
+  isEditMode?: boolean;
+}
+
+const defaultFormData: ParishionerData = {
+  firstName: "",
+  lastName: "",
+  dateOfBirth: "",
+  phoneNumber: "",
+  email: "",
+  address: {
+    street: "",
+    houseNumber: "",
+    postalCode: "",
+    city: "",
+  },
+  sacraments: Object.keys(SACRAMENT_LABELS).map((key) => ({ type: key, date: "" })),
+  notes: "",
+};
+
+export default function ParishionersForm({ initialData, isEditMode = false }: ParishionersFormProps) {
+  const router = useRouter();
+  const [formData, setFormData] = useState<ParishionerData>(defaultFormData);
+
+  useEffect(() => {
+    if (initialData && isEditMode) {
+      // Ensure all sacrament types exist in the form
+      const allSacraments = Object.keys(SACRAMENT_LABELS).map(type => {
+        const existingSacrament = initialData.sacraments.find(s => s.type === type);
+        return existingSacrament || { type, date: "" };
+      });
+
+      setFormData({
+        ...initialData,
+        sacraments: allSacraments
+      });
+    }
+  }, [initialData, isEditMode]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -61,11 +109,21 @@ export default function ParishionersForm() {
     };
   
     try {
-      const response = await fetch("/api/parishioners", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formattedFormData),
-      });
+      let response;
+      
+      if (isEditMode && formData._id) {
+        response = await fetch(`/api/parishioners/${formData._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formattedFormData),
+        });
+      } else {
+        response = await fetch("/api/parishioners", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formattedFormData),
+        });
+      }
   
       const data = await response.json();
   
@@ -75,17 +133,22 @@ export default function ParishionersForm() {
         return;
       }
   
-      alert("Parishioner added successfully!");
-      setFormData({
-        firstName: "",
-        lastName: "",
-        dateOfBirth: "",
-        phoneNumber: "",
-        email: "",
-        address: { street: "", houseNumber: "", postalCode: "", city: "" },
-        sacraments: formData.sacraments.map((s) => ({ ...s, date: "" })),
-        notes: "",
-      });
+      if (isEditMode) {
+        alert("Parafianin zaktualizowany pomyślnie!");
+        router.push("/admin/dashboard/parafianie");
+      } else {
+        alert("Parafianin dodany pomyślnie!");
+        setFormData({
+          firstName: "",
+          lastName: "",
+          dateOfBirth: "",
+          phoneNumber: "",
+          email: "",
+          address: { street: "", houseNumber: "", postalCode: "", city: "" },
+          sacraments: formData.sacraments.map((s) => ({ ...s, date: "" })),
+          notes: "",
+        });
+      }
     } catch (error) {
       console.error("Error sending request:", error);
       alert("Błąd połączenia z serwerem.");
@@ -228,7 +291,7 @@ export default function ParishionersForm() {
           type="submit" 
           className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
         >
-          Dodaj Wiernego
+          {isEditMode ? 'Zapisz zmiany' : 'Dodaj Wiernego'}
         </button>
       </div>
     </form>

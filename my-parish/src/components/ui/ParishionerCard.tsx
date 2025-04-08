@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { AiOutlineDown, AiOutlineUp, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 
 interface Sacrament {
@@ -36,6 +37,7 @@ const sacramentTranslations: Record<string, string> = {
 export default function ParishionerCard({ parishioner, onDelete }: { parishioner: Parishioner; onDelete: (id: string) => void }) {
   const [groups, setGroups] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     axios.get(`/api/groups?memberId=${parishioner._id}`).then((res) => {
@@ -49,6 +51,10 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
     }
   };
 
+  const handleEdit = () => {
+    router.push(`/admin/dashboard/parafianie/edycja/${parishioner._id}`);
+  };
+
   return (
     <div className="w-full border rounded-lg shadow-md p-4 bg-white">
       <div className="flex justify-between items-center">
@@ -59,7 +65,11 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
           <p className="text-sm text-gray-600">{parishioner.phoneNumber || "Brak telefonu"}</p>
         </div>
         <div className="flex items-center space-x-3">
-          <AiOutlineEdit size={20} className="cursor-pointer text-blue-500 hover:text-blue-700" />
+          <AiOutlineEdit 
+            size={20} 
+            className="cursor-pointer text-blue-500 hover:text-blue-700" 
+            onClick={handleEdit}
+          />
           <AiOutlineDelete size={20} className="cursor-pointer text-red-500 hover:text-red-700" onClick={handleDelete} />
           <span className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
             {isExpanded ? <AiOutlineUp size={20} /> : <AiOutlineDown size={20} />}
