@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { PopulatedGroup } from "@/types";
 import { AiOutlineDown, AiOutlineUp, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 interface GroupCardProps {
   group: PopulatedGroup;
@@ -10,6 +11,7 @@ interface GroupCardProps {
 
 export default function GroupCard({ group, onDelete }: GroupCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const router = useRouter();
 
   const handleDelete = async () => {
     if (window.confirm(`Czy na pewno chcesz usunąć grupę ${group.name}?`)) {
@@ -21,6 +23,10 @@ export default function GroupCard({ group, onDelete }: GroupCardProps) {
         alert("Wystąpił błąd podczas usuwania grupy");
       }
     }
+  };
+
+  const handleEdit = () => {
+    router.push(`/admin/dashboard/grupy-parafialne/edycja/${group._id}`);
   };
 
   return (
@@ -36,6 +42,7 @@ export default function GroupCard({ group, onDelete }: GroupCardProps) {
           <AiOutlineEdit 
             size={20} 
             className="cursor-pointer text-blue-500 hover:text-blue-700" 
+            onClick={handleEdit}
           />
           <AiOutlineDelete 
             size={20} 

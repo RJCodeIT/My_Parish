@@ -1,10 +1,18 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import SelectParishioner from "@/components/ui/SelectParishioner";
+import { BaseGroup } from "@/types";
 
-export default function GroupsForm() {
+interface GroupsFormProps {
+  initialData?: BaseGroup;
+  isEditMode?: boolean;
+}
+
+export default function GroupsForm({ initialData, isEditMode = false }: GroupsFormProps) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -13,6 +21,19 @@ export default function GroupsForm() {
     meetingSchedule: "",
   });
 
+  useEffect(() => {
+    if (initialData && isEditMode) {
+      console.log("Initial group data received in form:", initialData);
+      setFormData({
+        name: initialData.name || "",
+        description: initialData.description || "",
+        leaderId: initialData.leaderId || "",
+        members: initialData.members || [],
+        meetingSchedule: initialData.meetingSchedule || "",
+      });
+    }
+  }, [initialData, isEditMode]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -20,18 +41,24 @@ export default function GroupsForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post("/api/groups", formData);
-      alert("Grupa dodana!");
-      setFormData({
-        name: "",
-        description: "",
-        leaderId: "",
-        members: [],
-        meetingSchedule: "",
-      });
+      if (isEditMode && initialData?._id) {
+        await axios.put(`/api/groups/${initialData._id}`, formData);
+        alert("Grupa zaktualizowana!");
+        router.push("/admin/dashboard/grupy-parafialne");
+      } else {
+        await axios.post("/api/groups", formData);
+        alert("Grupa dodana!");
+        setFormData({
+          name: "",
+          description: "",
+          leaderId: "",
+          members: [],
+          meetingSchedule: "",
+        });
+      }
     } catch (error) {
       console.error(error);
-      alert("Błąd podczas dodawania grupy.");
+      alert("Błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " grupy.");
     }
   };
 
@@ -78,7 +105,7 @@ export default function GroupsForm() {
           type="submit"
           className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
         >
-          Dodaj grupę
+          {isEditMode ? "Zapisz zmiany" : "Dodaj grupę"}
         </button>
       </div>
     </form>
