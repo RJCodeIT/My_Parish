@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+// Parishioner model (converted from MongoDB)
+model Parishioner {
+  id           String       @id @default(cuid())
+  firstName    String
+  lastName     String
+  dateOfBirth  DateTime
+  address      Address?     @relation(fields: [addressId], references: [id])
+  addressId    String?      @unique
+  phoneNumber  String?
+  email        String?      @unique
+  notes        String?      @db.Text
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  sacraments   Sacrament[]
+  
+  // Relations
+  leadingGroups Group[]     @relation("GroupLeader")
+  memberGroups  GroupMember[]
+}
+
+// Address model (extracted from Parishioner)
+model Address {
+  id           String      @id @default(cuid())
+  street       String
+  houseNumber  String
+  postalCode   String
+  city         String
+  parishioner  Parishioner?
+}
+
+// Sacrament model (extracted from Parishioner)
+model Sacrament {
+  id            String      @id @default(cuid())
+  type          String
+  date          DateTime
+  parishioner   Parishioner @relation(fields: [parishionerId], references: [id], onDelete: Cascade)
+  parishionerId String
+
+  @@index([parishionerId])
+}
+
+// Group model
+model Group {
+  id              String        @id @default(cuid())
+  name            String
+  description     String?       @db.Text
+  leader          Parishioner   @relation("GroupLeader", fields: [leaderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  leaderId        String
+  meetingSchedule String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Many-to-many relation with Parishioner through GroupMember
+  members         GroupMember[]
+
+  @@index([leaderId])
+}
+
+// GroupMember model (join table for Group and Parishioner)
+model GroupMember {
+  id            String      @id @default(cuid())
+  group         Group       @relation(fields: [groupId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  groupId       String
+  parishioner   Parishioner @relation(fields: [parishionerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parishionerId String
+  joinedAt      DateTime    @default(now())
+
+  @@unique([groupId, parishionerId])
+  @@index([groupId])
+  @@index([parishionerId])
+}
+
+// Announcement model
+model Announcement {
+  id        String            @id @default(cuid())
+  title     String
+  date      DateTime          @default(now())
+  imageUrl  String?
+  extraInfo String?           @db.Text
+  content   AnnouncementContent[]
+}
+
+// AnnouncementContent model (extracted from Announcement)
+model AnnouncementContent {
+  id            String      @id @default(cuid())
+  order         Int
+  text          String      @db.Text
+  announcement  Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  announcementId String
+
+  @@index([announcementId])
+}
+
+// News model
+model News {
+  id       String   @id @default(cuid())
+  title    String
+  subtitle String
+  content  String   @db.Text
+  imageUrl String?
+  date     DateTime @default(now())
+}
+
+// Intention model
+model Intention {
+  id       String   @id @default(cuid())
+  title    String
+  date     DateTime @default(now())
+  imageUrl String?
+  masses   Mass[]
+}
+
+// Mass model (extracted from Intention)
+model Mass {
+  id          String    @id @default(cuid())
+  time        String
+  intention   String    @db.Text
+  intentionId String
+  intentionRef Intention @relation(fields: [intentionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([intentionId])
+}

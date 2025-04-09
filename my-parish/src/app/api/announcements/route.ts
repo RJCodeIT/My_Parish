@@ -1,12 +1,22 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/db";
-import Announcement from "@/models/Announcement";
+import { PrismaClient } from "../../../generated/prisma";
+
+const prisma = new PrismaClient();
 
 export const GET = async () => {
-  await connectToDatabase();
-
   try {
-    const announcements = await Announcement.find().sort({ date: -1 });
+    const announcements = await prisma.announcement.findMany({
+      include: {
+        content: {
+          orderBy: {
+            order: 'asc'
+          }
+        }
+      },
+      orderBy: {
+        date: 'desc'
+      }
+    });
     return NextResponse.json(announcements, { status: 200 });
   } catch (error) {
     console.error('Error fetching announcements:', error);
@@ -15,26 +25,50 @@ export const GET = async () => {
 }
 
 export const POST = async (req: Request) => {
-  await connectToDatabase();
-
   try {
     const formData = await req.formData();
     
     const title = formData.get('title') as string;
     const date = formData.get('date') as string;
     const extraInfo = formData.get('extraInfo') as string;
-    const content = JSON.parse(formData.get('content') as string);
+    const contentArray = JSON.parse(formData.get('content') as string);
     const image = formData.get('image') as File;
-    const announcementData = {
-      title,
-      date,
-      extraInfo,
-      content,
-      image: image ? image.name : null,
-    };
+    
+    // Użyj transakcji Prisma do utworzenia ogłoszenia i jego zawartości
+    const newAnnouncement = await prisma.$transaction(async (prismaTransaction) => {
+      // Utwórz ogłoszenie
+      const announcement = await prismaTransaction.announcement.create({
+        data: {
+          title,
+          date: new Date(date),
+          extraInfo: extraInfo || undefined,
+          imageUrl: image ? image.name : undefined,
+        }
+      });
 
-    const newAnnouncement = new Announcement(announcementData);
-    await newAnnouncement.save();
+      // Utwórz zawartość ogłoszenia
+      await Promise.all(contentArray.map((item: { order: number; text: string }) => {
+        return prismaTransaction.announcementContent.create({
+          data: {
+            order: item.order,
+            text: item.text,
+            announcementId: announcement.id
+          }
+        });
+      }));
+
+      // Pobierz utworzone ogłoszenie wraz z zawartością
+      return prismaTransaction.announcement.findUnique({
+        where: { id: announcement.id },
+        include: {
+          content: {
+            orderBy: {
+              order: 'asc'
+            }
+          }
+        }
+      });
+    });
     
     return NextResponse.json(newAnnouncement, { status: 201 });
   } catch (error) {

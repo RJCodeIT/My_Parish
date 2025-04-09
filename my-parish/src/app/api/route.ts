@@ -1,17 +1,22 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/db";
+import prisma from "@/lib/prisma";
 
 export async function GET() {
   try {
-    await connectToDatabase();
+    await prisma.$connect();
     return NextResponse.json({
-      message: "Server is running",
-      db: "Connected to MongoDB",
+      message:
+        "Server is running and successfully connected to MS SQL Server BudgenixDB!",
     });
   } catch (error) {
-    console.error("MongoDB connection error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+
     return NextResponse.json(
-      { message: "Server is running", db: "Failed to connect to MongoDB" },
+      {
+        error: "Failed to connect to the database",
+        details: errorMessage,
+      },
       { status: 500 }
     );
   }
