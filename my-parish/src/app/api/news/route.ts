@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/db";
-import News, { INews } from "@/models/News";
+import { PrismaClient } from "../../../generated/prisma";
+
+const prisma = new PrismaClient();
 
 export async function GET() {
-  await connectToDatabase();
-
   try {
-    const news = await News.find().sort({ date: -1 });
+    const news = await prisma.news.findMany({
+      orderBy: {
+        date: 'desc'
+      }
+    });
     return NextResponse.json(news, { status: 200 });
   } catch (error) {
     console.error("Błąd podczas pobierania aktualności:", error);
@@ -18,8 +21,6 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  await connectToDatabase();
-
   try {
     const formData = await req.formData();
     const title = formData.get('title') as string;
@@ -27,23 +28,24 @@ export async function POST(req: Request) {
     const content = formData.get('content') as string;
     const image = formData.get('image') as File | null;
 
-    const newsData: Pick<INews, 'title' | 'subtitle' | 'content' | 'date' | 'imageUrl'> = {
-      title,
-      subtitle,
-      content,
-      date: new Date()
-    };
-
+    let imageUrl: string | undefined = undefined;
+    
     if (image) {
-      const bytes = await image.arrayBuffer();
-      const buffer = Buffer.from(bytes);
       // Here we would typically upload the image to a storage service
-      // For now, we'll store it as a base64 string
-      newsData.imageUrl = `data:${image.type};base64,${buffer.toString('base64')}`;
+      // For now, we'll just store the image name
+      imageUrl = image.name;
     }
 
-    const newNews = new News(newsData);
-    await newNews.save();
+    const newNews = await prisma.news.create({
+      data: {
+        title,
+        subtitle,
+        content,
+        imageUrl,
+        date: new Date()
+      }
+    });
+    
     return NextResponse.json(newNews, { status: 201 });
   } catch (error) {
     console.error("Błąd podczas dodawania aktualności:", error);

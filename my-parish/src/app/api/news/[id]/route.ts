@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/db";
-import News from "@/models/News";
+import { PrismaClient, Prisma } from "../../../../generated/prisma";
+
+const prisma = new PrismaClient();
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
-  await connectToDatabase();
-
   try {
-    const newsItem = await News.findById(params.id);
+    const newsItem = await prisma.news.findUnique({
+      where: { id: params.id }
+    });
+    
     if (!newsItem) {
       return NextResponse.json({ error: "Aktualność nie została znaleziona" }, { status: 404 });
     }
+    
     return NextResponse.json(newsItem, { status: 200 });
   } catch (error) {
     console.error('Błąd podczas pobierania aktualności:', error);
@@ -18,34 +21,48 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 }
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  await connectToDatabase();
-
   try {
     const body = await req.json();
-    const updatedNews = await News.findByIdAndUpdate(params.id, body, { new: true });
-
-    if (!updatedNews) {
-      return NextResponse.json({ error: "Aktualność nie została znaleziona" }, { status: 404 });
-    }
+    
+    const updatedNews = await prisma.news.update({
+      where: { id: params.id },
+      data: {
+        title: body.title,
+        subtitle: body.subtitle,
+        content: body.content,
+        imageUrl: body.imageUrl || undefined,
+        date: body.date ? new Date(body.date) : undefined
+      }
+    });
 
     return NextResponse.json(updatedNews, { status: 200 });
   } catch (error) {
     console.error('Błąd podczas edycji aktualności:', error);
+    
+    // Check if error is about non-existing record
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return NextResponse.json({ error: "Aktualność nie została znaleziona" }, { status: 404 });
+    }
+    
     return NextResponse.json({ error: "Błąd podczas edycji aktualności" }, { status: 500 });
   }
 }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-  await connectToDatabase();
-
   try {
-    const deletedNews = await News.findByIdAndDelete(params.id);
-    if (!deletedNews) {
-      return NextResponse.json({ error: "Aktualność nie została znaleziona" }, { status: 404 });
-    }
+    await prisma.news.delete({
+      where: { id: params.id }
+    });
+    
     return NextResponse.json({ message: "Aktualność została usunięta" }, { status: 200 });
   } catch (error) {
     console.error('Błąd podczas usuwania aktualności:', error);
+    
+    // Check if error is about non-existing record
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return NextResponse.json({ error: "Aktualność nie została znaleziona" }, { status: 404 });
+    }
+    
     return NextResponse.json({ error: "Błąd podczas usuwania aktualności" }, { status: 500 });
   }
 }

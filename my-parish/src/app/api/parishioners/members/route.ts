@@ -1,24 +1,31 @@
-import { NextRequest, NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/db";
-import Parishioner from "@/models/Parishioner";
+import { NextResponse } from "next/server";
+import { PrismaClient } from "../../../../generated/prisma";
 
-export async function POST(request: NextRequest) {
-  await connectToDatabase();
+const prisma = new PrismaClient();
+
+export const POST = async (req: Request) => {
   try {
-    const { memberIds } = await request.json();
+    const { memberIds } = await req.json();
     
     if (!memberIds || !Array.isArray(memberIds)) {
-      return NextResponse.json({ message: "Invalid member IDs" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid member IDs" }, { status: 400 });
     }
 
-    const members = await Parishioner.find({
-      _id: { $in: memberIds }
+    const members = await prisma.parishioner.findMany({
+      where: {
+        id: { in: memberIds }
+      },
+      include: {
+        address: true,
+        sacraments: true
+      }
     });
 
     return NextResponse.json(members, { status: 200 });
   } catch (error) {
+    console.error('Error fetching members:', error);
     return NextResponse.json(
-      { message: "Error fetching members", error },
+      { error: "Error fetching members" },
       { status: 500 }
     );
   }
