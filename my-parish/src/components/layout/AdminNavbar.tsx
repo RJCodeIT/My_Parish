@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { AiOutlineMenu } from "react-icons/ai";
+import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { FaChevronDown } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,12 +22,11 @@ export default function AdminNavbar({
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <button
-              className={`text-gray-700 hover:text-primary transition-colors ${
-                isSidebarOpen ? "opacity-0 invisible" : "opacity-100 visible"
-              }`}
-              onClick={() => setIsSidebarOpen(true)}
+              className="text-gray-700 hover:text-primary transition-colors"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
             >
-              <AiOutlineMenu size={24} />
+              {isSidebarOpen ? <AiOutlineClose size={24} /> : <AiOutlineMenu size={24} />}
             </button>
             <Link href="/admin/dashboard" className="flex items-center space-x-3 group">
               <div className="relative w-10 h-10">

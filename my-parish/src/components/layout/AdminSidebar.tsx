@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AiOutlineClose, AiOutlineDown, AiOutlineUp } from "react-icons/ai";
+import { AiOutlineDown, AiOutlineUp } from "react-icons/ai";
 import { useState } from "react";
 
 const menuItems = [
@@ -66,12 +66,6 @@ export default function AdminSidebar({
     >
       <div className="p-6 flex justify-between items-center border-b border-neutral/10">
         <span className="text-xl font-semibold text-gray-800">Menu</span>
-        <button
-          onClick={toggleSidebar}
-          className="text-gray-600 hover:text-primary transition-colors"
-        >
-          <AiOutlineClose size={24} />
-        </button>
       </div>
 
       <nav className="p-4 space-y-2">

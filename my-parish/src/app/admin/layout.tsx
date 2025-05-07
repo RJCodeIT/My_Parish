@@ -13,15 +13,17 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     return <>{children}</>;
   }
 
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
   return (
     <div className="min-h-screen flex bg-gray-50/50">
       <AdminSidebar
         isOpen={isSidebarOpen}
-        toggleSidebar={() => setIsSidebarOpen(false)}
+        toggleSidebar={toggleSidebar}
       />
       <div
         className={`flex-1 flex flex-col transition-all duration-300 ${
-          isSidebarOpen ? "ml-64" : "ml-0"
+          isSidebarOpen ? "ml-72" : "ml-0"
         }`}
       >
         <AdminNavbar
