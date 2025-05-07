@@ -13,7 +13,15 @@ export async function GET() {
         date: 'desc'
       }
     });
-    return NextResponse.json(intentions, { status: 200 });
+    
+    // Transform the data for frontend compatibility
+    const transformedIntentions = intentions.map(intention => ({
+      ...intention,
+      _id: intention.id // Add _id field for frontend compatibility
+    }));
+    
+    console.log('Transformed intentions for frontend:', transformedIntentions);
+    return NextResponse.json(transformedIntentions, { status: 200 });
   } catch (error) {
     console.error('Błąd podczas pobierania intencji mszalnych', error);
     return NextResponse.json({ error: "Błąd podczas pobierania intencji mszalnych" }, { status: 500 });

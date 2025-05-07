@@ -13,7 +13,14 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       return NextResponse.json({ error: "Aktualność nie została znaleziona" }, { status: 404 });
     }
     
-    return NextResponse.json(newsItem, { status: 200 });
+    // Transform the data for frontend compatibility
+    const transformedNewsItem = {
+      ...newsItem,
+      _id: newsItem.id // Add _id field for frontend compatibility
+    };
+    
+    console.log('Transformed single news item for frontend:', transformedNewsItem);
+    return NextResponse.json(transformedNewsItem, { status: 200 });
   } catch (error) {
     console.error('Błąd podczas pobierania aktualności:', error);
     return NextResponse.json({ error: "Błąd podczas pobierania aktualności" }, { status: 500 });

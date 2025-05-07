@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 interface Announcement {
   _id: string;
+  id?: string; // Add id field for Prisma compatibility
   title: string;
   date: string;
   imageUrl?: string;
@@ -25,8 +26,15 @@ export default function AnnouncementCard({ announcement, onDelete }: Announcemen
   const handleDelete = async () => {
     if (window.confirm(`Czy na pewno chcesz usunąć ogłoszenie: "${announcement.title}"?`)) {
       try {
-        await axios.delete(`/api/announcements/${announcement._id}`);
-        onDelete?.(announcement._id);
+        // Use the id field which is what Prisma expects
+        const idToUse = announcement.id || announcement._id;
+        console.log('Deleting announcement with ID:', idToUse);
+        
+        await axios.delete(`/api/announcements/${idToUse}`);
+        // Make sure we have a valid ID to pass to onDelete
+        if (announcement._id) {
+          onDelete?.(announcement._id);
+        }
       } catch (error) {
         console.error("Błąd podczas usuwania ogłoszenia:", error);
         alert("Wystąpił błąd podczas usuwania ogłoszenia");

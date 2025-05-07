@@ -17,7 +17,15 @@ export const GET = async () => {
         date: 'desc'
       }
     });
-    return NextResponse.json(announcements, { status: 200 });
+    
+    // Transform the data for frontend compatibility
+    const transformedAnnouncements = announcements.map(announcement => ({
+      ...announcement,
+      _id: announcement.id // Add _id field for frontend compatibility
+    }));
+    
+    console.log('Transformed announcements for frontend:', transformedAnnouncements);
+    return NextResponse.json(transformedAnnouncements, { status: 200 });
   } catch (error) {
     console.error('Error fetching announcements:', error);
     return NextResponse.json({ error: "Error fetching announcements" }, { status: 500 });

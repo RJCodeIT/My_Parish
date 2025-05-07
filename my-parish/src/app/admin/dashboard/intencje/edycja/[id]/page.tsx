@@ -1,5 +1,6 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import axios from "axios";
 import IntentionsForm from "@/containers/IntentionsForm";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -15,10 +16,10 @@ interface Intention {
   }>;
 }
 
-export default function EditIntention({ params }: { params: { id: string } }) {
-  // Use React.use() to unwrap the params object
-  const unwrappedParams = React.use(Promise.resolve(params));
-  const intentionId = unwrappedParams.id;
+export default function EditIntention() {
+  // Use useParams hook to get the ID
+  const params = useParams();
+  const intentionId = params.id as string;
   
   const [intention, setIntention] = useState<Intention | null>(null);
   const [loading, setLoading] = useState(true);

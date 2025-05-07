@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import AnnouncementsForm from "@/containers/AnnouncementsForm";
 import SectionTitle from "@/components/layout/SectionTitle";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import React from "react";
 
 interface AnnouncementContent {
   order: number;
@@ -22,10 +21,10 @@ interface Announcement {
   extraInfo?: string;
 }
 
-export default function EditAnnouncement({ params }: { params: { id: string } }) {
-  // Use React.use() to unwrap the params object
-  const unwrappedParams = React.use(Promise.resolve(params));
-  const announcementId = unwrappedParams.id;
+export default function EditAnnouncement() {
+  // Use useParams hook to get the ID
+  const routeParams = useParams();
+  const announcementId = routeParams.id as string;
   
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);

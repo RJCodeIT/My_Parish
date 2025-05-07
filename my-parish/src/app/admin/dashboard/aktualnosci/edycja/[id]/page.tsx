@@ -1,5 +1,6 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import axios from "axios";
 import NewsForm from "@/containers/NewsForm";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -13,10 +14,10 @@ interface News {
   date: string;
 }
 
-export default function EditNews({ params }: { params: { id: string } }) {
-  // Use React.use() to unwrap the params object
-  const unwrappedParams = React.use(Promise.resolve(params));
-  const newsId = unwrappedParams.id;
+export default function EditNews() {
+  // Use useParams hook to get the ID
+  const params = useParams();
+  const newsId = params.id as string;
   
   const [news, setNews] = useState<News | null>(null);
   const [loading, setLoading] = useState(true);

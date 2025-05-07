@@ -16,7 +16,14 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       return NextResponse.json({ error: "Intencja mszalna nie została znaleziona" }, { status: 404 });
     }
     
-    return NextResponse.json(intention, { status: 200 });
+    // Transform the data for frontend compatibility
+    const transformedIntention = {
+      ...intention,
+      _id: intention.id // Add _id field for frontend compatibility
+    };
+    
+    console.log('Transformed single intention for frontend:', transformedIntention);
+    return NextResponse.json(transformedIntention, { status: 200 });
   } catch (error) {
     console.error('Błąd podczas pobierania intencji mszalnej', error);
     return NextResponse.json({ error: "Błąd podczas pobierania intencji mszalnej" }, { status: 500 });

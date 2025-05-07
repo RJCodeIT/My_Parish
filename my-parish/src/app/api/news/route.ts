@@ -10,7 +10,15 @@ export async function GET() {
         date: 'desc'
       }
     });
-    return NextResponse.json(news, { status: 200 });
+    
+    // Transform the data for frontend compatibility
+    const transformedNews = news.map(item => ({
+      ...item,
+      _id: item.id // Add _id field for frontend compatibility
+    }));
+    
+    console.log('Transformed news for frontend:', transformedNews);
+    return NextResponse.json(transformedNews, { status: 200 });
   } catch (error) {
     console.error("Błąd podczas pobierania aktualności:", error);
     return NextResponse.json(
