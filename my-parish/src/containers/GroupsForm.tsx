@@ -24,11 +24,39 @@ export default function GroupsForm({ initialData, isEditMode = false }: GroupsFo
   useEffect(() => {
     if (initialData && isEditMode) {
       console.log("Initial group data received in form:", initialData);
+      
+      // Extract the leader ID correctly based on whether it's a string or an object
+      let leaderId = "";
+      if (typeof initialData.leaderId === 'string') {
+        leaderId = initialData.leaderId;
+      } else if (initialData.leaderId && typeof initialData.leaderId === 'object') {
+        // If leaderId is an object with _id or id property
+        leaderId = initialData.leaderId._id || initialData.leaderId.id || '';
+        console.log("Extracted leader ID:", leaderId);
+      }
+      
+      // Extract member IDs correctly
+      let members: string[] = [];
+      if (Array.isArray(initialData.members)) {
+        members = initialData.members.map(member => {
+          if (typeof member === 'string') {
+            return member;
+          } else if (member && typeof member === 'object') {
+            // If member is an object with _id or id property
+            const memberId = member._id || member.id || '';
+            console.log("Extracted member ID:", memberId, "from", member);
+            return memberId;
+          }
+          return '';
+        }).filter(id => id !== '');
+        console.log("Extracted member IDs:", members);
+      }
+      
       setFormData({
         name: initialData.name || "",
         description: initialData.description || "",
-        leaderId: initialData.leaderId || "",
-        members: initialData.members || [],
+        leaderId: leaderId,
+        members: members,
         meetingSchedule: initialData.meetingSchedule || "",
       });
     }
@@ -40,25 +68,51 @@ export default function GroupsForm({ initialData, isEditMode = false }: GroupsFo
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.name) {
+      alert("Nazwa grupy jest wymagana");
+      return;
+    }
+    
+    if (!formData.leaderId) {
+      alert("Lider grupy jest wymagany");
+      return;
+    }
+    
     try {
+      // Create a copy of the form data to send to the API
+      const apiFormData = {
+        ...formData,
+        // Make sure we're sending the correct ID format to the API
+        leaderId: formData.leaderId,
+        // Convert member IDs if needed
+        members: formData.members
+      };
+      
+      console.log("Prepared data for API:", apiFormData);
+      
       if (isEditMode && initialData?._id) {
-        await axios.put(`/api/groups/${initialData._id}`, formData);
+        const response = await axios.put(`/api/groups/${initialData._id}`, apiFormData);
+        console.log("Group update response:", response.data);
         alert("Grupa zaktualizowana!");
         router.push("/admin/dashboard/grupy-parafialne");
       } else {
-        await axios.post("/api/groups", formData);
+        console.log("Submitting group data:", apiFormData);
+        const response = await axios.post("/api/groups", apiFormData);
+        console.log("Group creation response:", response.data);
         alert("Grupa dodana!");
-        setFormData({
-          name: "",
-          description: "",
-          leaderId: "",
-          members: [],
-          meetingSchedule: "",
-        });
+        router.push("/admin/dashboard/grupy-parafialne");
       }
     } catch (error) {
-      console.error(error);
-      alert("Błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " grupy.");
+      console.error("Error submitting group:", error);
+      
+      // Display more specific error message if available
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        alert(`Błąd: ${error.response.data.error}`);
+      } else {
+        alert("Błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " grupy.");
+      }
     }
   };
 

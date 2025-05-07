@@ -7,8 +7,13 @@ import GroupsForm from "@/containers/GroupsForm";
 import SectionTitle from "@/components/layout/SectionTitle";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { BaseGroup } from "@/types";
+import React from "react";
 
 export default function EditGroup({ params }: { params: { id: string } }) {
+  // Use React.use() to unwrap the params object
+  const unwrappedParams = React.use(Promise.resolve(params));
+  const groupId = unwrappedParams.id;
+  
   const [group, setGroup] = useState<BaseGroup | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -17,7 +22,7 @@ export default function EditGroup({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchGroup = async () => {
       try {
-        const response = await axios.get(`/api/groups/${params.id}`);
+        const response = await axios.get(`/api/groups/${groupId}`);
         console.log("Fetched group data:", response.data);
         setGroup(response.data);
         setLoading(false);
@@ -29,7 +34,7 @@ export default function EditGroup({ params }: { params: { id: string } }) {
     };
 
     fetchGroup();
-  }, [params.id]);
+  }, [groupId]);
 
   if (loading) {
     return (

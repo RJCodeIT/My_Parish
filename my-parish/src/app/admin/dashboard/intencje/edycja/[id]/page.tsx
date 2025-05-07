@@ -16,6 +16,10 @@ interface Intention {
 }
 
 export default function EditIntention({ params }: { params: { id: string } }) {
+  // Use React.use() to unwrap the params object
+  const unwrappedParams = React.use(Promise.resolve(params));
+  const intentionId = unwrappedParams.id;
+  
   const [intention, setIntention] = useState<Intention | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -23,7 +27,7 @@ export default function EditIntention({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchIntention = async () => {
       try {
-        const response = await axios.get(`/api/intentions/${params.id}`);
+        const response = await axios.get(`/api/intentions/${intentionId}`);
         setIntention(response.data);
       } catch (error) {
         console.error("Błąd podczas pobierania intencji:", error);
@@ -34,7 +38,7 @@ export default function EditIntention({ params }: { params: { id: string } }) {
     };
 
     fetchIntention();
-  }, [params.id]);
+  }, [intentionId]);
 
   if (loading) {
     return (

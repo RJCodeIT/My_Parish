@@ -15,7 +15,29 @@ export const GET = async () => {
         }
       }
     });
-    return NextResponse.json(groups, { status: 200 });
+
+    // Transform the data for frontend compatibility
+    const transformedGroups = groups.map(group => ({
+      ...group,
+      _id: group.id, // Add _id for frontend compatibility
+      // Transform leader data
+      leaderId: {
+        _id: group.leader.id,
+        id: group.leader.id,
+        firstName: group.leader.firstName,
+        lastName: group.leader.lastName
+      },
+      // Transform members data
+      members: group.members.map(member => ({
+        _id: member.parishioner.id,
+        id: member.parishioner.id,
+        firstName: member.parishioner.firstName,
+        lastName: member.parishioner.lastName
+      }))
+    }));
+
+    console.log('Transformed groups for frontend:', transformedGroups);
+    return NextResponse.json(transformedGroups, { status: 200 });
   } catch (error) {
     console.error('Error fetching groups:', error);
     return NextResponse.json({ error: "Error fetching groups" }, { status: 500 });
@@ -34,6 +56,11 @@ export const POST = async (req: Request) => {
       );
     }
     
+    console.log("Received group data:", body);
+    
+    // Handle the case where leaderId might be in MongoDB format (_id)
+    const leaderIdToUse = body.leaderId;
+    
     // Create group with Prisma
     const newGroup = await prisma.group.create({
       data: {
@@ -41,7 +68,7 @@ export const POST = async (req: Request) => {
         description: body.description,
         meetingSchedule: body.meetingSchedule,
         leader: {
-          connect: { id: body.leaderId }
+          connect: { id: leaderIdToUse }
         }
       },
       include: {

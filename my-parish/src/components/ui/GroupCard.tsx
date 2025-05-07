@@ -13,11 +13,16 @@ export default function GroupCard({ group, onDelete }: GroupCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
 
+  // Helper function to get the group ID (handles both _id and id formats)
+  const getGroupId = (): string => {
+    return (group._id || group.id || "") as string;
+  };
+
   const handleDelete = async () => {
     if (window.confirm(`Czy na pewno chcesz usunąć grupę ${group.name}?`)) {
       try {
-        await axios.delete(`/api/groups/${group._id}`);
-        onDelete?.(group._id);
+        await axios.delete(`/api/groups/${getGroupId()}`);
+        onDelete?.(getGroupId());
       } catch (error) {
         console.error("Błąd podczas usuwania grupy:", error);
         alert("Wystąpił błąd podczas usuwania grupy");
@@ -26,7 +31,9 @@ export default function GroupCard({ group, onDelete }: GroupCardProps) {
   };
 
   const handleEdit = () => {
-    router.push(`/admin/dashboard/grupy-parafialne/edycja/${group._id}`);
+    const groupId = getGroupId();
+    console.log("Editing group with ID:", groupId);
+    router.push(`/admin/dashboard/grupy-parafialne/edycja/${groupId}`);
   };
 
   return (
@@ -62,7 +69,7 @@ export default function GroupCard({ group, onDelete }: GroupCardProps) {
         <div className="mt-4">
           <div className="mt-4">
             <h4 className="text-lg font-semibold">Lider:</h4>
-            {group.leaderId ? (
+            {group.leaderId && typeof group.leaderId === 'object' && 'firstName' in group.leaderId && 'lastName' in group.leaderId ? (
               <p className="text-sm text-gray-700">
                 {group.leaderId.firstName} {group.leaderId.lastName}
               </p>
@@ -75,11 +82,17 @@ export default function GroupCard({ group, onDelete }: GroupCardProps) {
             <h4 className="text-lg font-semibold">Członkowie:</h4>
             {group.members && group.members.length > 0 ? (
               <ul className="list-disc list-inside text-sm text-gray-700">
-                {group.members.map((member) => (
-                  <li key={member._id}>
-                    {member.firstName} {member.lastName}
-                  </li>
-                ))}
+                {group.members.map((member, index) => {
+                  // Check if member is an object with firstName and lastName properties
+                  if (typeof member === 'object' && member && 'firstName' in member && 'lastName' in member) {
+                    return (
+                      <li key={member._id || member.id || index}>
+                        {member.firstName} {member.lastName}
+                      </li>
+                    );
+                  }
+                  return null;
+                }).filter(Boolean)}
               </ul>
             ) : (
               <p className="text-sm text-gray-500">Brak członków</p>

@@ -12,6 +12,9 @@ const prisma = new PrismaClient();
  */
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
+    console.log("Fetching group with ID:", params.id);
+    
+    // Try to find the group using the provided ID
     const group = await prisma.group.findUnique({
       where: { id: params.id },
       include: {
@@ -28,7 +31,32 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       return NextResponse.json({ error: "Grupa nie znaleziona" }, { status: 404 });
     }
     
-    return NextResponse.json(group, { status: 200 });
+    // Transform the data to include both id and _id for compatibility
+    const transformedGroup = {
+      ...group,
+      _id: group.id, // Add _id field for frontend compatibility
+      // Transform leader data to match the expected format in the frontend
+      leaderId: {
+        ...group.leader,
+        _id: group.leader.id, // Add _id to leader for compatibility
+        id: group.leader.id
+      },
+      // Transform members data to be an array of parishioner objects
+      members: group.members.map(member => ({
+        ...member.parishioner,
+        _id: member.parishioner.id, // Add _id to each parishioner
+        id: member.parishioner.id
+      }))
+    };
+    
+    // Create a new object without the leader field to avoid confusion
+    const finalGroup = {
+      ...transformedGroup,
+      leader: undefined
+    };
+    
+    console.log("Returning transformed group:", finalGroup);
+    return NextResponse.json(finalGroup, { status: 200 });
   } catch (error) {
     console.error('Błąd pobierania grupy:', error);
     return NextResponse.json({ error: "Błąd pobierania grupy" }, { status: 500 });
@@ -45,14 +73,18 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
   try {
     const body = await req.json();
+    console.log("Updating group with ID:", params.id, "with data:", body);
     
     // Validate required fields
     if (!body.name || !body.leaderId) {
       return NextResponse.json(
-        { error: "Name and leader are required fields" },
+        { error: "Nazwa i lider są wymaganymi polami" },
         { status: 400 }
       );
     }
+    
+    // Make sure we're using the correct ID format for the leader
+    const leaderIdToUse = body.leaderId;
     
     // Użyj transakcji Prisma do aktualizacji grupy i jej członków
     const updatedGroup = await prisma.$transaction(async (prismaTransaction) => {
@@ -64,7 +96,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
           description: body.description,
           meetingSchedule: body.meetingSchedule || undefined,
           leader: {
-            connect: { id: body.leaderId }
+            connect: { id: leaderIdToUse }
           }
         }
       });

@@ -6,6 +6,7 @@ import axios from "axios";
 import AnnouncementsForm from "@/containers/AnnouncementsForm";
 import SectionTitle from "@/components/layout/SectionTitle";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import React from "react";
 
 interface AnnouncementContent {
   order: number;
@@ -22,6 +23,10 @@ interface Announcement {
 }
 
 export default function EditAnnouncement({ params }: { params: { id: string } }) {
+  // Use React.use() to unwrap the params object
+  const unwrappedParams = React.use(Promise.resolve(params));
+  const announcementId = unwrappedParams.id;
+  
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -30,7 +35,7 @@ export default function EditAnnouncement({ params }: { params: { id: string } })
   useEffect(() => {
     const fetchAnnouncement = async () => {
       try {
-        const response = await axios.get(`/api/announcements/${params.id}`);
+        const response = await axios.get(`/api/announcements/${announcementId}`);
         console.log("Fetched announcement data:", response.data);
         setAnnouncement(response.data);
         setLoading(false);
@@ -42,7 +47,7 @@ export default function EditAnnouncement({ params }: { params: { id: string } })
     };
 
     fetchAnnouncement();
-  }, [params.id]);
+  }, [announcementId]);
 
   if (loading) {
     return (

@@ -14,6 +14,10 @@ interface News {
 }
 
 export default function EditNews({ params }: { params: { id: string } }) {
+  // Use React.use() to unwrap the params object
+  const unwrappedParams = React.use(Promise.resolve(params));
+  const newsId = unwrappedParams.id;
+  
   const [news, setNews] = useState<News | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -21,7 +25,7 @@ export default function EditNews({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await axios.get(`/api/news/${params.id}`);
+        const response = await axios.get(`/api/news/${newsId}`);
         setNews(response.data);
       } catch (error) {
         console.error("Błąd podczas pobierania aktualności:", error);
@@ -32,7 +36,7 @@ export default function EditNews({ params }: { params: { id: string } }) {
     };
 
     fetchNews();
-  }, [params.id]);
+  }, [newsId]);
 
   if (loading) {
     return (
