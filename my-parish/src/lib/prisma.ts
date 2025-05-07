@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../generated/prisma';
 
 const { DB_USER, DB_PASSWORD, DB_SERVER, DB_DATABASE, DB_PORT, DB_ENCRYPT, DB_TRUST_CERT } = process.env;
 
@@ -6,6 +6,11 @@ const databaseUrl = `sqlserver://${DB_USER}:${encodeURIComponent(DB_PASSWORD!)}@
 
 process.env.DATABASE_COMPILED_URL = databaseUrl;
 
-const prisma = new PrismaClient();
+// Prevent multiple instances of Prisma Client in development
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+
+const prisma = globalForPrisma.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export default prisma;
