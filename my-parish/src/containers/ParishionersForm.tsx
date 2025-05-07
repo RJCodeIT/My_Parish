@@ -27,6 +27,7 @@ interface Address {
 
 interface ParishionerData {
   _id?: string;
+  id?: string; // Added to support Prisma's default id field
   firstName: string;
   lastName: string;
   dateOfBirth: string;
@@ -138,8 +139,10 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
     try {
       let response;
       
-      if (isEditMode && formData._id) {
-        response = await fetch(`/api/parishioners/${formData._id}`, {
+      // Use either _id or id field, whichever is available
+      if (isEditMode && (formData._id || formData.id)) {
+        const parishionerId = formData._id || formData.id;
+        response = await fetch(`/api/parishioners/${parishionerId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formattedFormData),
@@ -156,7 +159,7 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
   
       if (!response.ok) {
         console.error("Błąd:", data);
-        alert(`Błąd: ${data.message}`);
+        alert(`Błąd: ${data.message || data.error}`);
         return;
       }
   
@@ -165,16 +168,7 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
         router.push("/admin/dashboard/parafianie");
       } else {
         alert("Parafianin dodany pomyślnie!");
-        setFormData({
-          firstName: "",
-          lastName: "",
-          dateOfBirth: "",
-          phoneNumber: "",
-          email: "",
-          address: { street: "", houseNumber: "", postalCode: "", city: "" },
-          sacraments: formData.sacraments.map((s) => ({ ...s, date: "" })),
-          notes: "",
-        });
+        router.push("/admin/dashboard/parafianie");
       }
     } catch (error) {
       console.error("Error sending request:", error);

@@ -6,6 +6,8 @@ import axios from "axios";
 import ParishionersForm from "@/containers/ParishionersForm";
 import SectionTitle from "@/components/layout/SectionTitle";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+// Import useParams hook from next/navigation
+import { useParams } from "next/navigation";
 
 interface Sacrament {
   type: string;
@@ -31,7 +33,11 @@ interface ParishionerData {
   notes: string;
 }
 
-export default function EditParishioner({ params }: { params: { id: string } }) {
+export default function EditParishioner() {
+  // Use the useParams hook to get route parameters - this is the recommended approach in Next.js App Router
+  const params = useParams();
+  const parishionerId = params.id as string;
+  
   const [parishioner, setParishioner] = useState<ParishionerData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -39,10 +45,27 @@ export default function EditParishioner({ params }: { params: { id: string } }) 
 
   useEffect(() => {
     const fetchParishioner = async () => {
+      if (!parishionerId) {
+        console.error("Missing parishioner ID");
+        setError("Brak ID parafianina.");
+        setLoading(false);
+        return;
+      }
+
+      console.log("Fetching parishioner with ID:", parishionerId);
+      
       try {
-        const response = await axios.get(`/api/parishioners/${params.id}`);
+        const response = await axios.get(`/api/parishioners/${parishionerId}`);
         console.log("Fetched parishioner data:", response.data);
-        setParishioner(response.data);
+        
+        // Map the API response to match the expected format in ParishionersForm
+        // The form expects _id but the API returns id
+        const mappedData = {
+          ...response.data,
+          _id: response.data.id // Add _id field that matches the id
+        };
+        
+        setParishioner(mappedData);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching parishioner:", err);
@@ -52,7 +75,7 @@ export default function EditParishioner({ params }: { params: { id: string } }) 
     };
 
     fetchParishioner();
-  }, [params.id]);
+  }, [parishionerId]);
 
   if (loading) {
     return (

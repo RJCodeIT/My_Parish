@@ -5,8 +5,27 @@ import SectionTitle from "@/components/layout/SectionTitle";
 import AdminSearchBar from "@/components/ui/AdminSearchBar";
 import ParishionerCard from "@/components/ui/ParishionerCard";
 
+// Interface for the API response from Prisma
+interface ParishionerApiResponse {
+  id: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  address: {
+    street: string;
+    houseNumber: string;
+    postalCode: string;
+    city: string;
+  };
+  phoneNumber?: string;
+  email?: string;
+  notes?: string;
+  sacraments: { type: string; date: string }[];
+}
+
+// Interface for the component's internal state
 interface Parishioner {
-  _id: string;
+  _id: string; // This is mapped from id for compatibility with components
   firstName: string;
   lastName: string;
   dateOfBirth: string;
@@ -29,7 +48,12 @@ export default function Parishioners() {
   useEffect(() => {
     axios.get("/api/parishioners")
       .then((response) => {
-        setParishioners(response.data);
+        // Map the API response to include _id field for compatibility
+        const mappedData = response.data.map((item: ParishionerApiResponse) => ({
+          ...item,
+          _id: item.id // Add _id field that matches the id from Prisma
+        }));
+        setParishioners(mappedData);
       })
       .catch((error) => {
         console.error("Błąd pobierania parafian:", error);

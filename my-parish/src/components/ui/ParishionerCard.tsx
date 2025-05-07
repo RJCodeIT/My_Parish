@@ -10,6 +10,7 @@ interface Sacrament {
 
 interface Parishioner {
   _id: string;
+  id?: string; // Added to support Prisma's default id field
   firstName: string;
   lastName: string;
   dateOfBirth: string;
@@ -52,7 +53,10 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
   };
 
   const handleEdit = () => {
-    router.push(`/admin/dashboard/parafianie/edycja/${parishioner._id}`);
+    // Use the id field directly from the API response
+    const parishionerId = parishioner.id || parishioner._id;
+    console.log("Editing parishioner with ID:", parishionerId);
+    router.push(`/admin/dashboard/parafianie/edycja/${parishionerId}`);
   };
 
   return (

@@ -4,8 +4,14 @@ import { PrismaClient, Prisma } from "../../../../generated/prisma";
 const prisma = new PrismaClient();
 
 // Pobranie parafianina po ID
-export async function GET(req: Request, { params }: { params: { id: string } }) {
-  const id = params.id;
+export async function GET(request: Request) {
+  // Get the URL from the request
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/');
+  const id = pathParts[pathParts.length - 1];
+  
+  console.log("API GET request for parishioner with ID:", id);
+  
   if (!id) {
     return NextResponse.json({ error: "Missing ID" }, { status: 400 });
   }
@@ -37,14 +43,20 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 }
 
 // Aktualizacja danych parafianina
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  const id = params.id;
+export async function PUT(request: Request) {
+  // Get the URL from the request
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/');
+  const id = pathParts[pathParts.length - 1];
+  
+  console.log("API PUT request for parishioner with ID:", id);
+  
   if (!id) {
     return NextResponse.json({ error: "Missing ID" }, { status: 400 });
   }
 
   try {
-    const body = await req.json();
+    const body = await request.json();
     
     // Użyj transakcji Prisma do aktualizacji parafianina i jego danych
     const updatedParishioner = await prisma.$transaction(async (prismaTransaction) => {
@@ -153,8 +165,14 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 }
 
 // Usunięcie parafianina
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-  const id = params.id;
+export async function DELETE(request: Request) {
+  // Get the URL from the request
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/');
+  const id = pathParts[pathParts.length - 1];
+  
+  console.log("API DELETE request for parishioner with ID:", id);
+  
   if (!id) {
     return NextResponse.json({ error: "Missing ID" }, { status: 400 });
   }
