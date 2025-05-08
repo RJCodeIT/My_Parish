@@ -101,11 +101,15 @@ export default function SelectParishioner({
     }
   }, [parishioners, value, multiple, onChange, getParishionerId]);
 
-  // Remove a selected member (for multiple selection)
+  // Remove a selected member (for multiple selection or single selection)
   const handleRemoveMember = useCallback((id: string) => {
     if (multiple && Array.isArray(value)) {
       const newValue = value.filter(v => v !== id);
       onChange(newValue);
+    } else if (!multiple) {
+      // For single selection, just clear the value
+      onChange("");
+      setSearch("");
     }
   }, [multiple, value, onChange]);
 
@@ -126,8 +130,8 @@ export default function SelectParishioner({
         className="border border-gray-300 rounded-lg p-2 mb-2"
       />
       
-      {/* Selected members display (for multiple selection) */}
-      {multiple && selectedMembers.length > 0 && (
+      {/* Selected members display (for both multiple and single selection) */}
+      {((multiple && selectedMembers.length > 0) || (!multiple && selectedMembers.length === 1)) && (
         <div className="flex flex-wrap gap-2 mb-2">
           {selectedMembers.map((member) => (
             <div 
@@ -160,7 +164,7 @@ export default function SelectParishioner({
                 <div
                   key={parishionerId}
                   onClick={() => handleSelect(parishionerId)}
-                  className={`p-2 cursor-pointer ${isSelected ? "bg-blue-200" : "hover:bg-gray-200"}`}
+                  className={`p-3 mb-2 cursor-pointer rounded ${isSelected ? "bg-blue-200" : "hover:bg-gray-200"}`}
                 >
                   {p.firstName} {p.lastName}
                 </div>

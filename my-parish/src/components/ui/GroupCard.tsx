@@ -68,14 +68,16 @@ export default function GroupCard({ group, onDelete }: GroupCardProps) {
       {isExpanded && (
         <div className="mt-4">
           <div className="mt-4">
-            <h4 className="text-lg font-semibold">Lider:</h4>
-            {group.leaderId && typeof group.leaderId === 'object' && 'firstName' in group.leaderId && 'lastName' in group.leaderId ? (
-              <p className="text-sm text-gray-700">
-                {group.leaderId.firstName} {group.leaderId.lastName}
-              </p>
-            ) : (
-              <p className="text-sm text-gray-500">Brak danych</p>
-            )}
+            <div className="flex items-center gap-2">
+              <h4 className="text-lg font-semibold">Lider:</h4>
+              {group.leaderId && typeof group.leaderId === 'object' && 'firstName' in group.leaderId && 'lastName' in group.leaderId ? (
+                <span className="text-gray-700">
+                  {group.leaderId.firstName} {group.leaderId.lastName}
+                </span>
+              ) : (
+                <span className="text-gray-500">Brak danych</span>
+              )}
+            </div>
           </div>
 
           <div className="mt-4">

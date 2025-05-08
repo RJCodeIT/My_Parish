@@ -1,26 +1,30 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import GroupsForm from "@/containers/GroupsForm";
 import SectionTitle from "@/components/layout/SectionTitle";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { BaseGroup } from "@/types";
-import React from "react";
 
-export default function EditGroup({ params }: { params: { id: string } }) {
-  // Use React.use() to unwrap the params object
-  const unwrappedParams = React.use(Promise.resolve(params));
-  const groupId = unwrappedParams.id;
+export default function EditGroup() {
+  const router = useRouter();
+  const params = useParams();
+  const groupId = params.id as string;
   
   const [group, setGroup] = useState<BaseGroup | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const router = useRouter();
 
   useEffect(() => {
     const fetchGroup = async () => {
+      if (!groupId) {
+        setError("Nie znaleziono identyfikatora grupy");
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await axios.get(`/api/groups/${groupId}`);
         console.log("Fetched group data:", response.data);
