@@ -6,6 +6,12 @@ import { useState } from "react";
 
 const menuItems = [
   {
+    label: "Strona główna",
+    subItems: [
+      { href: "/admin/dashboard", label: "Panel administratora" },
+    ],
+  },
+  {
     label: "Parafianie",
     subItems: [
       { href: "/admin/dashboard/parafianie", label: "Wszyscy Parafianie" },
