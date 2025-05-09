@@ -18,7 +18,7 @@ export default function AdminNavbar({
 
   return (
     <nav className="bg-white/90 backdrop-blur-md border-b border-neutral/20 shadow-sm sticky top-0 z-50">
-      <div className="container mx-auto px-6 py-4">
+      <div className={`ml-auto px-6 py-4 ${isSidebarOpen ? 'ml-80' : ''} transition-all duration-300`}>
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <button

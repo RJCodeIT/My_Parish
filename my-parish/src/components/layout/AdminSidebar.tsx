@@ -3,47 +3,67 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AiOutlineDown, AiOutlineUp } from "react-icons/ai";
 import { useState } from "react";
+import { 
+  FaHome, 
+  FaUsers, 
+  FaPeopleCarry, 
+  FaBullhorn, 
+  FaPray, 
+  FaNewspaper, 
+  FaUserPlus, 
+  FaUserFriends, 
+  FaPlusCircle, 
+  FaRegBell, 
+  FaRegCalendarPlus, 
+  FaRegNewspaper 
+} from "react-icons/fa";
 
 const menuItems = [
   {
     label: "Strona główna",
+    icon: <FaHome className="text-lg" />,
     subItems: [
-      { href: "/admin/dashboard", label: "Panel administratora" },
+      { href: "/admin/dashboard", label: "Panel administratora", icon: <FaHome className="text-sm" /> },
     ],
   },
   {
     label: "Parafianie",
+    icon: <FaUsers className="text-lg" />,
     subItems: [
-      { href: "/admin/dashboard/parafianie", label: "Wszyscy Parafianie" },
-      { href: "/admin/dashboard/parafianie/dodawanie", label: "Nowy Parafianin" },
+      { href: "/admin/dashboard/parafianie", label: "Wszyscy Parafianie", icon: <FaUserFriends className="text-sm" /> },
+      { href: "/admin/dashboard/parafianie/dodawanie", label: "Nowy Parafianin", icon: <FaUserPlus className="text-sm" /> },
     ],
   },
   {
     label: "Grupy Parafialne",
+    icon: <FaPeopleCarry className="text-lg" />,
     subItems: [
-      { href: "/admin/dashboard/grupy-parafialne", label: "Wszystkie Grupy" },
-      { href: "/admin/dashboard/grupy-parafialne/dodawanie", label: "Nowa Grupa" },
+      { href: "/admin/dashboard/grupy-parafialne", label: "Wszystkie Grupy", icon: <FaUsers className="text-sm" /> },
+      { href: "/admin/dashboard/grupy-parafialne/dodawanie", label: "Nowa Grupa", icon: <FaPlusCircle className="text-sm" /> },
     ],
   },
   {
     label: "Ogłoszenia Duszpasterskie",
+    icon: <FaBullhorn className="text-lg" />,
     subItems: [
-      { href: "/admin/dashboard/ogloszenia", label: "Wszytskie Ogłoszenia" },
-      { href: "/admin/dashboard/ogloszenia/dodawanie", label: "Dodaj Ogłoszenie" },
+      { href: "/admin/dashboard/ogloszenia", label: "Wszytskie Ogłoszenia", icon: <FaRegBell className="text-sm" /> },
+      { href: "/admin/dashboard/ogloszenia/dodawanie", label: "Dodaj Ogłoszenie", icon: <FaPlusCircle className="text-sm" /> },
     ],
   },
   {
     label: "Intencje",
+    icon: <FaPray className="text-lg" />,
     subItems: [
-      { href: "/admin/dashboard/intencje", label: "Wszystkie Intencje" },
-      { href: "/admin/dashboard/intencje/dodawanie", label: "Nowa Intencja" },
+      { href: "/admin/dashboard/intencje", label: "Wszystkie Intencje", icon: <FaPray className="text-sm" /> },
+      { href: "/admin/dashboard/intencje/dodawanie", label: "Nowa Intencja", icon: <FaRegCalendarPlus className="text-sm" /> },
     ],
   },
   {
     label: "Aktualności",
+    icon: <FaNewspaper className="text-lg" />,
     subItems: [
-      { href: "/admin/dashboard/aktualnosci", label: "Wszystkie Aktualnosci" },
-      { href: "/admin/dashboard/aktualnosci/dodawanie", label: "Nowa Aktualność" },
+      { href: "/admin/dashboard/aktualnosci", label: "Wszystkie Aktualnosci", icon: <FaRegNewspaper className="text-sm" /> },
+      { href: "/admin/dashboard/aktualnosci/dodawanie", label: "Nowa Aktualność", icon: <FaPlusCircle className="text-sm" /> },
     ],
   },
 ];
@@ -66,7 +86,7 @@ export default function AdminSidebar({
 
   return (
     <aside
-      className={`fixed left-0 w-72 bg-white/95 backdrop-blur-sm shadow-lg h-screen transition-transform duration-300 border-r border-neutral/10 ${
+      className={`fixed left-0 w-80 bg-white/95 backdrop-blur-sm shadow-lg h-screen transition-transform duration-300 border-r border-neutral/10 ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >
@@ -81,7 +101,10 @@ export default function AdminSidebar({
               onClick={() => toggleSection(item.label)}
               className="flex justify-between items-center w-full px-4 py-3 text-gray-700 hover:text-primary hover:bg-gray-50/80 transition-colors"
             >
-              <span className="font-medium">{item.label}</span>
+              <div className="flex items-center">
+                <span className="mr-3 text-primary">{item.icon}</span>
+                <span className="font-medium">{item.label}</span>
+              </div>
               {openSections.includes(item.label) ? (
                 <AiOutlineUp size={16} />
               ) : (
@@ -96,13 +119,16 @@ export default function AdminSidebar({
                     <Link
                       key={subItem.href}
                       href={subItem.href}
-                      className={`block px-4 py-2.5 rounded-lg transition-colors ${
+                      className={`flex items-center px-4 py-2.5 rounded-lg transition-colors ${
                         isActive
                           ? "bg-primary text-white"
                           : "text-gray-600 hover:text-primary hover:bg-gray-100/80"
                       }`}
                       onClick={toggleSidebar}
                     >
+                      <span className={`mr-2 ${isActive ? 'text-white' : 'text-primary'}`}>
+                        {subItem.icon}
+                      </span>
                       {subItem.label}
                     </Link>
                   );

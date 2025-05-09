@@ -23,7 +23,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       />
       <div
         className={`flex-1 flex flex-col transition-all duration-300 ${
-          isSidebarOpen ? "ml-72" : "ml-0"
+          isSidebarOpen ? "ml-80" : "ml-0"
         }`}
       >
         <AdminNavbar
