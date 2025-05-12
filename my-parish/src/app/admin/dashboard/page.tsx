@@ -57,7 +57,7 @@ export default function AdminDashboard() {
   const fetchStatistics = async (year: number) => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/statistics?year=${year}`);
+      const response = await fetch(`/mojaParafia/api/statistics?year=${year}`);
       if (!response.ok) {
         throw new Error('Nie udało się pobrać statystyk');
       }

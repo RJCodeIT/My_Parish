@@ -20,7 +20,7 @@ export default function Announcements() {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    axios.get("/api/announcements")
+    axios.get("/mojaParafia/api/announcements")
       .then((response) => {
         setAnnouncements(response.data);
       })
@@ -31,7 +31,7 @@ export default function Announcements() {
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`/api/announcements/${id}`);
+      await axios.delete(`/mojaParafia/api/announcements/${id}`);
       setAnnouncements(announcements.filter((a) => a._id !== id));
     } catch (error) {
       console.error("Error deleting announcement:", error);

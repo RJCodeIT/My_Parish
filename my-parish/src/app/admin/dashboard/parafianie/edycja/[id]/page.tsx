@@ -55,7 +55,7 @@ export default function EditParishioner() {
       console.log("Fetching parishioner with ID:", parishionerId);
       
       try {
-        const response = await axios.get(`/api/parishioners/${parishionerId}`);
+        const response = await axios.get(`/mojaParafia/api/parishioners/${parishionerId}`);
         console.log("Fetched parishioner data:", response.data);
         
         // Map the API response to match the expected format in ParishionersForm

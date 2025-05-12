@@ -93,7 +93,7 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
           const imageFormData = new FormData();
           imageFormData.append("image", image);
           
-          const imageUploadResponse = await fetch('/api/upload', {
+          const imageUploadResponse = await fetch('/mojaParafia/api/upload', {
             method: 'POST',
             body: imageFormData
           });
@@ -107,7 +107,7 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
         }
         
         // Now update the intention with JSON data
-        const fetchResponse = await fetch(`/api/intentions/${initialData._id}`, {
+        const fetchResponse = await fetch(`/mojaParafia/api/intentions/${initialData._id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
         if (image) formData.append("image", image);
         formData.append("masses", JSON.stringify(masses));
         
-        const axiosResponse = await axios.post("/api/intentions", formData, {
+        const axiosResponse = await axios.post("/mojaParafia/api/intentions", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         

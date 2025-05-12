@@ -28,7 +28,7 @@ export default function EditIntention() {
   useEffect(() => {
     const fetchIntention = async () => {
       try {
-        const response = await axios.get(`/api/intentions/${intentionId}`);
+        const response = await axios.get(`/mojaParafia/api/intentions/${intentionId}`);
         setIntention(response.data);
       } catch (error) {
         console.error("Błąd podczas pobierania intencji:", error);

@@ -93,7 +93,7 @@ export default function AnnouncementsForm({ initialData, isEditMode = false }: A
           const imageFormData = new FormData();
           imageFormData.append("image", image);
           
-          const imageUploadResponse = await fetch('/api/upload', {
+          const imageUploadResponse = await fetch('/mojaParafia/api/upload', {
             method: 'POST',
             body: imageFormData
           });
@@ -107,7 +107,7 @@ export default function AnnouncementsForm({ initialData, isEditMode = false }: A
         }
         
         // Now update the announcement with JSON data
-        response = await fetch(`/api/announcements/${initialData._id}`, {
+        response = await fetch(`/mojaParafia/api/announcements/${initialData._id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -124,7 +124,7 @@ export default function AnnouncementsForm({ initialData, isEditMode = false }: A
         formData.append("extraInfo", extraInfo);
         formData.append("content", JSON.stringify(content));
         
-        response = await fetch('/api/announcements', {
+        response = await fetch('/mojaParafia/api/announcements', {
           method: 'POST',
           body: formData,
           headers: {

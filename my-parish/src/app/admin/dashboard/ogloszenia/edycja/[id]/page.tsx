@@ -34,7 +34,7 @@ export default function EditAnnouncement() {
   useEffect(() => {
     const fetchAnnouncement = async () => {
       try {
-        const response = await axios.get(`/api/announcements/${announcementId}`);
+        const response = await axios.get(`/mojaParafia/api/announcements/${announcementId}`);
         console.log("Fetched announcement data:", response.data);
         setAnnouncement(response.data);
         setLoading(false);

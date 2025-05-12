@@ -68,7 +68,7 @@ export default function NewsForm({ initialData, isEditMode = false }: NewsFormPr
           const imageFormData = new FormData();
           imageFormData.append("image", image);
           
-          const imageUploadResponse = await fetch('/api/upload', {
+          const imageUploadResponse = await fetch('/mojaParafia/api/upload', {
             method: 'POST',
             body: imageFormData
           });
@@ -82,7 +82,7 @@ export default function NewsForm({ initialData, isEditMode = false }: NewsFormPr
         }
         
         // Now update the news with JSON data
-        const fetchResponse = await fetch(`/api/news/${initialData._id}`, {
+        const fetchResponse = await fetch(`/mojaParafia/api/news/${initialData._id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -107,7 +107,7 @@ export default function NewsForm({ initialData, isEditMode = false }: NewsFormPr
         formData.append("content", content);
         if (image) formData.append("image", image);
 
-        const response = await axios.post("/api/news", formData, {
+        const response = await axios.post("/mojaParafia/api/news", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         

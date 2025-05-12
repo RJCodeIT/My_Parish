@@ -41,7 +41,7 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
   const router = useRouter();
 
   useEffect(() => {
-    axios.get(`/api/groups?memberId=${parishioner._id}`).then((res) => {
+    axios.get(`/mojaParafia/api/groups?memberId=${parishioner._id}`).then((res) => {
       setGroups(res.data.map((group: { name: string }) => group.name));
     });
   }, [parishioner._id]);

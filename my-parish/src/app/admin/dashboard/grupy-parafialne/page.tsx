@@ -12,7 +12,7 @@ export default function ParishGroups() {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    axios.get("/api/groups")
+    axios.get("/mojaParafia/api/groups")
       .then((response) => {
         setGroups(response.data);
       })
@@ -22,13 +22,15 @@ export default function ParishGroups() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    try {
-      await axios.delete(`/api/groups/${id}`);
-      setGroups(groups.filter((g) => g._id !== id));
-    } catch (error) {
-      console.error("Error deleting group:", error);
-    }
-  };
+  try {
+    await axios.delete(`/mojaParafia/api/groups/${id}`);
+    // Po usunięciu pobierz ponownie grupy
+    const response = await axios.get("/mojaParafia/api/groups");
+    setGroups(response.data);
+  } catch (error) {
+    console.error("Error deleting group:", error);
+  }
+};
 
   const handleSearch = (query: string) => {
     setSearchQuery(query.toLowerCase());

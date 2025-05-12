@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { AiOutlineDown, AiOutlineUp, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
-import axios from "axios";
+
 import { useRouter } from "next/navigation";
 
 interface Announcement {
@@ -23,21 +23,11 @@ export default function AnnouncementCard({ announcement, onDelete }: Announcemen
   const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (window.confirm(`Czy na pewno chcesz usunąć ogłoszenie: "${announcement.title}"?`)) {
-      try {
-        // Use the id field which is what Prisma expects
-        const idToUse = announcement.id || announcement._id;
-        console.log('Deleting announcement with ID:', idToUse);
-        
-        await axios.delete(`/api/announcements/${idToUse}`);
-        // Make sure we have a valid ID to pass to onDelete
-        if (announcement._id) {
-          onDelete?.(announcement._id);
-        }
-      } catch (error) {
-        console.error("Błąd podczas usuwania ogłoszenia:", error);
-        alert("Wystąpił błąd podczas usuwania ogłoszenia");
+      const idToUse = announcement.id || announcement._id;
+      if (idToUse) {
+        onDelete?.(idToUse);
       }
     }
   };

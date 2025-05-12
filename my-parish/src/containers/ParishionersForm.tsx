@@ -142,13 +142,13 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
       // Use either _id or id field, whichever is available
       if (isEditMode && (formData._id || formData.id)) {
         const parishionerId = formData._id || formData.id;
-        response = await fetch(`/api/parishioners/${parishionerId}`, {
+        response = await fetch(`/mojaParafia/api/parishioners/${parishionerId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formattedFormData),
         });
       } else {
-        response = await fetch("/api/parishioners", {
+        response = await fetch("/mojaParafia/api/parishioners", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formattedFormData),

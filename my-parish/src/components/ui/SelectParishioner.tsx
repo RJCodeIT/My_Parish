@@ -43,10 +43,12 @@ export default function SelectParishioner({
 
   // Load parishioners and initialize selected members
   useEffect(() => {
-    axios.get("/api/parishioners").then((res) => {
+    // Get correct API base path (for Next.js basePath)
+    const basePath = (typeof window !== 'undefined' && window.location.pathname.startsWith('/mojaParafia')) ? '/mojaParafia' : '';
+    const apiUrl = (typeof window !== 'undefined') ? `${window.location.origin}${basePath}/api/parishioners` : '/api/parishioners';
+    axios.get(apiUrl).then((res) => {
       console.log("Loaded parishioners:", res.data);
       setParishioners(res.data);
-      
       // Initialize selected members based on value prop
       if (value) {
         const selectedIds = Array.isArray(value) ? value : [value];

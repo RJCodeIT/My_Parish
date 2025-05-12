@@ -12,7 +12,7 @@ export default function Login() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    router.push('/admin/dashboard');
+    router.push('/mojaParafia/admin/dashboard');
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

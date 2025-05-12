@@ -19,7 +19,7 @@ export default function News() {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const { data } = await axios.get("/api/news");
+        const { data } = await axios.get("/mojaParafia/api/news");
         setNewsList(data);
       } catch (error) {
         console.error("Błąd podczas pobierania aktualności:", error);

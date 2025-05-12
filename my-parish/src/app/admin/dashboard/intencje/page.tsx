@@ -23,7 +23,7 @@ export default function Intentions() {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    axios.get("/api/intentions")
+    axios.get("/mojaParafia/api/intentions")
       .then((response) => {
         setIntentions(response.data);
       })
@@ -34,8 +34,10 @@ export default function Intentions() {
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`/api/intentions/${id}`);
-      setIntentions(intentions.filter((i) => i._id !== id));
+      await axios.delete(`/mojaParafia/api/intentions/${id}`);
+      // Po usunięciu pobierz listę intencji ponownie z API
+      const response = await axios.get("/mojaParafia/api/intentions");
+      setIntentions(response.data);
     } catch (error) {
       console.error("Error deleting intention:", error);
     }

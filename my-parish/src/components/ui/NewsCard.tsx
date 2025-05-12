@@ -25,7 +25,7 @@ export default function NewsCard({ news, onDelete }: NewsCardProps) {
   const handleDelete = async () => {
     if (window.confirm(`Czy na pewno chcesz usunąć aktualność: "${news.title}"?`)) {
       try {
-        await axios.delete(`/api/news/${news._id}`);
+        await axios.delete(`/mojaParafia/api/news/${news._id}`);
         onDelete?.(news._id);
       } catch (error) {
         console.error("Błąd podczas usuwania aktualności:", error);

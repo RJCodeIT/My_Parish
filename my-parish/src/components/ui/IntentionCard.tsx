@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AiOutlineDown, AiOutlineUp, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
-import axios from "axios";
+
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -26,15 +26,9 @@ export default function IntentionCard({ intention, onDelete }: IntentionCardProp
   const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (window.confirm(`Czy na pewno chcesz usunąć intencję: "${intention.title}"?`)) {
-      try {
-        await axios.delete(`/api/intentions/${intention._id}`);
-        onDelete?.(intention._id);
-      } catch (error) {
-        console.error("Błąd podczas usuwania intencji:", error);
-        alert("Wystąpił błąd podczas usuwania intencji");
-      }
+      onDelete?.(intention._id);
     }
   };
 

@@ -18,7 +18,13 @@ export const GET = async () => {
         sacraments: true
       }
     });
-    return NextResponse.json(parishioners, { status: 200 });
+    // Add _id and id fields for frontend compatibility
+    const response = parishioners.map(p => ({
+      ...p,
+      _id: p.id,
+      id: p.id,
+    }));
+    return NextResponse.json(response, { status: 200 });
   } catch (error) {
     console.error('Error fetching parishioners:', error);
     return NextResponse.json({ error: "Error fetching parishioners" }, { status: 500 });

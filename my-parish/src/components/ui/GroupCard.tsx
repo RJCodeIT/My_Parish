@@ -1,11 +1,18 @@
 import React, { useState } from "react";
 import { PopulatedGroup } from "@/types";
 import { AiOutlineDown, AiOutlineUp, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
-import axios from "axios";
+
 import { useRouter } from "next/navigation";
 
+interface GroupMember {
+  _id?: string;
+  id?: string;
+  firstName?: string;
+  lastName?: string;
+}
+
 interface GroupCardProps {
-  group: PopulatedGroup;
+  group: PopulatedGroup & { members: GroupMember[] };
   onDelete?: (id: string) => void;
 }
 
@@ -18,15 +25,9 @@ export default function GroupCard({ group, onDelete }: GroupCardProps) {
     return (group._id || group.id || "") as string;
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (window.confirm(`Czy na pewno chcesz usunąć grupę ${group.name}?`)) {
-      try {
-        await axios.delete(`/api/groups/${getGroupId()}`);
-        onDelete?.(getGroupId());
-      } catch (error) {
-        console.error("Błąd podczas usuwania grupy:", error);
-        alert("Wystąpił błąd podczas usuwania grupy");
-      }
+      onDelete?.(getGroupId());
     }
   };
 
@@ -84,9 +85,9 @@ export default function GroupCard({ group, onDelete }: GroupCardProps) {
             <h4 className="text-lg font-semibold">Członkowie:</h4>
             {group.members && group.members.length > 0 ? (
               <ul className="list-disc list-inside text-sm text-gray-700">
-                {group.members.map((member, index) => {
-                  // Check if member is an object with firstName and lastName properties
-                  if (typeof member === 'object' && member && 'firstName' in member && 'lastName' in member) {
+                {group.members.map((member: GroupMember, index: number) => {
+                  // The API returns members as array of { _id, id, firstName, lastName }
+                  if (member && (member.firstName || member.lastName)) {
                     return (
                       <li key={member._id || member.id || index}>
                         {member.firstName} {member.lastName}

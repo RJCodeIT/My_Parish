@@ -46,7 +46,7 @@ export default function Parishioners() {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    axios.get("/api/parishioners")
+    axios.get("/mojaParafia/api/parishioners")
       .then((response) => {
         // Map the API response to include _id field for compatibility
         const mappedData = response.data.map((item: ParishionerApiResponse) => ({
@@ -62,7 +62,7 @@ export default function Parishioners() {
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`/api/parishioners/${id}`);
+      await axios.delete(`/mojaParafia/api/parishioners/${id}`);
       setParishioners((prev) => prev.filter((p) => p._id !== id));
       alert("Parafianin został usunięty.");
     } catch (error) {

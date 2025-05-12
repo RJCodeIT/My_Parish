@@ -26,7 +26,7 @@ export default function EditNews() {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await axios.get(`/api/news/${newsId}`);
+        const response = await axios.get(`/mojaParafia/api/news/${newsId}`);
         setNews(response.data);
       } catch (error) {
         console.error("Błąd podczas pobierania aktualności:", error);

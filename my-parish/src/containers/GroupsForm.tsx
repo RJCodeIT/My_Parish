@@ -93,13 +93,13 @@ export default function GroupsForm({ initialData, isEditMode = false }: GroupsFo
       console.log("Prepared data for API:", apiFormData);
       
       if (isEditMode && initialData?._id) {
-        const response = await axios.put(`/api/groups/${initialData._id}`, apiFormData);
+        const response = await axios.put(`/mojaParafia/api/groups/${initialData._id}`, apiFormData);
         console.log("Group update response:", response.data);
         alert("Grupa zaktualizowana!");
         router.push("/admin/dashboard/grupy-parafialne");
       } else {
         console.log("Submitting group data:", apiFormData);
-        const response = await axios.post("/api/groups", apiFormData);
+        const response = await axios.post("/mojaParafia/api/groups", apiFormData);
         console.log("Group creation response:", response.data);
         alert("Grupa dodana!");
         router.push("/admin/dashboard/grupy-parafialne");

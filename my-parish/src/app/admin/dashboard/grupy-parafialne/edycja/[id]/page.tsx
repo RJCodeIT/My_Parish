@@ -26,7 +26,7 @@ export default function EditGroup() {
       }
 
       try {
-        const response = await axios.get(`/api/groups/${groupId}`);
+        const response = await axios.get(`/mojaParafia/api/groups/${groupId}`);
         console.log("Fetched group data:", response.data);
         setGroup(response.data);
         setLoading(false);
