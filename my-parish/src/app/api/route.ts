@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(_request: NextRequest, _context: { params: { id: string } }) {
   try {
     await prisma.$connect();
     return NextResponse.json({

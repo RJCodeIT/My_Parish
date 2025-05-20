@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "../../../generated/prisma";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export const GET = async () => {
   try {
@@ -43,7 +42,7 @@ export const POST = async (req: Request) => {
     const image = formData.get('image') as File;
     
     // Użyj transakcji Prisma do utworzenia ogłoszenia i jego zawartości
-    const newAnnouncement = await prisma.$transaction(async (prismaTransaction) => {
+    const newAnnouncement = await prisma.$transaction(async (prismaTransaction: Prisma.TransactionClient) => {
       // Utwórz ogłoszenie
       const announcement = await prismaTransaction.announcement.create({
         data: {
@@ -55,7 +54,7 @@ export const POST = async (req: Request) => {
       });
 
       // Utwórz zawartość ogłoszenia
-      await Promise.all(contentArray.map((item: { order: number; text: string }) => {
+      await Promise.all((contentArray || []).map((item: { order: number; text: string }) => {
         return prismaTransaction.announcementContent.create({
           data: {
             order: item.order,

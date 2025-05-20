@@ -1,4 +1,4 @@
-import { PrismaClient } from '../generated/prisma';
+import { PrismaClient } from '@prisma/client';
 
 const { DB_USER, DB_PASSWORD, DB_SERVER, DB_DATABASE, DB_PORT, DB_ENCRYPT, DB_TRUST_CERT } = process.env;
 

@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import { PrismaClient, Prisma } from "../../../../generated/prisma";
+import { NextRequest } from "next/server";
+import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
-const prisma = new PrismaClient();
-
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
+  
   try {
-    // Await the params object to get the id
-    const resolvedParams = await Promise.resolve(params);
-    const id = resolvedParams.id;
+    const id = params.id;
     
     console.log('Fetching announcement with ID:', id);
     
@@ -41,18 +40,17 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  
   try {
-    // Await the params object to get the id
-    const resolvedParams = await Promise.resolve(params);
-    const id = resolvedParams.id;
+    const id = params.id;
     
     console.log('Updating announcement with ID:', id);
     
-    const body = await req.json();
+    const body = await request.json();
     
     // Użyj transakcji Prisma do aktualizacji ogłoszenia i jego zawartości
-    const updatedAnnouncement = await prisma.$transaction(async (prismaTransaction) => {
+    const updatedAnnouncement = await prisma.$transaction(async (prismaTransaction: Prisma.TransactionClient) => {
       // Aktualizuj podstawowe dane ogłoszenia
       await prismaTransaction.announcement.update({
         where: { id },
@@ -70,7 +68,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       });
 
       // Dodaj nową zawartość
-      const contentPromises = body.content.map((item: { order: number; text: string }, index: number) =>
+      const contentPromises = (body.content || []).map((item: { order: number; text: string }, index: number) =>
         prismaTransaction.announcementContent.create({
           data: {
             order: index,
@@ -106,11 +104,10 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+  
   try {
-    // Await the params object to get the id
-    const resolvedParams = await Promise.resolve(params);
-    const id = resolvedParams.id;
+    const id = params.id;
     
     console.log('Deleting announcement with ID:', id);
     
@@ -125,7 +122,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     }
     
     // Użyj transakcji Prisma do usunięcia ogłoszenia i powiązanej zawartości
-    await prisma.$transaction(async (prismaTransaction) => {
+    await prisma.$transaction(async (prismaTransaction: Prisma.TransactionClient) => {
       // Usuń zawartość ogłoszenia
       await prismaTransaction.announcementContent.deleteMany({
         where: { announcementId: id }
@@ -144,7 +141,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     console.error('Error deleting announcement:', error);
     
     // Sprawdź, czy błąd dotyczy nieistniejącego rekordu
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json({ error: "Announcement not found" }, { status: 404 });
     }
     

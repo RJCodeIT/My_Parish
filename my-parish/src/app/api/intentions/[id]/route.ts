@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
-import { PrismaClient, Prisma } from "../../../../generated/prisma";
+import { NextResponse, NextRequest } from "next/server";
+import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
-const prisma = new PrismaClient();
-
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  
   try {
     const intention = await prisma.intention.findUnique({
       where: { id: params.id },
@@ -30,12 +30,13 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  
   try {
-    const body = await req.json();
+    const body = await request.json();
     
     // Use Prisma transaction to update intention and masses
-    const updatedIntention = await prisma.$transaction(async (prismaTransaction) => {
+    const updatedIntention = await prisma.$transaction(async (prismaTransaction: Prisma.TransactionClient) => {
       // Update intention basic data
       await prismaTransaction.intention.update({
         where: { id: params.id },
@@ -85,7 +86,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     console.error('Błąd podczas edycji intencji mszalnej', error);
     
     // Check if error is about non-existing record
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json({ error: "Intencja mszalna nie została znaleziona" }, { status: 404 });
     }
     
@@ -93,10 +94,11 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+  
   try {
     // Use Prisma transaction to delete intention and masses
-    await prisma.$transaction(async (prismaTransaction) => {
+    await prisma.$transaction(async (prismaTransaction: Prisma.TransactionClient) => {
       // Delete masses (will be cascaded by the database due to onDelete: Cascade)
       
       // Delete intention
@@ -110,7 +112,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     console.error('Błąd podczas usuwania intencji mszalnej', error);
     
     // Check if error is about non-existing record
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json({ error: "Intencja mszalna nie została znaleziona" }, { status: 404 });
     }
     

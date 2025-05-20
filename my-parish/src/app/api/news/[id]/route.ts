@@ -1,9 +1,8 @@
-import { NextResponse } from "next/server";
-import { PrismaClient, Prisma } from "../../../../generated/prisma";
+import { NextResponse, NextRequest } from "next/server";
+import prisma from "@/lib/prisma";
 
-const prisma = new PrismaClient();
-
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  
   try {
     const newsItem = await prisma.news.findUnique({
       where: { id: params.id }
@@ -27,9 +26,10 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  
   try {
-    const body = await req.json();
+    const body = await request.json();
     
     const updatedNews = await prisma.news.update({
       where: { id: params.id },
@@ -47,7 +47,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     console.error('Błąd podczas edycji aktualności:', error);
     
     // Check if error is about non-existing record
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json({ error: "Aktualność nie została znaleziona" }, { status: 404 });
     }
     
@@ -55,7 +55,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+  
   try {
     await prisma.news.delete({
       where: { id: params.id }
@@ -66,7 +67,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     console.error('Błąd podczas usuwania aktualności:', error);
     
     // Check if error is about non-existing record
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json({ error: "Aktualność nie została znaleziona" }, { status: 404 });
     }
     

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "../../../generated/prisma";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 // Type definition for sacrament data
 interface SacramentData {
@@ -118,7 +117,7 @@ export const POST = async (req: Request) => {
     console.log('Creating parishioner with address data:', { street, houseNumber, postalCode, city });
     
     // Użyj transakcji Prisma do utworzenia parafianina i jego danych
-    const newParishioner = await prisma.$transaction(async (prismaTransaction) => {
+    const newParishioner = await prisma.$transaction(async (prismaTransaction: Prisma.TransactionClient) => {
       // Utwórz adres jeśli podano dane
       let addressId: string | undefined = undefined;
       if (street && houseNumber && postalCode && city) {

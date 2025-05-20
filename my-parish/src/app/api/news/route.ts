@@ -1,9 +1,7 @@
-import { NextResponse } from "next/server";
-import { PrismaClient } from "../../../generated/prisma";
+import { NextResponse, NextRequest } from "next/server";
+import prisma from "@/lib/prisma";
 
-const prisma = new PrismaClient();
-
-export async function GET() {
+export async function GET(_request: NextRequest, _context: { params: { id: string } }) {
   try {
     const news = await prisma.news.findMany({
       orderBy: {

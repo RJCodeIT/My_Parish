@@ -1,16 +1,17 @@
-import { NextResponse } from "next/server";
-import { PrismaClient, Prisma } from "../../../../generated/prisma";
-
-const prisma = new PrismaClient();
+import { NextResponse, NextRequest } from "next/server";
+import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 /**
  * Pobierz grupę o podanym ID.
  * 
- * @param req - Obiekt żądania.
- * @param params - Parametry ścieżki, zawierające ID grupy.
+ * @param request - Obiekt żądania.
+ * @param context - Kontekst zawierający parametry ścieżki.
  * @returns Odpowiedź serwera z grupą lub błędem.
  */
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  
   try {
     console.log("Fetching group with ID:", params.id);
     
@@ -70,9 +71,10 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
  * @param params - Parametry ścieżki, zawierające ID grupy.
  * @returns Odpowiedź serwera z zaktualizowaną grupą lub błędem.
  */
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  
   try {
-    const body = await req.json();
+    const body = await request.json();
     console.log("Updating group with ID:", params.id, "with data:", body);
     
     // Validate required fields
@@ -87,7 +89,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     const leaderIdToUse = body.leaderId;
     
     // Użyj transakcji Prisma do aktualizacji grupy i jej członków
-    const updatedGroup = await prisma.$transaction(async (prismaTransaction) => {
+    const updatedGroup = await prisma.$transaction(async (prismaTransaction: Prisma.TransactionClient) => {
       // Aktualizuj podstawowe dane grupy
       await prismaTransaction.group.update({
         where: { id: params.id },
@@ -164,7 +166,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     console.error('Błąd aktualizacji grupy:', error);
     
     // Sprawdź, czy błąd dotyczy nieistniejącego rekordu
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json({ error: "Grupa nie znaleziona" }, { status: 404 });
     }
     
@@ -179,10 +181,11 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
  * @param params - Parametry ścieżki, zawierające ID grupy.
  * @returns Odpowiedź serwera z potwierdzeniem usunięcia lub błędem.
  */
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+  
   try {
     // Użyj transakcji Prisma do usunięcia grupy i jej członków
-    await prisma.$transaction(async (prismaTransaction) => {
+    await prisma.$transaction(async (prismaTransaction: Prisma.TransactionClient) => {
       // Usuń wszystkich członków grupy najpierw
       await prismaTransaction.groupMember.deleteMany({
         where: { groupId: params.id }
@@ -199,7 +202,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     console.error('Błąd usuwania grupy:', error);
     
     // Sprawdź, czy błąd dotyczy nieistniejącego rekordu
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json({ error: "Grupa nie znaleziona" }, { status: 404 });
     }
     

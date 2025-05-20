@@ -1,10 +1,9 @@
-import { NextResponse } from "next/server";
-import { PrismaClient, Prisma } from "../../../../generated/prisma";
-
-const prisma = new PrismaClient();
+import { NextResponse, NextRequest } from "next/server";
+import prisma from "@/lib/prisma";
+import { TransactionClient } from "@/lib/prisma-types";
 
 // Pobranie parafianina po ID
-export async function GET(request: Request) {
+export async function GET(_request: NextRequest, _context: { params: { id: string } }) {
   // Get the URL from the request
   const url = new URL(request.url);
   const pathParts = url.pathname.split('/');
@@ -43,7 +42,7 @@ export async function GET(request: Request) {
 }
 
 // Aktualizacja danych parafianina
-export async function PUT(request: Request) {
+export async function PUT(_request: NextRequest, { params: _params }: { params: { id: string } }) {
   // Get the URL from the request
   const url = new URL(request.url);
   const pathParts = url.pathname.split('/');
@@ -59,7 +58,7 @@ export async function PUT(request: Request) {
     const body = await request.json();
     
     // Użyj transakcji Prisma do aktualizacji parafianina i jego danych
-    const updatedParishioner = await prisma.$transaction(async (prismaTransaction) => {
+    const updatedParishioner = await prisma.$transaction(async (prismaTransaction: TransactionClient) => {
       // Aktualizuj adres jeśli podano
       if (body.address) {
         const currentParishioner = await prismaTransaction.parishioner.findUnique({
@@ -156,7 +155,7 @@ export async function PUT(request: Request) {
     console.error('Error updating parishioner:', error);
     
     // Sprawdź, czy błąd dotyczy nieistniejącego rekordu
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json({ error: "Parishioner not found" }, { status: 404 });
     }
     
@@ -165,7 +164,7 @@ export async function PUT(request: Request) {
 }
 
 // Usunięcie parafianina
-export async function DELETE(request: Request) {
+export async function DELETE(_request: NextRequest, { params: _params }: { params: { id: string } }) {
   // Get the URL from the request
   const url = new URL(request.url);
   const pathParts = url.pathname.split('/');
@@ -179,7 +178,7 @@ export async function DELETE(request: Request) {
 
   try {
     // Użyj transakcji Prisma do usunięcia parafianina i powiązanych danych
-    await prisma.$transaction(async (prismaTransaction) => {
+    await prisma.$transaction(async (prismaTransaction: TransactionClient) => {
       // Pobierz parafianina z ID adresu
       const parishioner = await prismaTransaction.parishioner.findUnique({
         where: { id },
@@ -209,7 +208,7 @@ export async function DELETE(request: Request) {
     console.error('Error deleting parishioner:', error);
     
     // Sprawdź, czy błąd dotyczy nieistniejącego rekordu
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json({ error: "Parishioner not found" }, { status: 404 });
     }
     
