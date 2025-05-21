@@ -4,6 +4,7 @@ import axios from "axios";
 import SectionTitle from "@/components/layout/SectionTitle";
 import AdminSearchBar from "@/components/ui/AdminSearchBar";
 import ParishionerCard from "@/components/ui/ParishionerCard";
+import { useAlerts } from "@/components/ui/Alerts";
 
 // Interface for the API response from Prisma
 interface ParishionerApiResponse {
@@ -44,6 +45,7 @@ interface Parishioner {
 export default function Parishioners() {
   const [parishioners, setParishioners] = useState<Parishioner[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const alerts = useAlerts();
 
   useEffect(() => {
     axios.get("/mojaParafia/api/parishioners")
@@ -64,10 +66,27 @@ export default function Parishioners() {
     try {
       await axios.delete(`/mojaParafia/api/parishioners/${id}`);
       setParishioners((prev) => prev.filter((p) => p._id !== id));
-      alert("Parafianin został usunięty.");
+      alerts.showSuccess("Parafianin został usunięty.");
     } catch (error) {
       console.error("Błąd podczas usuwania parafianina:", error);
-      alert("Nie udało się usunąć parafianina.");
+      
+      // Sprawdzamy, czy błąd dotyczy przynależności do grupy parafialnej
+      if (axios.isAxiosError(error) && error.response) {
+        const responseData = error.response.data;
+        
+        if (responseData.error === "Parishioner belongs to a group" && responseData.groupName) {
+          alerts.showError(`Nie udało się usunąć parafianina, ponieważ należy do grupy parafialnej: ${responseData.groupName}`);
+          return;
+        }
+        
+        if (responseData.error === "Parishioner is a leader of a group" && responseData.groupName) {
+          alerts.showError(`Nie udało się usunąć parafianina, ponieważ jest liderem grupy parafialnej: ${responseData.groupName}`);
+          return;
+        }
+      }
+      
+      // Ogólny komunikat błędu, jeśli nie jest to specyficzny przypadek
+      alerts.showError("Nie udało się usunąć parafianina.");
     }
   };
 

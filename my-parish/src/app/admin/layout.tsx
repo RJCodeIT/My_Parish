@@ -3,6 +3,7 @@ import { ReactNode, useState } from "react";
 import AdminNavbar from "@/components/layout/AdminNavbar";
 import AdminSidebar from "@/components/layout/AdminSidebar";
 import { usePathname } from "next/navigation";
+import AlertProvider from "@/components/providers/AlertProvider";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -10,7 +11,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   if (isAuthPage) {
-    return <>{children}</>;
+    return <AlertProvider>{children}</AlertProvider>;
   }
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -32,7 +33,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         />
         <main className="flex-1 p-8 overflow-auto container mx-auto">
           <div className="bg-white rounded-xl shadow-sm border border-neutral/10 p-6">
-            {children}
+            <AlertProvider>
+              {children}
+            </AlertProvider>
           </div>
         </main>
       </div>

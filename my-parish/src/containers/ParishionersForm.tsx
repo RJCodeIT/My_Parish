@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
+import { useAlerts } from "@/components/ui/Alerts";
 
 const SACRAMENT_LABELS: { [key: string]: string } = {
   baptism: "Chrzest",
@@ -62,6 +63,7 @@ const defaultFormData: ParishionerData = {
 export default function ParishionersForm({ initialData, isEditMode = false }: ParishionersFormProps) {
   const router = useRouter();
   const [formData, setFormData] = useState<ParishionerData>(defaultFormData);
+  const alerts = useAlerts();
 
   useEffect(() => {
     if (initialData && isEditMode) {
@@ -159,20 +161,19 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
   
       if (!response.ok) {
         console.error("Błąd:", data);
-        alert(`Błąd: ${data.message || data.error}`);
+        alerts.showError(`Błąd: ${data.message || data.error}`);
         return;
       }
   
-      if (isEditMode) {
-        alert("Parafianin zaktualizowany pomyślnie!");
+      alerts.showSuccess(isEditMode ? "Parafianin zaktualizowany pomyślnie!" : "Parafianin dodany pomyślnie!");
+      
+      // Redirect after a short delay to show the success message
+      setTimeout(() => {
         router.push("/admin/dashboard/parafianie");
-      } else {
-        alert("Parafianin dodany pomyślnie!");
-        router.push("/admin/dashboard/parafianie");
-      }
+      }, 2000);
     } catch (error) {
       console.error("Error sending request:", error);
-      alert("Błąd połączenia z serwerem.");
+      alerts.showError("Błąd połączenia z serwerem.");
     }
   };
 

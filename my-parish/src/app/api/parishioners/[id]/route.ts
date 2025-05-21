@@ -3,11 +3,9 @@ import prisma from "@/lib/prisma";
 import { TransactionClient } from "@/lib/prisma-types";
 
 // Pobranie parafianina po ID
-export async function GET(_request: NextRequest, _context: { params: { id: string } }) {
-  // Get the URL from the request
-  const url = new URL(request.url);
-  const pathParts = url.pathname.split('/');
-  const id = pathParts[pathParts.length - 1];
+export async function GET(_request: NextRequest, context: { params: { id: string } }) {
+  // Get the ID from context params
+  const id = context.params.id;
   
   console.log("API GET request for parishioner with ID:", id);
   
@@ -42,11 +40,9 @@ export async function GET(_request: NextRequest, _context: { params: { id: strin
 }
 
 // Aktualizacja danych parafianina
-export async function PUT(_request: NextRequest, { params: _params }: { params: { id: string } }) {
-  // Get the URL from the request
-  const url = new URL(request.url);
-  const pathParts = url.pathname.split('/');
-  const id = pathParts[pathParts.length - 1];
+export async function PUT(_request: NextRequest, { params }: { params: { id: string } }) {
+  // Get the ID from context params
+  const id = params.id;
   
   console.log("API PUT request for parishioner with ID:", id);
   
@@ -55,7 +51,7 @@ export async function PUT(_request: NextRequest, { params: _params }: { params: 
   }
 
   try {
-    const body = await request.json();
+    const body = await _request.json();
     
     // Użyj transakcji Prisma do aktualizacji parafianina i jego danych
     const updatedParishioner = await prisma.$transaction(async (prismaTransaction: TransactionClient) => {
@@ -164,11 +160,9 @@ export async function PUT(_request: NextRequest, { params: _params }: { params: 
 }
 
 // Usunięcie parafianina
-export async function DELETE(_request: NextRequest, { params: _params }: { params: { id: string } }) {
-  // Get the URL from the request
-  const url = new URL(request.url);
-  const pathParts = url.pathname.split('/');
-  const id = pathParts[pathParts.length - 1];
+export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+  // Get the ID from context params
+  const id = params.id;
   
   console.log("API DELETE request for parishioner with ID:", id);
   
@@ -177,16 +171,50 @@ export async function DELETE(_request: NextRequest, { params: _params }: { param
   }
 
   try {
-    // Użyj transakcji Prisma do usunięcia parafianina i powiązanych danych
-    await prisma.$transaction(async (prismaTransaction: TransactionClient) => {
-      // Pobierz parafianina z ID adresu
-      const parishioner = await prismaTransaction.parishioner.findUnique({
-        where: { id },
-        select: { addressId: true }
+    // Najpierw sprawdź, czy parafianin należy do jakiejś grupy
+    const parishionerWithGroups = await prisma.parishioner.findUnique({
+      where: { id },
+      include: {
+        memberGroups: {
+          include: {
+            group: true
+          }
+        },
+        leadingGroups: true
+      }
+    });
+    
+    if (!parishionerWithGroups) {
+      return NextResponse.json({ error: "Parishioner not found" }, { status: 404 });
+    }
+    
+    // Sprawdź, czy parafianin jest członkiem jakiejś grupy
+    if (parishionerWithGroups.memberGroups.length > 0) {
+      const groupName = parishionerWithGroups.memberGroups[0].group.name;
+      return NextResponse.json({ 
+        error: "Parishioner belongs to a group", 
+        groupName: groupName 
+      }, { status: 400 });
+    }
+    
+    // Sprawdź, czy parafianin jest liderem jakiejś grupy
+    if (parishionerWithGroups.leadingGroups.length > 0) {
+      // Pobierz pełne dane grupy, aby mieć dostęp do nazwy
+      const leaderGroup = await prisma.group.findUnique({
+        where: { id: parishionerWithGroups.leadingGroups[0].id }
       });
       
-      // Usuń członkostwa w grupach
-      await prismaTransaction.groupMember.deleteMany({
+      const groupName = leaderGroup?.name || "Nieznana grupa";
+      return NextResponse.json({ 
+        error: "Parishioner is a leader of a group", 
+        groupName: groupName 
+      }, { status: 400 });
+    }
+    
+    // Użyj transakcji Prisma do usunięcia parafianina i powiązanych danych
+    await prisma.$transaction(async (prismaTransaction: TransactionClient) => {
+      // Usuń sakramenty parafianina
+      await prismaTransaction.sacrament.deleteMany({
         where: { parishionerId: id }
       });
       
@@ -196,9 +224,9 @@ export async function DELETE(_request: NextRequest, { params: _params }: { param
       });
       
       // Usuń adres jeśli istnieje
-      if (parishioner?.addressId) {
+      if (parishionerWithGroups.addressId) {
         await prismaTransaction.address.delete({
-          where: { id: parishioner.addressId }
+          where: { id: parishionerWithGroups.addressId }
         });
       }
     });

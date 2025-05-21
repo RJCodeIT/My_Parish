@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { AiOutlineDown, AiOutlineUp, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
+import { useAlerts } from "./Alerts";
 
 interface Sacrament {
   type: string;
@@ -38,6 +39,7 @@ const sacramentTranslations: Record<string, string> = {
 export default function ParishionerCard({ parishioner, onDelete }: { parishioner: Parishioner; onDelete: (id: string) => void }) {
   const [groups, setGroups] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
+  const alerts = useAlerts();
   const router = useRouter();
 
   useEffect(() => {
@@ -47,9 +49,10 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
   }, [parishioner._id]);
 
   const handleDelete = () => {
-    if (window.confirm(`Czy na pewno chcesz usunąć parafianina ${parishioner.firstName} ${parishioner.lastName}?`)) {
-      onDelete(parishioner._id);
-    }
+    alerts.showConfirmation(
+      `Czy na pewno chcesz usunąć parafianina ${parishioner.firstName} ${parishioner.lastName}?`,
+      () => onDelete(parishioner._id)
+    );
   };
 
   const handleEdit = () => {
