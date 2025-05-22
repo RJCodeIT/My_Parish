@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import SectionTitle from "@/components/layout/SectionTitle";
 import NewsCard from "@/components/ui/NewsCard";
+import { useAlerts } from "@/components/ui/Alerts";
 import axios from "axios";
 
 interface News {
@@ -15,6 +16,7 @@ interface News {
 
 export default function News() {
   const [newsList, setNewsList] = useState<News[]>([]);
+  const alerts = useAlerts();
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -23,14 +25,27 @@ export default function News() {
         setNewsList(data);
       } catch (error) {
         console.error("Błąd podczas pobierania aktualności:", error);
+        alerts.showError("Nie udało się pobrać aktualności. Odśwież stronę i spróbuj ponownie.");
       }
     };
 
     fetchNews();
-  }, []);
+  }, [alerts]);
 
   const handleDelete = (id: string) => {
+    // Update the UI by removing the deleted news
     setNewsList((prev) => prev.filter((news) => news._id !== id));
+    
+    // Fetch updated news list after a short delay
+    setTimeout(async () => {
+      try {
+        const { data } = await axios.get("/mojaParafia/api/news");
+        setNewsList(data);
+      } catch (error) {
+        console.error("Błąd podczas odświeżania aktualności:", error);
+        // Already updated UI above, so no need to show an error
+      }
+    }, 500);
   };
 
   return (

@@ -5,9 +5,11 @@ import axios from "axios";
 import SectionTitle from "@/components/layout/SectionTitle";
 import AdminSearchBar from "@/components/ui/AdminSearchBar";
 import AnnouncementsCard from "@/components/ui/AnnouncementsCard";
+import { useAlerts } from "@/components/ui/Alerts";
 
 interface Announcement {
   _id: string;
+  id?: string; // Adding id field for compatibility with different API responses
   title: string;
   date: string;
   imageUrl?: string;
@@ -18,6 +20,7 @@ interface Announcement {
 export default function Announcements() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const alerts = useAlerts();
 
   useEffect(() => {
     axios.get("/mojaParafia/api/announcements")
@@ -26,15 +29,35 @@ export default function Announcements() {
       })
       .catch((error) => {
         console.error("Error fetching announcements:", error);
+        alerts.showError("Nie udało się pobrać ogłoszeń. Odśwież stronę i spróbuj ponownie.");
       });
-  }, []);
+  }, [alerts]);
 
   const handleDelete = async (id: string) => {
+    if (!id) {
+      alerts.showError("Nie można usunąć ogłoszenia: brak identyfikatora");
+      return;
+    }
+    
     try {
-      await axios.delete(`/mojaParafia/api/announcements/${id}`);
-      setAnnouncements(announcements.filter((a) => a._id !== id));
+      const response = await axios.delete(`/mojaParafia/api/announcements/${id}`);
+      console.log("Delete response:", response.data);
+      
+      // Update the UI by removing the deleted announcement
+      setAnnouncements(prev => prev.filter(announcement => {
+        const announcementId = announcement._id || announcement.id;
+        return String(announcementId) !== String(id);
+      }));
+      
+      alerts.showSuccess("Ogłoszenie zostało usunięte pomyślnie.");
     } catch (error) {
       console.error("Error deleting announcement:", error);
+      
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        alerts.showError(`Nie udało się usunąć ogłoszenia: ${error.response.data.error}`);
+      } else {
+        alerts.showError("Nie udało się usunąć ogłoszenia. Spróbuj ponownie.");
+      }
     }
   };
 

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import SectionTitle from "@/components/layout/SectionTitle";
 import AdminSearchBar from "@/components/ui/AdminSearchBar";
 import IntentionCard from "@/components/ui/IntentionCard";
+import { useAlerts } from "@/components/ui/Alerts";
 import axios from "axios";
 
 interface Mass {
@@ -21,6 +22,7 @@ interface Intention {
 export default function Intentions() {
   const [intentions, setIntentions] = useState<Intention[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const alerts = useAlerts();
 
   useEffect(() => {
     axios.get("/mojaParafia/api/intentions")
@@ -29,17 +31,43 @@ export default function Intentions() {
       })
       .catch((error) => {
         console.error("Error fetching intentions:", error);
+        alerts.showError("Nie udało się pobrać intencji. Odśwież stronę i spróbuj ponownie.");
       });
-  }, []);
+  }, [alerts]);
 
   const handleDelete = async (id: string) => {
+    if (!id) {
+      alerts.showError("Nie można usunąć intencji: brak identyfikatora");
+      return;
+    }
+    
     try {
-      await axios.delete(`/mojaParafia/api/intentions/${id}`);
-      // Po usunięciu pobierz listę intencji ponownie z API
-      const response = await axios.get("/mojaParafia/api/intentions");
-      setIntentions(response.data);
+      const response = await axios.delete(`/mojaParafia/api/intentions/${id}`);
+      console.log("Delete response:", response.data);
+      
+      // Update the UI by removing the deleted intention
+      setIntentions(prev => prev.filter(intention => intention._id !== id));
+      
+      alerts.showSuccess("Intencja została usunięta pomyślnie.");
+      
+      // Fetch updated intentions list after a short delay
+      setTimeout(async () => {
+        try {
+          const refreshResponse = await axios.get("/mojaParafia/api/intentions");
+          setIntentions(refreshResponse.data);
+        } catch (fetchError) {
+          console.error("Error refreshing intentions after deletion:", fetchError);
+          // Already updated UI above, so no need to handle this error
+        }
+      }, 500);
     } catch (error) {
       console.error("Error deleting intention:", error);
+      
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        alerts.showError(`Nie udało się usunąć intencji: ${error.response.data.error}`);
+      } else {
+        alerts.showError("Nie udało się usunąć intencji. Spróbuj ponownie.");
+      }
     }
   };
 

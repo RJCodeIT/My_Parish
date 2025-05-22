@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { AiOutlineDown, AiOutlineUp, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import axios from "axios";
+import { useAlerts } from "@/components/ui/Alerts";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -21,17 +22,33 @@ interface NewsCardProps {
 export default function NewsCard({ news, onDelete }: NewsCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
+  const alerts = useAlerts();
 
   const handleDelete = async () => {
-    if (window.confirm(`Czy na pewno chcesz usunąć aktualność: "${news.title}"?`)) {
-      try {
-        await axios.delete(`/mojaParafia/api/news/${news._id}`);
-        onDelete?.(news._id);
-      } catch (error) {
-        console.error("Błąd podczas usuwania aktualności:", error);
-        alert("Wystąpił błąd podczas usuwania aktualności");
+    alerts.showConfirmation(
+      `Czy na pewno chcesz usunąć aktualność: "${news.title}"?`,
+      async () => {
+        if (!news._id) {
+          alerts.showError("Nie można usunąć aktualności: brak identyfikatora");
+          return;
+        }
+        
+        try {
+          const response = await axios.delete(`/mojaParafia/api/news/${news._id}`);
+          console.log("Delete response:", response.data);
+          onDelete?.(news._id);
+          alerts.showSuccess("Aktualność została usunięta pomyślnie.");
+        } catch (error) {
+          console.error("Błąd podczas usuwania aktualności:", error);
+          
+          if (axios.isAxiosError(error) && error.response?.data?.error) {
+            alerts.showError(`Nie udało się usunąć aktualności: ${error.response.data.error}`);
+          } else {
+            alerts.showError("Wystąpił błąd podczas usuwania aktualności. Spróbuj ponownie.");
+          }
+        }
       }
-    }
+    );
   };
 
   const handleEdit = () => {

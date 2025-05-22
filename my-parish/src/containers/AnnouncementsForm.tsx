@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Input from "@/components/ui/Input";
 import { useRouter } from "next/navigation";
+import { useAlerts } from "@/components/ui/Alerts";
 import { readFile } from "@/utils/readDocx";
 
 interface AnnouncementContent {
@@ -31,6 +32,7 @@ export default function AnnouncementsForm({ initialData, isEditMode = false }: A
   const [extraInfo, setExtraInfo] = useState("");
   const [content, setContent] = useState<AnnouncementContent[]>([]);
   const router = useRouter();
+  const alerts = useAlerts();
 
   useEffect(() => {
     if (initialData && isEditMode) {
@@ -73,6 +75,17 @@ export default function AnnouncementsForm({ initialData, isEditMode = false }: A
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!title.trim()) {
+      alerts.showError("Tytuł ogłoszenia jest wymagany");
+      return;
+    }
+    
+    if (content.length === 0 || content.some(item => !item.text.trim())) {
+      alerts.showError("Treść ogłoszenia jest wymagana");
+      return;
+    }
 
     try {
       let response;
@@ -102,7 +115,8 @@ export default function AnnouncementsForm({ initialData, isEditMode = false }: A
             const imageData = await imageUploadResponse.json();
             announcementData.imageUrl = imageData.imageUrl;
           } else {
-            throw new Error("Failed to upload image");
+            const errorData = await imageUploadResponse.json();
+            throw new Error(errorData.error || "Nie udało się przesłać zdjęcia");
           }
         }
         
@@ -135,19 +149,29 @@ export default function AnnouncementsForm({ initialData, isEditMode = false }: A
       
       if (response.ok) {
         if (isEditMode) {
-          alert("Ogłoszenie zaktualizowane pomyślnie!");
+          alerts.showSuccess("Ogłoszenie zaktualizowane pomyślnie!");
         } else {
-          alert("Ogłoszenie dodane pomyślnie!");
+          alerts.showSuccess("Ogłoszenie dodane pomyślnie!");
         }
-        router.push("/admin/dashboard/ogloszenia");
+        
+        // Redirect after a short delay to show the success message
+        setTimeout(() => {
+          router.push("/admin/dashboard/ogloszenia");
+        }, 2000);
       } else {
-        const errorText = await response.text();
-        console.error("Błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " ogłoszenia", errorText);
-        alert("Wystąpił błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " ogłoszenia");
+        try {
+          const errorData = await response.json();
+          console.error("Błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " ogłoszenia", errorData);
+          alerts.showError(errorData.error || `Wystąpił błąd podczas ${isEditMode ? "aktualizacji" : "dodawania"} ogłoszenia`);
+        } catch {
+          const errorText = await response.text();
+          console.error("Błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " ogłoszenia", errorText);
+          alerts.showError(`Wystąpił błąd podczas ${isEditMode ? "aktualizacji" : "dodawania"} ogłoszenia`);
+        }
       }
     } catch (error) {
       console.error("Błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " ogłoszenia", error);
-      alert("Wystąpił błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " ogłoszenia");
+      alerts.showError(error instanceof Error ? error.message : `Wystąpił błąd podczas ${isEditMode ? "aktualizacji" : "dodawania"} ogłoszenia`);
     }
   };
 

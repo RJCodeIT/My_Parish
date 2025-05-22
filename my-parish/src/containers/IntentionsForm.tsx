@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Input from "@/components/ui/Input";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useAlerts } from "@/components/ui/Alerts";
 import { readFile } from "@/utils/readDocx";
 import Image from 'next/image';
 
@@ -30,8 +31,8 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
   const [image, setImage] = useState<File | null>(null);
   const [existingImage, setExistingImage] = useState<string | undefined>("");
   const [masses, setMasses] = useState<{ time: string; intention: string }[]>([]);
-  const [error, setError] = useState("");
   const router = useRouter();
+  const alerts = useAlerts();
 
   // Initialize form with existing data if in edit mode
   useEffect(() => {
@@ -75,7 +76,22 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    
+    // Validate required fields
+    if (!title.trim()) {
+      alerts.showError("Tytuł intencji jest wymagany");
+      return;
+    }
+    
+    if (masses.length === 0) {
+      alerts.showError("Dodaj przynajmniej jedną mszę z intencją");
+      return;
+    }
+    
+    if (masses.some(mass => !mass.time.trim() || !mass.intention.trim())) {
+      alerts.showError("Wszystkie pola czasu i intencji mszy muszą być wypełnione");
+      return;
+    }
 
     try {
       if (isEditMode && initialData?._id) {
@@ -102,7 +118,8 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
             const imageData = await imageUploadResponse.json();
             intentionData.imageUrl = imageData.imageUrl;
           } else {
-            throw new Error("Failed to upload image");
+            const errorData = await imageUploadResponse.json();
+            throw new Error(errorData.error || "Nie udało się przesłać zdjęcia");
           }
         }
         
@@ -117,12 +134,22 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
         });
         
         if (fetchResponse.ok) {
-          alert("Intencja zaktualizowana pomyślnie!");
-          router.push("/admin/dashboard/intencje");
+          alerts.showSuccess("Intencja zaktualizowana pomyślnie!");
+          
+          // Redirect after a short delay to show the success message
+          setTimeout(() => {
+            router.push("/admin/dashboard/intencje");
+          }, 2000);
         } else {
-          const errorText = await fetchResponse.text();
-          console.error("Błąd podczas aktualizacji intencji", errorText);
-          setError("Wystąpił błąd podczas aktualizacji intencji. Spróbuj ponownie.");
+          try {
+            const errorData = await fetchResponse.json();
+            console.error("Błąd podczas aktualizacji intencji", errorData);
+            alerts.showError(errorData.error || "Wystąpił błąd podczas aktualizacji intencji. Spróbuj ponownie.");
+          } catch {
+            const errorText = await fetchResponse.text();
+            console.error("Błąd podczas aktualizacji intencji", errorText);
+            alerts.showError("Wystąpił błąd podczas aktualizacji intencji. Spróbuj ponownie.");
+          }
         }
       } else {
         // For create mode, continue using FormData
@@ -137,26 +164,25 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
         });
         
         if (axiosResponse.status === 200) {
-          alert("Intencja dodana pomyślnie!");
-          router.push("/admin/dashboard/intencje");
+          alerts.showSuccess("Intencja dodana pomyślnie!");
+          
+          // Redirect after a short delay to show the success message
+          setTimeout(() => {
+            router.push("/admin/dashboard/intencje");
+          }, 2000);
         } else {
           console.error("Błąd podczas dodawania intencji", axiosResponse.statusText);
-          setError("Wystąpił błąd podczas dodawania intencji. Spróbuj ponownie.");
+          alerts.showError("Wystąpił błąd podczas dodawania intencji. Spróbuj ponownie.");
         }
       }
     } catch (error) {
       console.error("Błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " intencji", error);
-      setError("Wystąpił błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " intencji. Spróbuj ponownie.");
+      alerts.showError(`Wystąpił błąd podczas ${isEditMode ? "aktualizacji" : "dodawania"} intencji. Spróbuj ponownie.`);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-12">
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-          {error}
-        </div>
-      )}
 
       <div className="space-y-8">
         <div className="space-y-8">

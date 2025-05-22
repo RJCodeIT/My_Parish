@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Input from "@/components/ui/Input";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useAlerts } from "@/components/ui/Alerts";
 import { readFile } from "@/utils/readDocx";
 import Image from "next/image";
 
@@ -26,8 +27,8 @@ export default function NewsForm({ initialData, isEditMode = false }: NewsFormPr
   const [content, setContent] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [existingImage, setExistingImage] = useState<string | undefined>("");
-  const [error, setError] = useState("");
   const router = useRouter();
+  const alerts = useAlerts();
 
   // Initialize form with existing data if in edit mode
   useEffect(() => {
@@ -50,7 +51,22 @@ export default function NewsForm({ initialData, isEditMode = false }: NewsFormPr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    
+    // Validate required fields
+    if (!title.trim()) {
+      alerts.showError("Tytuł aktualności jest wymagany");
+      return;
+    }
+    
+    if (!subtitle.trim()) {
+      alerts.showError("Podtytuł aktualności jest wymagany");
+      return;
+    }
+    
+    if (!content.trim()) {
+      alerts.showError("Treść aktualności jest wymagana");
+      return;
+    }
 
     try {
       if (isEditMode && initialData?._id) {
@@ -77,7 +93,8 @@ export default function NewsForm({ initialData, isEditMode = false }: NewsFormPr
             const imageData = await imageUploadResponse.json();
             newsData.imageUrl = imageData.imageUrl;
           } else {
-            throw new Error("Failed to upload image");
+            const errorData = await imageUploadResponse.json();
+            throw new Error(errorData.error || "Nie udało się przesłać zdjęcia");
           }
         }
         
@@ -92,12 +109,22 @@ export default function NewsForm({ initialData, isEditMode = false }: NewsFormPr
         });
         
         if (fetchResponse.ok) {
-          alert("Aktualność zaktualizowana pomyślnie!");
-          router.push("/admin/dashboard/aktualnosci");
+          alerts.showSuccess("Aktualność zaktualizowana pomyślnie!");
+          
+          // Redirect after a short delay to show the success message
+          setTimeout(() => {
+            router.push("/admin/dashboard/aktualnosci");
+          }, 2000);
         } else {
-          const errorText = await fetchResponse.text();
-          console.error("Błąd podczas aktualizacji aktualności", errorText);
-          setError("Wystąpił błąd podczas aktualizacji aktualności");
+          try {
+            const errorData = await fetchResponse.json();
+            console.error("Błąd podczas aktualizacji aktualności", errorData);
+            alerts.showError(errorData.error || "Wystąpił błąd podczas aktualizacji aktualności. Spróbuj ponownie.");
+          } catch {
+            const errorText = await fetchResponse.text();
+            console.error("Błąd podczas aktualizacji aktualności", errorText);
+            alerts.showError("Wystąpił błąd podczas aktualizacji aktualności. Spróbuj ponownie.");
+          }
         }
       } else {
         // For create mode, continue using FormData
@@ -112,25 +139,24 @@ export default function NewsForm({ initialData, isEditMode = false }: NewsFormPr
         });
         
         if (response.status === 201) {
-          alert("Aktualność dodana pomyślnie!");
-          router.push("/admin/dashboard/aktualnosci");
+          alerts.showSuccess("Aktualność dodana pomyślnie!");
+          
+          // Redirect after a short delay to show the success message
+          setTimeout(() => {
+            router.push("/admin/dashboard/aktualnosci");
+          }, 2000);
         } else {
-          setError("Wystąpił błąd podczas dodawania aktualności");
+          alerts.showError("Wystąpił błąd podczas dodawania aktualności. Spróbuj ponownie.");
         }
       }
     } catch (error) {
       console.error("Błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " aktualności", error);
-      setError("Wystąpił błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " aktualności");
+      alerts.showError(`Wystąpił błąd podczas ${isEditMode ? "aktualizacji" : "dodawania"} aktualności. Spróbuj ponownie.`);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="max-w-4xl mx-auto mt-12 p-6 bg-white rounded-lg shadow-md space-y-8">
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
-          {error}
-        </div>
-      )}
 
       <div className="space-y-6">
         <Input 

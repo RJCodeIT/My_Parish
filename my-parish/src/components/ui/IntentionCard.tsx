@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AiOutlineDown, AiOutlineUp, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
-
+import { useAlerts } from "@/components/ui/Alerts";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -25,11 +25,19 @@ interface IntentionCardProps {
 export default function IntentionCard({ intention, onDelete }: IntentionCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
+  const alerts = useAlerts();
 
   const handleDelete = () => {
-    if (window.confirm(`Czy na pewno chcesz usunąć intencję: "${intention.title}"?`)) {
-      onDelete?.(intention._id);
-    }
+    alerts.showConfirmation(
+      `Czy na pewno chcesz usunąć intencję: "${intention.title}"?`,
+      () => {
+        if (intention._id) {
+          onDelete?.(intention._id);
+        } else {
+          alerts.showError("Nie można usunąć intencji: brak identyfikatora");
+        }
+      }
+    );
   };
 
   const handleEdit = () => {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { PopulatedGroup } from "@/types";
 import { AiOutlineDown, AiOutlineUp, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
-
+import { useAlerts } from "@/components/ui/Alerts";
 import { useRouter } from "next/navigation";
 
 interface GroupMember {
@@ -19,16 +19,37 @@ interface GroupCardProps {
 export default function GroupCard({ group, onDelete }: GroupCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
+  const alerts = useAlerts();
 
   // Helper function to get the group ID (handles both _id and id formats)
   const getGroupId = (): string => {
-    return (group._id || group.id || "") as string;
+    // Log the available IDs for debugging
+    console.log("Group ID formats:", { _id: group._id, id: group.id });
+    
+    // Ensure we're returning a string
+    const id = (group._id || group.id || "");
+    
+    // Handle different types of IDs
+    if (typeof id === 'object' && id !== null) {
+      // If id is an object, try to convert it to string safely
+      return String(id);
+    }
+    
+    return String(id);
   };
 
   const handleDelete = () => {
-    if (window.confirm(`Czy na pewno chcesz usunąć grupę ${group.name}?`)) {
-      onDelete?.(getGroupId());
-    }
+    alerts.showConfirmation(
+      `Czy na pewno chcesz usunąć grupę ${group.name}?`,
+      () => {
+        const groupId = getGroupId();
+        if (groupId) {
+          onDelete?.(groupId);
+        } else {
+          alerts.showError("Nie można usunąć grupy: brak identyfikatora");
+        }
+      }
+    );
   };
 
   const handleEdit = () => {

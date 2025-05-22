@@ -4,6 +4,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import SelectParishioner from "@/components/ui/SelectParishioner";
+import { useAlerts } from "@/components/ui/Alerts";
 import { BaseGroup } from "@/types";
 
 interface GroupsFormProps {
@@ -13,6 +14,7 @@ interface GroupsFormProps {
 
 export default function GroupsForm({ initialData, isEditMode = false }: GroupsFormProps) {
   const router = useRouter();
+  const alerts = useAlerts();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -71,12 +73,12 @@ export default function GroupsForm({ initialData, isEditMode = false }: GroupsFo
     
     // Validate required fields
     if (!formData.name) {
-      alert("Nazwa grupy jest wymagana");
+      alerts.showError("Nazwa grupy jest wymagana");
       return;
     }
     
     if (!formData.leaderId) {
-      alert("Lider grupy jest wymagany");
+      alerts.showError("Lider grupy jest wymagany");
       return;
     }
     
@@ -95,23 +97,31 @@ export default function GroupsForm({ initialData, isEditMode = false }: GroupsFo
       if (isEditMode && initialData?._id) {
         const response = await axios.put(`/mojaParafia/api/groups/${initialData._id}`, apiFormData);
         console.log("Group update response:", response.data);
-        alert("Grupa zaktualizowana!");
-        router.push("/admin/dashboard/grupy-parafialne");
+        alerts.showSuccess("Grupa zaktualizowana pomyślnie!");
+        
+        // Redirect after a short delay to show the success message
+        setTimeout(() => {
+          router.push("/admin/dashboard/grupy-parafialne");
+        }, 2000);
       } else {
         console.log("Submitting group data:", apiFormData);
         const response = await axios.post("/mojaParafia/api/groups", apiFormData);
         console.log("Group creation response:", response.data);
-        alert("Grupa dodana!");
-        router.push("/admin/dashboard/grupy-parafialne");
+        alerts.showSuccess("Grupa dodana pomyślnie!");
+        
+        // Redirect after a short delay to show the success message
+        setTimeout(() => {
+          router.push("/admin/dashboard/grupy-parafialne");
+        }, 2000);
       }
     } catch (error) {
       console.error("Error submitting group:", error);
       
       // Display more specific error message if available
       if (axios.isAxiosError(error) && error.response?.data?.error) {
-        alert(`Błąd: ${error.response.data.error}`);
+        alerts.showError(`Błąd: ${error.response.data.error}`);
       } else {
-        alert("Błąd podczas " + (isEditMode ? "aktualizacji" : "dodawania") + " grupy.");
+        alerts.showError(`Błąd podczas ${isEditMode ? "aktualizacji" : "dodawania"} grupy. Spróbuj ponownie.`);
       }
     }
   };

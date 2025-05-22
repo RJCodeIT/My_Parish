@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { AiOutlineDown, AiOutlineUp, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
-
+import { useAlerts } from "@/components/ui/Alerts";
 import { useRouter } from "next/navigation";
 
 interface Announcement {
@@ -22,14 +22,20 @@ interface AnnouncementCardProps {
 export default function AnnouncementCard({ announcement, onDelete }: AnnouncementCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
+  const alerts = useAlerts();
 
   const handleDelete = () => {
-    if (window.confirm(`Czy na pewno chcesz usunąć ogłoszenie: "${announcement.title}"?`)) {
-      const idToUse = announcement.id || announcement._id;
-      if (idToUse) {
-        onDelete?.(idToUse);
+    alerts.showConfirmation(
+      `Czy na pewno chcesz usunąć ogłoszenie: "${announcement.title}"?`,
+      () => {
+        const idToUse = announcement.id || announcement._id;
+        if (idToUse) {
+          onDelete?.(idToUse);
+        } else {
+          alerts.showError("Nie można usunąć ogłoszenia: brak identyfikatora");
+        }
       }
-    }
+    );
   };
 
   const handleEdit = () => {
