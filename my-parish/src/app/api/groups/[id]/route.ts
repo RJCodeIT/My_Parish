@@ -72,10 +72,15 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
  * @returns Odpowiedź serwera z zaktualizowaną grupą lub błędem.
  */
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  // Ensure params.id exists
+  const groupId = params?.id;
+  if (!groupId) {
+    return NextResponse.json({ error: "Brak ID grupy" }, { status: 400 });
+  }
   
   try {
     const body = await request.json();
-    console.log("Updating group with ID:", params.id, "with data:", body);
+    console.log("Updating group with ID:", groupId, "with data:", body);
     
     // Validate required fields
     if (!body.name || !body.leaderId) {
@@ -92,7 +97,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const updatedGroup = await prisma.$transaction(async (prismaTransaction: Prisma.TransactionClient) => {
       // Aktualizuj podstawowe dane grupy
       await prismaTransaction.group.update({
-        where: { id: params.id },
+        where: { id: groupId },
         data: {
           name: body.name,
           description: body.description,
@@ -107,7 +112,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       if (body.members && Array.isArray(body.members)) {
         // Pobierz aktualnych członków
         const currentMembers = await prismaTransaction.groupMember.findMany({
-          where: { groupId: params.id },
+          where: { groupId: groupId },
           select: { parishionerId: true }
         });
         
@@ -124,7 +129,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         if (membersToRemove.length > 0) {
           await prismaTransaction.groupMember.deleteMany({
             where: {
-              groupId: params.id,
+              groupId: groupId,
               parishionerId: { in: membersToRemove }
             }
           });
@@ -135,7 +140,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
           await Promise.all(membersToAdd.map((memberId: string) => {
             return prismaTransaction.groupMember.create({
               data: {
-                groupId: params.id,
+                groupId: groupId,
                 parishionerId: memberId
               }
             });
@@ -145,7 +150,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
       // Pobierz zaktualizowaną grupę ze wszystkimi relacjami
       return prismaTransaction.group.findUnique({
-        where: { id: params.id },
+        where: { id: groupId },
         include: {
           leader: true,
           members: {
@@ -163,14 +168,16 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     return NextResponse.json(updatedGroup, { status: 200 });
   } catch (error) {
-    console.error('Błąd aktualizacji grupy:', error);
+    // Bezpieczne logowanie błędu
+    console.error('Błąd aktualizacji grupy:', error instanceof Error ? error.message : 'Nieznany błąd');
     
     // Sprawdź, czy błąd dotyczy nieistniejącego rekordu
     if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json({ error: "Grupa nie znaleziona" }, { status: 404 });
     }
     
-    return NextResponse.json({ error: "Błąd aktualizacji grupy: " + error }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Nieznany błąd';
+    return NextResponse.json({ error: "Błąd aktualizacji grupy: " + errorMessage }, { status: 500 });
   }
 }
 
@@ -182,30 +189,37 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
  * @returns Odpowiedź serwera z potwierdzeniem usunięcia lub błędem.
  */
 export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+  // Ensure params.id exists
+  const groupId = params?.id;
+  if (!groupId) {
+    return NextResponse.json({ error: "Brak ID grupy" }, { status: 400 });
+  }
   
   try {
     // Użyj transakcji Prisma do usunięcia grupy i jej członków
     await prisma.$transaction(async (prismaTransaction: Prisma.TransactionClient) => {
       // Usuń wszystkich członków grupy najpierw
       await prismaTransaction.groupMember.deleteMany({
-        where: { groupId: params.id }
+        where: { groupId: groupId }
       });
 
       // Usuń grupę
       await prismaTransaction.group.delete({
-        where: { id: params.id }
+        where: { id: groupId }
       });
     });
 
     return NextResponse.json({ message: "Grupa usunięta pomyślnie" }, { status: 200 });
   } catch (error) {
-    console.error('Błąd usuwania grupy:', error);
+    // Bezpieczne logowanie błędu
+    console.error('Błąd usuwania grupy:', error instanceof Error ? error.message : 'Nieznany błąd');
     
     // Sprawdź, czy błąd dotyczy nieistniejącego rekordu
     if (error instanceof Error && 'code' in error && error.code === 'P2025') {
       return NextResponse.json({ error: "Grupa nie znaleziona" }, { status: 404 });
     }
     
-    return NextResponse.json({ error: "Błąd usuwania grupy" }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Nieznany błąd';
+    return NextResponse.json({ error: "Błąd usuwania grupy: " + errorMessage }, { status: 500 });
   }
 }
