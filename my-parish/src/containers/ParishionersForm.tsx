@@ -226,9 +226,13 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
             <Input 
               label="Email" 
               name="email" 
-              type="email" 
+              type={formData.email ? "email" : "text"} 
               value={formData.email} 
-              onChange={handleChange} 
+              onChange={(e) => {
+                // Jeśli pole jest puste, ustaw jako pusty string, w przeciwnym razie użyj wartości
+                const value = e.target.value.trim() === "" ? "" : e.target.value;
+                setFormData((prev) => ({ ...prev, email: value }));
+              }} 
             />
           </div>
         </div>
