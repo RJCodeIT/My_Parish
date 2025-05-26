@@ -110,22 +110,44 @@ model News {
   date     DateTime @default(now())
 }
 
-// Intention model
+// Intention model - represents a week of intentions
 model Intention {
-  id       String   @id @default(cuid())
-  title    String
-  date     DateTime @default(now())
-  imageUrl String?
-  masses   Mass[]
+  id          String   @id @default(cuid())
+  title       String
+  weekStart   DateTime @default(now()) // Start date of the week
+  weekEnd     DateTime // End date of the week
+  imageUrl    String?
+  days        Day[]
 }
 
-// Mass model (extracted from Intention)
+// Day model - represents a day with multiple masses
+model Day {
+  id          String    @id @default(cuid())
+  date        DateTime
+  intentionId String
+  intention   Intention @relation(fields: [intentionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  masses      Mass[]
+
+  @@index([intentionId])
+}
+
+// Mass model - represents a mass with time and multiple intentions
 model Mass {
   id          String    @id @default(cuid())
   time        String
-  intention   String    @db.Text
-  intentionId String
-  intentionRef Intention @relation(fields: [intentionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  dayId       String
+  day         Day       @relation(fields: [dayId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  intentions  MassIntention[]
 
-  @@index([intentionId])
+  @@index([dayId])
+}
+
+// MassIntention model - represents a single intention for a mass
+model MassIntention {
+  id          String    @id @default(cuid())
+  intention   String    @db.Text
+  massId      String
+  mass        Mass      @relation(fields: [massId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([massId])
 }

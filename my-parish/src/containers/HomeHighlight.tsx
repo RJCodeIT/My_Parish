@@ -82,7 +82,7 @@ export default function HomeHighlight({ searchResults }: HomeHighlightProps) {
           <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-6 border border-neutral/30 w-full">
             <div className="relative w-full aspect-[3/4] max-w-[300px] mx-auto overflow-hidden group">
               <Image
-                src="/witraz.jpg"
+                src="/mojaParafia/witraz.jpg"
                 alt="Witraż"
                 fill
                 className="object-cover rounded-lg transition-transform duration-500 ease-in-out group-hover:scale-110 group-hover:rotate-1"

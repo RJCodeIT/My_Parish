@@ -9,12 +9,20 @@ interface Mass {
   intention: string;
 }
 
+interface Day {
+  date: string;
+  masses: Mass[];
+}
+
 interface Intention {
   _id: string;
   title: string;
   date: string;
+  weekStart?: string;
+  weekEnd?: string;
   imageUrl?: string;
   masses: Mass[];
+  days?: Day[];
 }
 
 interface IntentionCardProps {
@@ -70,7 +78,13 @@ export default function IntentionCard({ intention, onDelete }: IntentionCardProp
 
       {isExpanded && (
         <div className="mt-4">
-          <p className="text-sm text-gray-600">Data: {new Date(intention.date).toLocaleDateString()}</p>
+          <p className="text-sm text-gray-600">
+            {intention.weekStart && intention.weekEnd ? (
+              <>Tydzień: {new Date(intention.weekStart).toLocaleDateString()} - {new Date(intention.weekEnd).toLocaleDateString()}</>
+            ) : (
+              <>Data: {new Date(intention.date).toLocaleDateString()}</>
+            )}
+          </p>
           
           {intention.imageUrl && (
             <div className="relative w-full h-60 mt-2">
@@ -83,13 +97,34 @@ export default function IntentionCard({ intention, onDelete }: IntentionCardProp
             </div>
           )}
 
-          <ul className="list-disc list-inside mt-2 text-gray-700">
-            {intention.masses.map((mass, index) => (
-              <li key={index}>
-                <strong>{mass.time}</strong> – {mass.intention}
-              </li>
-            ))}
-          </ul>
+          {intention.days && intention.days.length > 0 ? (
+            // Display grouped by days
+            <div className="mt-4 space-y-4">
+              {intention.days.map((day, dayIndex) => (
+                <div key={dayIndex} className="border-t pt-3">
+                  <h4 className="font-medium text-gray-800 mb-2">
+                    {new Date(day.date).toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' })}
+                  </h4>
+                  <ul className="list-disc list-inside text-gray-700">
+                    {day.masses.map((mass, massIndex) => (
+                      <li key={massIndex}>
+                        <strong>{mass.time}</strong> – {mass.intention}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          ) : (
+            // Fallback to flat list for backward compatibility
+            <ul className="list-disc list-inside mt-2 text-gray-700">
+              {intention.masses.map((mass, index) => (
+                <li key={index}>
+                  <strong>{mass.time}</strong> – {mass.intention}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
     </div>

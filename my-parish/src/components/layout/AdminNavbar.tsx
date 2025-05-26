@@ -31,7 +31,7 @@ export default function AdminNavbar({
             <Link href="/admin/dashboard" className="flex items-center space-x-3 group">
               <div className="relative w-10 h-10">
                 <Image
-                  src="/witraz_logo.jpg"
+                  src="/mojaParafia/witraz_logo.jpg"
                   alt="Logo"
                   width={40}
                   height={40}

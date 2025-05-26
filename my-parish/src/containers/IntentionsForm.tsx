@@ -7,17 +7,30 @@ import { useAlerts } from "@/components/ui/Alerts";
 import { readFile } from "@/utils/readDocx";
 import Image from 'next/image';
 
-interface Mass {
-  time: string;
+interface MassIntention {
+  id?: string;
   intention: string;
+}
+
+interface Mass {
+  id?: string;
+  time: string;
+  intentions: MassIntention[];
+}
+
+interface Day {
+  id?: string;
+  date: string;
+  masses: Mass[];
 }
 
 interface IntentionData {
   _id?: string;
   title: string;
-  date: string;
+  weekStart: string;
+  weekEnd: string;
   imageUrl?: string;
-  masses: Mass[];
+  days: Day[];
 }
 
 interface IntentionsFormProps {
@@ -27,10 +40,11 @@ interface IntentionsFormProps {
 
 export default function IntentionsForm({ initialData, isEditMode = false }: IntentionsFormProps) {
   const [title, setTitle] = useState("");
-  const [date, setDate] = useState("");
+  const [weekStart, setWeekStart] = useState("");
+  const [weekEnd, setWeekEnd] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [existingImage, setExistingImage] = useState<string | undefined>("");
-  const [masses, setMasses] = useState<{ time: string; intention: string }[]>([]);
+  const [days, setDays] = useState<Day[]>([]);
   const router = useRouter();
   const alerts = useAlerts();
 
@@ -39,30 +53,98 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
     if (isEditMode && initialData) {
       setTitle(initialData.title || "");
       
-      // Format date for input field (YYYY-MM-DD)
-      if (initialData.date) {
-        const dateObj = new Date(initialData.date);
-        const formattedDate = dateObj.toISOString().split('T')[0];
-        setDate(formattedDate);
+      // Format dates for input fields (YYYY-MM-DD)
+      if (initialData.weekStart) {
+        const startDateObj = new Date(initialData.weekStart);
+        const formattedStartDate = startDateObj.toISOString().split('T')[0];
+        setWeekStart(formattedStartDate);
+      }
+      
+      if (initialData.weekEnd) {
+        const endDateObj = new Date(initialData.weekEnd);
+        const formattedEndDate = endDateObj.toISOString().split('T')[0];
+        setWeekEnd(formattedEndDate);
       }
       
       setExistingImage(initialData.imageUrl);
-      setMasses(initialData.masses || []);
+      setDays(initialData.days || []);
     }
   }, [isEditMode, initialData]);
-
-  const handleAddMass = () => {
-    setMasses([...masses, { time: "", intention: "" }]);
+  
+  // Initialize empty week when weekStart changes
+  useEffect(() => {
+    if (weekStart && !isEditMode && days.length === 0) {
+      generateEmptyWeek(weekStart);
+    }
+  }, [weekStart, isEditMode, days.length]);
+  
+  // Generate an empty week structure based on the start date
+  const generateEmptyWeek = (startDateStr: string) => {
+    const startDate = new Date(startDateStr);
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6); // 7 days including start date
+    
+    setWeekEnd(endDate.toISOString().split('T')[0]);
+    
+    const newDays: Day[] = [];
+    
+    // Create 7 days
+    for (let i = 0; i < 7; i++) {
+      const currentDate = new Date(startDate);
+      currentDate.setDate(startDate.getDate() + i);
+      
+      newDays.push({
+        date: currentDate.toISOString().split('T')[0],
+        masses: []
+      });
+    }
+    
+    setDays(newDays);
   };
 
-  const handleMassChange = (index: number, field: "time" | "intention", value: string) => {
-    const updatedMasses = [...masses];
-    updatedMasses[index][field] = value;
-    setMasses(updatedMasses);
+  // Add a new mass to a specific day
+  const handleAddMass = (dayIndex: number) => {
+    const updatedDays = [...days];
+    updatedDays[dayIndex].masses.push({
+      time: "",
+      intentions: [{ intention: "" }]
+    });
+    setDays(updatedDays);
   };
 
-  const handleRemoveMass = (index: number) => {
-    setMasses(masses.filter((_, i) => i !== index));
+  // Add a new intention to a specific mass
+  const handleAddIntention = (dayIndex: number, massIndex: number) => {
+    const updatedDays = [...days];
+    updatedDays[dayIndex].masses[massIndex].intentions.push({ intention: "" });
+    setDays(updatedDays);
+  };
+
+  // Update mass time
+  const handleMassTimeChange = (dayIndex: number, massIndex: number, value: string) => {
+    const updatedDays = [...days];
+    updatedDays[dayIndex].masses[massIndex].time = value;
+    setDays(updatedDays);
+  };
+
+  // Update intention text
+  const handleIntentionChange = (dayIndex: number, massIndex: number, intentionIndex: number, value: string) => {
+    const updatedDays = [...days];
+    updatedDays[dayIndex].masses[massIndex].intentions[intentionIndex].intention = value;
+    setDays(updatedDays);
+  };
+
+  // Remove a mass from a specific day
+  const handleRemoveMass = (dayIndex: number, massIndex: number) => {
+    const updatedDays = [...days];
+    updatedDays[dayIndex].masses.splice(massIndex, 1);
+    setDays(updatedDays);
+  };
+
+  // Remove an intention from a specific mass
+  const handleRemoveIntention = (dayIndex: number, massIndex: number, intentionIndex: number) => {
+    const updatedDays = [...days];
+    updatedDays[dayIndex].masses[massIndex].intentions.splice(intentionIndex, 1);
+    setDays(updatedDays);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,7 +152,27 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
     if (file) {
       const parsedContent = await readFile(file);
       setTitle(parsedContent.title);
-      setMasses(parsedContent.content.map((text) => ({ time: "", intention: text.text })));
+      
+      // If we have a weekStart date and days array
+      if (weekStart && days.length > 0) {
+        // Add parsed intentions to the first day and first mass
+        const updatedDays = [...days];
+        
+        // If there's no mass in the first day, add one
+        if (updatedDays[0].masses.length === 0) {
+          updatedDays[0].masses.push({
+            time: "",
+            intentions: []
+          });
+        }
+        
+        // Add parsed intentions to the first mass of the first day
+        updatedDays[0].masses[0].intentions = parsedContent.content.map((text) => ({
+          intention: text.text
+        }));
+        
+        setDays(updatedDays);
+      }
     }
   };
 
@@ -83,13 +185,25 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
       return;
     }
     
-    if (masses.length === 0) {
-      alerts.showError("Dodaj przynajmniej jedną mszę z intencją");
+    if (!weekStart) {
+      alerts.showError("Data początkowa tygodnia jest wymagana");
       return;
     }
     
-    if (masses.some(mass => !mass.time.trim() || !mass.intention.trim())) {
-      alerts.showError("Wszystkie pola czasu i intencji mszy muszą być wypełnione");
+    if (!weekEnd) {
+      alerts.showError("Data końcowa tygodnia jest wymagana");
+      return;
+    }
+    
+    // Check if there's at least one day with at least one mass with at least one intention
+    const hasValidIntention = days.some(day => 
+      day.masses.some(mass => 
+        mass.time.trim() && mass.intentions.some(intention => intention.intention.trim())
+      )
+    );
+    
+    if (!hasValidIntention) {
+      alerts.showError("Dodaj przynajmniej jedną mszę z intencją");
       return;
     }
 
@@ -99,8 +213,19 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
         // First, prepare the intention data as JSON
         const intentionData = {
           title,
-          date: date || new Date().toISOString(),
-          masses,
+          weekStart: weekStart || new Date().toISOString(),
+          weekEnd: weekEnd || new Date().toISOString(),
+          days: days.map(day => ({
+            ...day,
+            // Filter out empty masses and intentions
+            masses: day.masses
+              .filter(mass => mass.time.trim())
+              .map(mass => ({
+                ...mass,
+                intentions: mass.intentions.filter(intention => intention.intention.trim())
+              }))
+              .filter(mass => mass.intentions.length > 0)
+          })).filter(day => day.masses.length > 0),
           imageUrl: existingImage // Keep existing image URL if no new image
         };
         
@@ -134,7 +259,7 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
         });
         
         if (fetchResponse.ok) {
-          alerts.showSuccess("Intencja zaktualizowana pomyślnie!");
+          alerts.showSuccess("Intencje na tydzień zaktualizowane pomyślnie!");
           
           // Redirect after a short delay to show the success message
           setTimeout(() => {
@@ -155,16 +280,30 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
         // For create mode, continue using FormData
         const formData = new FormData();
         formData.append("title", title);
-        formData.append("date", date || new Date().toISOString());
+        formData.append("weekStart", weekStart || new Date().toISOString());
+        formData.append("weekEnd", weekEnd || new Date().toISOString());
         if (image) formData.append("image", image);
-        formData.append("masses", JSON.stringify(masses));
+        
+        // Filter out empty masses and intentions
+        const filteredDays = days.map(day => ({
+          ...day,
+          masses: day.masses
+            .filter(mass => mass.time.trim())
+            .map(mass => ({
+              ...mass,
+              intentions: mass.intentions.filter(intention => intention.intention.trim())
+            }))
+            .filter(mass => mass.intentions.length > 0)
+        })).filter(day => day.masses.length > 0);
+        
+        formData.append("days", JSON.stringify(filteredDays));
         
         const axiosResponse = await axios.post("/mojaParafia/api/intentions", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         
-        if (axiosResponse.status === 200) {
-          alerts.showSuccess("Intencja dodana pomyślnie!");
+        if (axiosResponse.status === 200 || axiosResponse.status === 201) {
+          alerts.showSuccess("Intencje na tydzień dodane pomyślnie!");
           
           // Redirect after a short delay to show the success message
           setTimeout(() => {
@@ -182,25 +321,36 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-12">
+    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto space-y-12">
 
       <div className="space-y-8">
         <div className="space-y-8">
           <Input 
-            label="Tytuł" 
+            label="Tytuł tygodnia" 
             name="title" 
             value={title} 
             onChange={(e) => setTitle(e.target.value)} 
             required 
           />
 
-          <Input 
-            label="Data" 
-            type="date" 
-            name="date" 
-            value={date} 
-            onChange={(e) => setDate(e.target.value)} 
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input 
+              label="Data początkowa tygodnia" 
+              type="date" 
+              name="weekStart" 
+              value={weekStart} 
+              onChange={(e) => setWeekStart(e.target.value)} 
+              required
+            />
+            <Input 
+              label="Data końcowa tygodnia" 
+              type="date" 
+              name="weekEnd" 
+              value={weekEnd} 
+              onChange={(e) => setWeekEnd(e.target.value)} 
+              required
+            />
+          </div>
         </div>
 
         <div className="space-y-8">
@@ -244,58 +394,129 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
 
       <div className="space-y-8">
         <div className="flex justify-between items-center border-b border-neutral/10 pb-4">
-          <h3 className="text-lg font-medium text-gray-900">Msze i intencje</h3>
-          <button 
-            type="button" 
-            onClick={handleAddMass} 
-            className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary transition-colors"
-          >
-            <svg className="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Dodaj mszę
-          </button>
+          <h3 className="text-lg font-medium text-gray-900">Intencje na tydzień</h3>
         </div>
 
-        <div className="space-y-6">
-          {masses.map((mass, index) => (
-            <div key={index} className="flex items-start space-x-4 bg-gray-50/50 p-6 rounded-xl">
-              <div className="w-1/3">
-                <Input
-                  label="Godzina"
-                  name={`time-${index}`}
-                  value={mass.time}
-                  onChange={(e) => {
-                    const filteredValue = e.target.value.replace(/[^0-9:.]/g, "");
-                    handleMassChange(index, "time", filteredValue);
-                  }}
-                  required
-                />
-              </div>
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Intencja</label>
-                <div className="flex items-start space-x-3">
-                  <input
-                    type="text"
-                    value={mass.intention}
-                    onChange={(e) => handleMassChange(index, "intention", e.target.value)}
-                    className="flex-1 px-4 py-2.5 border border-neutral/10 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-                    placeholder="Intencja"
-                    required
-                  />
-                  <button 
-                    type="button" 
-                    onClick={() => handleRemoveMass(index)}
-                    className="text-gray-400 hover:text-red-500 transition-colors p-2.5 hover:bg-white rounded-lg"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+        <div className="space-y-10">
+          {days.map((day, dayIndex) => {
+            // Format the day date for display
+            const dayDate = new Date(day.date);
+            const formattedDate = dayDate.toLocaleDateString('pl-PL', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            });
+
+            return (
+              <div key={dayIndex} className="border border-neutral/10 rounded-xl overflow-hidden">
+                <div className="bg-gray-50 px-6 py-4 border-b border-neutral/10">
+                  <h4 className="font-medium text-gray-900 capitalize">{formattedDate}</h4>
+                </div>
+                
+                <div className="p-6 space-y-6">
+                  {day.masses.length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">Brak mszy na ten dzień</p>
+                  ) : (
+                    day.masses.map((mass, massIndex) => (
+                      <div key={massIndex} className="bg-white border border-neutral/10 rounded-lg p-5 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="w-1/3">
+                            <Input
+                              label="Godzina mszy"
+                              name={`time-${dayIndex}-${massIndex}`}
+                              value={mass.time}
+                              onChange={(e) => {
+                                const filteredValue = e.target.value.replace(/[^0-9:.]/g, "");
+                                handleMassTimeChange(dayIndex, massIndex, filteredValue);
+                              }}
+                              required
+                            />
+                          </div>
+                          <button 
+                            type="button" 
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleRemoveMass(dayIndex, massIndex);
+                            }}
+                            className="text-gray-400 hover:text-red-500 transition-colors p-2 hover:bg-gray-50 rounded-lg"
+                            title="Usuń mszę"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <h5 className="text-sm font-medium text-gray-700">Intencje</h5>
+                            <button 
+                              type="button" 
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleAddIntention(dayIndex, massIndex);
+                              }}
+                              className="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center"
+                            >
+                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                              </svg>
+                              Dodaj intencję
+                            </button>
+                          </div>
+                          
+                          <div className="space-y-3">
+                            {mass.intentions.map((intention, intentionIndex) => (
+                              <div key={intentionIndex} className="flex items-start space-x-3">
+                                <input
+                                  type="text"
+                                  value={intention.intention}
+                                  onChange={(e) => handleIntentionChange(dayIndex, massIndex, intentionIndex, e.target.value)}
+                                  className="flex-1 px-4 py-2.5 border border-neutral/10 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                                  placeholder="Intencja"
+                                  required
+                                />
+                                <button 
+                                  type="button" 
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handleRemoveIntention(dayIndex, massIndex, intentionIndex);
+                                  }}
+                                  className="text-gray-400 hover:text-red-500 transition-colors p-2.5 hover:bg-gray-50 rounded-lg"
+                                  title="Usuń intencję"
+                                >
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                  
+                  <div className="flex justify-center pt-2">
+                    <button 
+                      type="button" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleAddMass(dayIndex);
+                      }}
+                      className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary transition-colors px-4 py-2 border border-dashed border-neutral/20 rounded-lg hover:border-primary/30"
+                    >
+                      <svg className="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      Dodaj mszę na {new Date(day.date).toLocaleDateString('pl-PL', { weekday: 'long' })}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -304,7 +525,7 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
           type="submit" 
           className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
         >
-          {isEditMode ? "Zaktualizuj intencję" : "Dodaj intencję"}
+          {isEditMode ? "Zaktualizuj intencje na tydzień" : "Dodaj intencje na tydzień"}
         </button>
       </div>
     </form>
