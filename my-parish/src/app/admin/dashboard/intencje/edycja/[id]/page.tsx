@@ -39,7 +39,18 @@ export default function EditIntention() {
   useEffect(() => {
     const fetchIntention = async () => {
       try {
+        console.log('Fetching intention with ID:', intentionId);
+        // Używamy poprawnej ścieżki API zgodnie z konfiguracją projektu
         const response = await axios.get(`/mojaParafia/api/intentions/${intentionId}`);
+        console.log('Received intention data:', response.data);
+        console.log('Days from API:', JSON.stringify(response.data.days));
+        
+        // Upewnij się, że niedziela jest w danych
+        if (response.data.days && Array.isArray(response.data.days)) {
+          const sundayData = response.data.days.find(day => day.date === "2025-06-08");
+          console.log('Sunday data:', sundayData);
+        }
+        
         setIntention(response.data);
       } catch (error) {
         console.error("Błąd podczas pobierania intencji:", error);
@@ -68,41 +79,84 @@ export default function EditIntention() {
     );
   }
 
-  // Przygotuj dane dla formularza, uzupełniając brakujące pola
+  // Przygotuj dane dla formularza, dokładnie tak jak są w intencji
   const prepareInitialData = (intention: Intention) => {
-    // Upewnij się, że wszystkie wymagane pola są ustawione
-    const weekStartDate = intention.weekStart ? new Date(intention.weekStart) : new Date(intention.date);
-    const weekEndDate = intention.weekEnd ? new Date(intention.weekEnd) : (() => {
-      const date = new Date(intention.date);
-      date.setDate(date.getDate() + 6);
-      return date;
-    })();
+    console.log('Preparing initial data for intention:', intention);
     
-    // Przygotuj dane w formacie zgodnym z IntentionsForm
+    // Użyj dokładnie tych dat, które są w intencji, bez żadnych modyfikacji
+    // Nie formatuj, nie modyfikuj, nie zmieniaj dat - użyj ich dokładnie tak, jak są
     const formattedData = {
       _id: intention._id,
       title: intention.title,
       date: intention.date,
-      weekStart: weekStartDate.toISOString().split('T')[0],
-      weekEnd: weekEndDate.toISOString().split('T')[0],
+      weekStart: intention.weekStart || intention.date, // Fallback do daty intencji, jeśli weekStart nie istnieje
+      weekEnd: intention.weekEnd || intention.date, // Fallback do daty intencji, jeśli weekEnd nie istnieje
       imageUrl: intention.imageUrl,
     };
     
-    // Przygotuj dni z mszami i intencjami
+    // Upewnij się, że mamy wszystkie dni tygodnia, w tym niedzielę
     if (intention.days && intention.days.length > 0) {
-      // Jeśli już mamy dni w nowym formacie
+      // Posortuj dni według daty
+      const sortedDays = [...intention.days].sort((a, b) => {
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      });
+      
+      // Znajdź datę niedzieli (ostatni dzień tygodnia)
+      let sundayDate = "";
+      if (intention.weekStart && intention.weekEnd) {
+        // Jeśli mamy daty początku i końca tygodnia, użyj daty końca jako niedzieli
+        sundayDate = intention.weekEnd;
+      } else if (sortedDays.length > 0) {
+        // Jeśli mamy dni, znajdź ostatni dzień (niedziela)
+        const firstDate = new Date(sortedDays[0].date);
+        const sunday = new Date(firstDate);
+        // Oblicz datę niedzieli (jeśli pierwszy dzień to poniedziałek, dodaj 6 dni)
+        sunday.setDate(firstDate.getDate() + 6);
+        sundayDate = sunday.toISOString().split('T')[0];
+      }
+      
+      console.log('Data niedzieli:', sundayDate);
+      
+      // Sprawdź, czy mamy niedzielę w danych
+      const hasSunday = intention.days.some(day => {
+        const dayDate = new Date(day.date);
+        const sundayDateObj = new Date(sundayDate);
+        return dayDate.getDate() === sundayDateObj.getDate() && 
+               dayDate.getMonth() === sundayDateObj.getMonth() && 
+               dayDate.getFullYear() === sundayDateObj.getFullYear();
+      });
+      
+      console.log('Czy mamy niedzielę w danych:', hasSunday);
+      
+      // Przygotuj dni z intencjami
+      const days = intention.days.map(day => ({
+        date: day.date,
+        masses: day.masses.map(mass => ({
+          time: mass.time,
+          intentions: mass.intentions || (mass.intention ? [{ intention: mass.intention }] : [{ intention: '' }])
+        }))
+      }));
+      
+      // Jeśli nie mamy niedzieli, dodaj ją z 3 mszami i pustymi intencjami
+      if (!hasSunday && sundayDate) {
+        console.log('Dodaję niedzielę z 3 mszami');
+        days.push({
+          date: sundayDate,
+          masses: [
+            { time: "7:30", intentions: [{ intention: "" }] },
+            { time: "11:00", intentions: [{ intention: "" }] },
+            { time: "18:30", intentions: [{ intention: "" }] }
+          ]
+        });
+      }
+      
       return {
         ...formattedData,
-        days: intention.days.map(day => ({
-          date: day.date,
-          masses: day.masses.map(mass => ({
-            time: mass.time,
-            intentions: mass.intentions || (mass.intention ? [{ intention: mass.intention }] : [{ intention: '' }])
-          }))
-        }))
+        days: days
       };
-    } else if (intention.masses && intention.masses.length > 0) {
-      // Jeśli mamy stary format z pojedynczą listą mszy
+    } 
+    // Jeśli mamy stary format z pojedynczą listą mszy
+    else if (intention.masses && intention.masses.length > 0) {
       return {
         ...formattedData,
         days: [
@@ -115,14 +169,15 @@ export default function EditIntention() {
           }
         ]
       };
-    } else {
-      // Jeśli nie mamy ani dni, ani mszy, utwórz pustą strukturę
+    } 
+    // Jeśli nie mamy ani dni, ani mszy
+    else {
       return {
         ...formattedData,
         days: [
           {
             date: intention.date,
-            masses: [{ time: '', intentions: [{ intention: '' }] }]
+            masses: []
           }
         ]
       };

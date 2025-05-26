@@ -53,17 +53,17 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
     if (isEditMode && initialData) {
       setTitle(initialData.title || "");
       
-      // Format dates for input fields (YYYY-MM-DD)
+      // Użyj dokładnie tych dat, które są przekazywane z API, bez żadnych modyfikacji
       if (initialData.weekStart) {
-        const startDateObj = new Date(initialData.weekStart);
-        const formattedStartDate = startDateObj.toISOString().split('T')[0];
-        setWeekStart(formattedStartDate);
+        // Użyj dokładnie tej daty, która jest w API
+        console.log('Ustawiam datę początkową:', initialData.weekStart);
+        setWeekStart(initialData.weekStart);
       }
       
       if (initialData.weekEnd) {
-        const endDateObj = new Date(initialData.weekEnd);
-        const formattedEndDate = endDateObj.toISOString().split('T')[0];
-        setWeekEnd(formattedEndDate);
+        // Użyj dokładnie tej daty, która jest w API
+        console.log('Ustawiam datę końcową:', initialData.weekEnd);
+        setWeekEnd(initialData.weekEnd);
       }
       
       setExistingImage(initialData.imageUrl);
