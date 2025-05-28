@@ -6,6 +6,7 @@ import axios from "axios";
 import { useAlerts } from "@/components/ui/Alerts";
 import { readFile } from "@/utils/readDocx";
 import Image from 'next/image';
+import { isMonday, isSunday, getNextMonday, getSundayFromMonday, validateWeekRange, generateWeekDates, getPolishDayName, formatDateToPolish } from "@/utils/dateUtils";
 
 interface MassIntention {
   id?: string;
@@ -73,31 +74,35 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
   
   // Initialize empty week when weekStart changes
   useEffect(() => {
-    if (weekStart && !isEditMode && days.length === 0) {
-      generateEmptyWeek(weekStart);
+    if (weekStart && !isEditMode) {
+      // Only generate empty week if the start date is a Monday
+      if (isMonday(weekStart)) {
+        generateEmptyWeek(weekStart);
+      }
+    } else if (!weekStart) {
+      // Clear days when start date is cleared
+      setDays([]);
     }
-  }, [weekStart, isEditMode, days.length]);
+  }, [weekStart, isEditMode]);
   
-  // Generate an empty week structure based on the start date
+  // Generate an empty week structure based on the start date (which must be a Monday)
   const generateEmptyWeek = (startDateStr: string) => {
-    const startDate = new Date(startDateStr);
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 6); // 7 days including start date
-    
-    setWeekEnd(endDate.toISOString().split('T')[0]);
-    
-    const newDays: Day[] = [];
-    
-    // Create 7 days
-    for (let i = 0; i < 7; i++) {
-      const currentDate = new Date(startDate);
-      currentDate.setDate(startDate.getDate() + i);
-      
-      newDays.push({
-        date: currentDate.toISOString().split('T')[0],
-        masses: []
-      });
+    if (!isMonday(startDateStr)) {
+      alerts.showError("Data początkowa musi być poniedziałkiem");
+      return;
     }
+    
+    // Calculate the end date (Sunday) based on the start date (Monday)
+    const endDate = getSundayFromMonday(startDateStr);
+    setWeekEnd(endDate);
+    
+    // Generate all 7 days of the week
+    const weekDates = generateWeekDates(startDateStr);
+    
+    const newDays: Day[] = weekDates.map(date => ({
+      date,
+      masses: []
+    }));
     
     setDays(newDays);
   };
@@ -192,6 +197,13 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
     
     if (!weekEnd) {
       alerts.showError("Data końcowa tygodnia jest wymagana");
+      return;
+    }
+    
+    // Validate date range (must be Monday to Sunday, exactly 7 days)
+    const validation = validateWeekRange(weekStart, weekEnd);
+    if (!validation.isValid) {
+      alerts.showError(validation.message || "Nieprawidłowy zakres dat");
       return;
     }
     
@@ -298,6 +310,21 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
         
         formData.append("days", JSON.stringify(filteredDays));
         
+        // Logowanie danych formularza dla diagnostyki
+        console.log("Dane formularza:", {
+          title,
+          weekStart,
+          weekEnd,
+          days: filteredDays,
+          image: image ? "[Plik obrazu]" : "brak"
+        });
+        
+        // Sprawdź, czy filteredDays zawiera dane
+        if (filteredDays.length === 0) {
+          alerts.showError("Brak dni z mszami i intencjami do zapisania. Dodaj przynajmniej jedną mszę z intencją.");
+          return;
+        }
+        
         const axiosResponse = await axios.post("/mojaParafia/api/intentions", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
@@ -334,22 +361,65 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Input 
-              label="Data początkowa tygodnia" 
-              type="date" 
-              name="weekStart" 
-              value={weekStart} 
-              onChange={(e) => setWeekStart(e.target.value)} 
-              required
-            />
-            <Input 
-              label="Data końcowa tygodnia" 
-              type="date" 
-              name="weekEnd" 
-              value={weekEnd} 
-              onChange={(e) => setWeekEnd(e.target.value)} 
-              required
-            />
+            <div>
+              <Input 
+                label="Data początkowa tygodnia (poniedziałek)" 
+                type="date" 
+                name="weekStart" 
+                value={weekStart} 
+                onChange={(e) => {
+                  const newDate = e.target.value;
+                  if (newDate && !isMonday(newDate)) {
+                    alerts.showError("Data początkowa musi być poniedziałkiem");
+                    // Find the next Monday from the selected date
+                    const nextMondayDate = getNextMonday(new Date(newDate));
+                    setWeekStart(nextMondayDate);
+                    // Automatically set the end date to the Sunday of the same week
+                    if (nextMondayDate) {
+                      setWeekEnd(getSundayFromMonday(nextMondayDate));
+                    }
+                  } else {
+                    setWeekStart(newDate);
+                    // Automatically set the end date to the Sunday of the same week
+                    if (newDate) {
+                      setWeekEnd(getSundayFromMonday(newDate));
+                    }
+                  }
+                }} 
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">Wybierz poniedziałek jako datę początkową</p>
+            </div>
+            <div>
+              <Input 
+                label="Data końcowa tygodnia (niedziela)" 
+                type="date" 
+                name="weekEnd" 
+                value={weekEnd} 
+                onChange={(e) => {
+                  const newDate = e.target.value;
+                  if (newDate && !isSunday(newDate)) {
+                    alerts.showError("Data końcowa musi być niedzielą");
+                    // Don't update if not a Sunday
+                    return;
+                  }
+                  
+                  // If we have a start date, validate the range
+                  if (weekStart && newDate) {
+                    const validation = validateWeekRange(weekStart, newDate);
+                    if (!validation.isValid) {
+                      alerts.showError(validation.message || "Nieprawidłowy zakres dat");
+                      return;
+                    }
+                  }
+                  
+                  setWeekEnd(newDate);
+                }} 
+                required
+                disabled={!weekStart} // Disable until start date is selected
+              />
+              <p className="text-xs text-gray-500 mt-1">Data końcowa to zawsze niedziela po wybranym poniedziałku</p>
+            </div>
           </div>
         </div>
 
@@ -396,128 +466,131 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
         <div className="flex justify-between items-center border-b border-neutral/10 pb-4">
           <h3 className="text-lg font-medium text-gray-900">Intencje na tydzień</h3>
         </div>
+        
+        {days.length === 0 && (
+          <div className="text-center py-10 bg-gray-50 rounded-lg">
+            <p className="text-gray-500">Wybierz datę początkową (poniedziałek), aby zobaczyć dni tygodnia</p>
+          </div>
+        )}
 
-        <div className="space-y-10">
-          {days.map((day, dayIndex) => {
-            // Format the day date for display
-            const dayDate = new Date(day.date);
-            const formattedDate = dayDate.toLocaleDateString('pl-PL', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            });
+        {days.length > 0 && (
+          <div className="space-y-10">
+            {days.map((day, dayIndex) => {
+              // Format the day date for display using our utility functions
+              const polishDayName = getPolishDayName(day.date);
+              const formattedDate = formatDateToPolish(day.date);
 
-            return (
-              <div key={dayIndex} className="border border-neutral/10 rounded-xl overflow-hidden">
-                <div className="bg-gray-50 px-6 py-4 border-b border-neutral/10">
-                  <h4 className="font-medium text-gray-900 capitalize">{formattedDate}</h4>
-                </div>
+              return (
+                <div key={dayIndex} className="border border-neutral/10 rounded-xl overflow-hidden">
+                  <div className="bg-gray-50 px-6 py-4 border-b border-neutral/10">
+                    <h4 className="font-medium text-gray-900">{polishDayName}, {formattedDate}</h4>
+                  </div>
                 
-                <div className="p-6 space-y-6">
-                  {day.masses.length === 0 ? (
-                    <p className="text-gray-500 text-center py-4">Brak mszy na ten dzień</p>
-                  ) : (
-                    day.masses.map((mass, massIndex) => (
-                      <div key={massIndex} className="bg-white border border-neutral/10 rounded-lg p-5 space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div className="w-1/3">
-                            <Input
-                              label="Godzina mszy"
-                              name={`time-${dayIndex}-${massIndex}`}
-                              value={mass.time}
-                              onChange={(e) => {
-                                const filteredValue = e.target.value.replace(/[^0-9:.]/g, "");
-                                handleMassTimeChange(dayIndex, massIndex, filteredValue);
-                              }}
-                              required
-                            />
-                          </div>
-                          <button 
-                            type="button" 
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleRemoveMass(dayIndex, massIndex);
-                            }}
-                            className="text-gray-400 hover:text-red-500 transition-colors p-2 hover:bg-gray-50 rounded-lg"
-                            title="Usuń mszę"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
-                        </div>
-                        
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-center">
-                            <h5 className="text-sm font-medium text-gray-700">Intencje</h5>
+                  <div className="p-6 space-y-6">
+                    {day.masses.length === 0 ? (
+                      <p className="text-gray-500 text-center py-4">Brak mszy na ten dzień</p>
+                    ) : (
+                      day.masses.map((mass, massIndex) => (
+                        <div key={massIndex} className="bg-white border border-neutral/10 rounded-lg p-5 space-y-4">
+                          <div className="flex items-center justify-between">
+                            <div className="w-1/3">
+                              <Input
+                                label="Godzina mszy"
+                                name={`time-${dayIndex}-${massIndex}`}
+                                value={mass.time}
+                                onChange={(e) => {
+                                  const filteredValue = e.target.value.replace(/[^0-9:.]/g, "");
+                                  handleMassTimeChange(dayIndex, massIndex, filteredValue);
+                                }}
+                                required
+                              />
+                            </div>
                             <button 
                               type="button" 
                               onClick={(e) => {
                                 e.preventDefault();
-                                handleAddIntention(dayIndex, massIndex);
+                                handleRemoveMass(dayIndex, massIndex);
                               }}
-                              className="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center"
+                              className="text-gray-400 hover:text-red-500 transition-colors p-2 hover:bg-gray-50 rounded-lg"
+                              title="Usuń mszę"
                             >
-                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                               </svg>
-                              Dodaj intencję
                             </button>
                           </div>
                           
                           <div className="space-y-3">
-                            {mass.intentions.map((intention, intentionIndex) => (
-                              <div key={intentionIndex} className="flex items-start space-x-3">
-                                <input
-                                  type="text"
-                                  value={intention.intention}
-                                  onChange={(e) => handleIntentionChange(dayIndex, massIndex, intentionIndex, e.target.value)}
-                                  className="flex-1 px-4 py-2.5 border border-neutral/10 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-                                  placeholder="Intencja"
-                                  required
-                                />
-                                <button 
-                                  type="button" 
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    handleRemoveIntention(dayIndex, massIndex, intentionIndex);
-                                  }}
-                                  className="text-gray-400 hover:text-red-500 transition-colors p-2.5 hover:bg-gray-50 rounded-lg"
-                                  title="Usuń intencję"
-                                >
-                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                  </svg>
-                                </button>
-                              </div>
-                            ))}
+                            <div className="flex justify-between items-center">
+                              <h5 className="text-sm font-medium text-gray-700">Intencje</h5>
+                              <button 
+                                type="button" 
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleAddIntention(dayIndex, massIndex);
+                                }}
+                                className="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center"
+                              >
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                Dodaj intencję
+                              </button>
+                            </div>
+                            
+                            <div className="space-y-3">
+                              {mass.intentions.map((intention, intentionIndex) => (
+                                <div key={intentionIndex} className="flex items-start space-x-3">
+                                  <input
+                                    type="text"
+                                    value={intention.intention}
+                                    onChange={(e) => handleIntentionChange(dayIndex, massIndex, intentionIndex, e.target.value)}
+                                    className="flex-1 px-4 py-2.5 border border-neutral/10 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                                    placeholder="Intencja"
+                                    required
+                                  />
+                                  <button 
+                                    type="button" 
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleRemoveIntention(dayIndex, massIndex, intentionIndex);
+                                    }}
+                                    className="text-gray-400 hover:text-red-500 transition-colors p-2.5 hover:bg-gray-50 rounded-lg"
+                                    title="Usuń intencję"
+                                  >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))
-                  )}
-                  
-                  <div className="flex justify-center pt-2">
-                    <button 
-                      type="button" 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleAddMass(dayIndex);
-                      }}
-                      className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary transition-colors px-4 py-2 border border-dashed border-neutral/20 rounded-lg hover:border-primary/30"
-                    >
-                      <svg className="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                      Dodaj mszę na {new Date(day.date).toLocaleDateString('pl-PL', { weekday: 'long' })}
-                    </button>
+                      ))
+                    )}
+                    
+                    <div className="flex justify-center pt-2">
+                      <button 
+                        type="button" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleAddMass(dayIndex);
+                        }}
+                        className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary transition-colors px-4 py-2 border border-dashed border-neutral/20 rounded-lg hover:border-primary/30"
+                      >
+                        <svg className="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                        Dodaj mszę na {getPolishDayName(day.date)}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div className="flex justify-end pt-8">
