@@ -4,9 +4,16 @@ import { useAlerts } from "@/components/ui/Alerts";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-interface Mass {
-  time: string;
+interface MassIntention {
+  id?: string;
   intention: string;
+}
+
+interface Mass {
+  id?: string;
+  time: string;
+  intention?: string; // Legacy support
+  intentions?: MassIntention[]; // New schema
 }
 
 interface Day {
@@ -75,17 +82,17 @@ export default function IntentionCard({ intention, onDelete }: IntentionCardProp
           </span>
         </div>
       </div>
+      
+      <p className="text-sm text-gray-600 mt-2">
+        {intention.weekStart && intention.weekEnd ? (
+          <>Tydzień: {new Date(intention.weekStart).toLocaleDateString()} - {new Date(intention.weekEnd).toLocaleDateString()}</>
+        ) : (
+          <>Data: {new Date(intention.date).toLocaleDateString()}</>
+        )}
+      </p>
 
       {isExpanded && (
         <div className="mt-4">
-          <p className="text-sm text-gray-600">
-            {intention.weekStart && intention.weekEnd ? (
-              <>Tydzień: {new Date(intention.weekStart).toLocaleDateString()} - {new Date(intention.weekEnd).toLocaleDateString()}</>
-            ) : (
-              <>Data: {new Date(intention.date).toLocaleDateString()}</>
-            )}
-          </p>
-          
           {intention.imageUrl && (
             <div className="relative w-full h-60 mt-2">
               <Image 
@@ -108,7 +115,16 @@ export default function IntentionCard({ intention, onDelete }: IntentionCardProp
                   <ul className="list-disc list-inside text-gray-700">
                     {day.masses.map((mass, massIndex) => (
                       <li key={massIndex}>
-                        <strong>{mass.time}</strong> – {mass.intention}
+                        <strong>{mass.time}</strong>
+                        {mass.intentions && mass.intentions.length > 0 ? (
+                          <div className="ml-4">
+                            {mass.intentions.map((intention, idx) => (
+                              <div key={idx}>– {intention.intention}</div>
+                            ))}
+                          </div>
+                        ) : mass.intention ? (
+                          <> – {mass.intention}</>
+                        ) : null}
                       </li>
                     ))}
                   </ul>
@@ -120,13 +136,15 @@ export default function IntentionCard({ intention, onDelete }: IntentionCardProp
             <ul className="list-disc list-inside mt-2 text-gray-700">
               {intention.masses.map((mass, index) => (
                 <li key={index}>
-                  <strong>{mass.time}</strong> – {mass.intention}
+                  <strong>{mass.time}</strong>
+                  {mass.intention && <> – {mass.intention}</>}
                 </li>
               ))}
             </ul>
           )}
         </div>
       )}
+      {/* Zwinięta karta pokazuje tylko tytuł i datę - bez intencji */}
     </div>
   );
 }
