@@ -1,297 +1,235 @@
 import { NextResponse, NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 
+// Definicje typów używane w kodzie
+interface IntentionWithDays {
+  id: string;
+  title: string;
+  weekStart: Date;
+  weekEnd: Date | null;
+  imageUrl: string | null;
+  days: Array<{
+    id: string;
+    date: Date;
+    intentionId: string;
+    masses: Array<{
+      id: string;
+      time: string;
+      dayId: string;
+      intentions: Array<{
+        id: string;
+        intention: string;
+        massId: string;
+      }>;
+    }>;
+  }>;
+}
+
+interface MassIntentionData {
+  intention: string;
+}
+
+interface MassData {
+  time: string;
+  intentions: MassIntentionData[];
+}
+
+interface DayData {
+  date: string;
+  masses: MassData[];
+}
+
+interface WeekIntentionData {
+  title?: string;
+  weekStart: string;
+  weekEnd?: string;
+  imageUrl?: string | null;
+  days: DayData[];
+}
+
+// GET - Pobieranie intencji po ID
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  
   try {
     const id = params.id;
-    console.log('Fetching intention with ID:', id);
+    console.log('Pobieranie intencji z ID:', id);
     
-    // Sprawdź, czy ID jest w formacie week_YYYY-MM-DD
+    // Sprawdź czy ID jest w formacie 'week_YYYY-MM-DD'
     const isWeekId = id.startsWith('week_');
     
-    let intention;
-    let transformedIntention; // Deklaracja zmiennej transformedIntention
-    
     if (isWeekId) {
-      // Pobierz datę z ID
+      // Pobieranie intencji tygodniowej
       const dateStr = id.replace('week_', '');
       const weekStartDate = new Date(dateStr);
       const weekEndDate = new Date(dateStr);
       weekEndDate.setDate(weekStartDate.getDate() + 6); // Pełny tydzień (pon-niedz)
       
-      console.log(`Szukam intencji dla tygodnia od ${weekStartDate.toISOString()} do ${weekEndDate.toISOString()}`);
-      
-      // Znajdź wszystkie intencje z tego tygodnia
-      const weekIntentions = await prisma.intention.findMany({
+      // Znajdź intencję, która zawiera ten tydzień
+      const weekIntention = await prisma.intention.findFirst({
         where: {
-          date: {
-            gte: weekStartDate,
+          weekStart: {
             lte: weekEndDate
-          }
+          },
+          OR: [
+            { weekEnd: { equals: undefined } },
+            { weekEnd: { gte: weekStartDate } }
+          ]
         },
         include: {
-          masses: true
-        },
-        orderBy: {
-          date: 'asc'
+          days: {
+            include: {
+              masses: {
+                include: {
+                  intentions: true
+                }
+              }
+            },
+            orderBy: {
+              date: 'asc'
+            }
+          }
         }
-      });
+      }) as IntentionWithDays | null;
       
-      console.log(`Znaleziono ${weekIntentions.length} intencji dla tygodnia`);
-      
-      if (weekIntentions.length === 0) {
+      if (!weekIntention) {
         return NextResponse.json({ error: "Intencje na ten tydzień nie zostały znalezione" }, { status: 404 });
       }
       
-      // Użyj pierwszej intencji jako bazowej
-      intention = weekIntentions[0];
-      
-      // Utwórz mapę dni tygodnia, aby upewnić się, że mamy wszystkie dni
-      const daysMap = new Map<string, {
-        date: string;
-        masses: Array<{
-          time: string;
-          intentions: Array<{ intention: string }>;
-        }>;
-      }>();
-      
-      // Oblicz daty dla całego tygodnia dynamicznie
-      const weekDates: string[] = [];
-      for (let i = 0; i < 7; i++) {
-        const currentDate = new Date(weekStartDate);
-        currentDate.setDate(weekStartDate.getDate() + i);
-        const dateStr = currentDate.toISOString().split('T')[0];
-        weekDates.push(dateStr);
-      }
-      
-      console.log('Daty tygodnia:', weekDates);
-      
-      // Dodaj wszystkie dni tygodnia do mapy
-      for (const dateStr of weekDates) {
-        daysMap.set(dateStr, {
-          date: dateStr,
-          masses: []
-        });
-      }
-      
-      // Dodaj msze z dni, które są w bazie danych
-      for (const dayIntention of weekIntentions) {
-        const dayDate = new Date(dayIntention.date);
-        const dateKey = dayDate.toISOString().split('T')[0];
-        
-        // Jeśli mamy ten dzień w mapie, dodaj do niego msze
-        if (daysMap.has(dateKey)) {
-          const dayData = daysMap.get(dateKey)!;
-          dayData.masses = dayIntention.masses.map(mass => ({
+      // Przygotuj odpowiedź w jednolitym formacie
+      const response = {
+        _id: `week_${weekStartDate.toISOString().split('T')[0]}`,
+        title: weekIntention.title,
+        weekStart: weekIntention.weekStart.toISOString(),
+        weekEnd: weekIntention.weekEnd ? weekIntention.weekEnd.toISOString() : weekIntention.weekStart.toISOString(),
+        imageUrl: weekIntention.imageUrl,
+        days: weekIntention.days.map(day => ({
+          date: day.date.toISOString().split('T')[0],
+          masses: day.masses.map(mass => ({
             time: mass.time,
-            intentions: [{ intention: mass.intention }]
-          }));
-        }
-      }
-      
-      // Przygotuj tablicę dni tygodnia
-      const days: Array<{
-        date: string;
-        masses: Array<{
-          time: string;
-          intentions: Array<{ intention: string }>;
-        }>;
-      }> = [];
-      
-      // Ustaw sztywno daty dla całego tygodnia (poniedziałek-niedziela)
-      const fixedWeekDates = [
-        "2025-06-02", // Poniedziałek
-        "2025-06-03", // Wtorek
-        "2025-06-04", // Środa
-        "2025-06-05", // Czwartek
-        "2025-06-06", // Piątek
-        "2025-06-07", // Sobota
-        "2025-06-08"  // Niedziela
-      ];
-      
-      // Dodaj pierwsze 6 dni tygodnia (poniedziałek-sobota)
-      for (let i = 0; i < 6; i++) {
-        const dateStr = fixedWeekDates[i];
-        const dayData = daysMap.get(dateStr);
-        if (dayData) {
-          days.push(dayData);
-        } else {
-          days.push({
-            date: dateStr,
-            masses: []
-          });
-        }
-      }
-      
-      // Dodaj niedzielę (ostatni dzień tygodnia) z 3 mszami na końcu
-      const sundayKey = fixedWeekDates[6]; // Ostatni dzień tygodnia (niedziela)
-      const sundayDay = daysMap.get(sundayKey);
-      
-      if (sundayDay && sundayDay.masses.length > 0) {
-        // Jeśli niedziela już ma msze, użyj ich
-        days.push(sundayDay);
-      } else {
-        // Sprawdź, czy mamy jakieś msze dla niedzieli w bazie
-        // Pobierz intencje dla niedzieli z bazy danych
-        const sundayDate = new Date(sundayKey);
-        
-        // Sprawdź, czy mamy jakieś intencje dla niedzieli
-        const sundayIntentions = weekIntentions.filter(intention => {
-          const intentionDate = new Date(intention.date);
-          return intentionDate.getDate() === sundayDate.getDate() &&
-                 intentionDate.getMonth() === sundayDate.getMonth() &&
-                 intentionDate.getFullYear() === sundayDate.getFullYear();
-        });
-        
-        // Jeśli są intencje dla niedzieli, użyj ich
-        if (sundayIntentions.length > 0 && sundayIntentions[0].masses.length > 0) {
-          days.push({
-            date: sundayKey,
-            masses: sundayIntentions[0].masses.map(mass => ({
-              time: mass.time,
-              intentions: [{ intention: mass.intention }]
+            intentions: mass.intentions.map(intention => ({
+              intention: intention.intention
             }))
-          });
-        } else {
-          // Dodaj niedzielę z 3 standardowymi mszami i pustymi intencjami
-          days.push({
-            date: sundayKey,
-            masses: [
-              { time: "7:30", intentions: [{ intention: "" }] },
-              { time: "11:00", intentions: [{ intention: "" }] },
-              { time: "18:30", intentions: [{ intention: "" }] }
-            ]
-          });
-        }
-      }
-      
-      // Upewnij się, że niedziela jest zawsze w odpowiedzi
-      console.log("Dni tygodnia:", days.map(d => d.date));
-      
-      // Zwróć intencję z dniami - ustawiamy sztywno daty 2-8 czerwca 2025
-      transformedIntention = {
-        ...intention,
-        _id: id, // Użyj oryginalnego ID tygodnia
-        title: intention.title,
-        // Ustaw sztywno daty 2-8 czerwca 2025
-        weekStart: "2025-06-02", // Poniedziałek, 2 czerwca 2025
-        weekEnd: "2025-06-08", // Niedziela, 8 czerwca 2025
-        days: days // Użyj wszystkich dni tygodnia, w tym niedzieli
+          }))
+        }))
       };
+      
+      return NextResponse.json(response, { status: 200 });
     } else {
-      // Standardowe wyszukiwanie po ID
-      intention = await prisma.intention.findUnique({
+      // Pobierz pojedynczą intencję po ID
+      const intention = await prisma.intention.findUnique({
         where: { id },
         include: {
-          masses: true
+          days: {
+            include: {
+              masses: {
+                include: {
+                  intentions: true
+                }
+              }
+            }
+          }
         }
-      });
+      }) as IntentionWithDays | null;
       
       if (!intention) {
         return NextResponse.json({ error: "Intencja mszalna nie została znaleziona" }, { status: 404 });
       }
       
-      // Format the title to extract the main part if it contains a day name
-      let title = intention.title;
-      if (title.includes('-') && (title.includes('poniedziałek') || title.includes('wtorek') || 
-          title.includes('środa') || title.includes('czwartek') || title.includes('piątek') || 
-          title.includes('sobota') || title.includes('niedziela'))) {
-        const titleParts = title.split('-');
-        if (titleParts.length > 1) {
-          title = titleParts[0].trim();
-        }
-      }
-      
-      // Dla standardowego ID
-      transformedIntention = {
-        ...intention,
-        _id: intention.id, // Add _id field for frontend compatibility
-        title: title, // Use the extracted title
-        weekStart: intention.date, // Zachowaj oryginalną datę
-        weekEnd: intention.date, // Zachowaj oryginalną datę
-        days: [
-          {
-            date: new Date(intention.date).toISOString().split('T')[0],
-            masses: intention.masses.map(mass => ({
-              time: mass.time,
-              intentions: [{ intention: mass.intention }]
+      // Przekształć dane do formatu odpowiedzi
+      const response = {
+        _id: intention.id,
+        title: intention.title,
+        weekStart: intention.weekStart.toISOString(),
+        weekEnd: intention.weekEnd ? intention.weekEnd.toISOString() : intention.weekStart.toISOString(),
+        imageUrl: intention.imageUrl,
+        days: intention.days.map(day => ({
+          date: day.date.toISOString().split('T')[0],
+          masses: day.masses.map(mass => ({
+            time: mass.time,
+            intentions: mass.intentions.map(intention => ({
+              intention: intention.intention
             }))
-          }
-        ]
+          }))
+        }))
       };
+      
+      return NextResponse.json(response, { status: 200 });
     }
-    
-    console.log('Transformed intention for frontend:', transformedIntention);
-    return NextResponse.json(transformedIntention, { status: 200 });
   } catch (error) {
     console.error('Błąd podczas pobierania intencji mszalnej', error);
     return NextResponse.json({ error: "Błąd podczas pobierania intencji mszalnej" }, { status: 500 });
   }
 }
 
+// PUT - Aktualizacja intencji
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  
   try {
     const id = params.id;
     const body = await request.json();
-    console.log('Received update data for ID:', id, body);
+    console.log('Otrzymano dane do aktualizacji dla ID:', id);
     
-    // Sprawdź, czy ID jest w formacie week_YYYY-MM-DD
+    // Sprawdź czy ID jest w formacie 'week_YYYY-MM-DD'
     const isWeekId = id.startsWith('week_');
     
-    // Zdefiniuj typ dla intencji z bazy danych
-    type IntentionWithMasses = {
-      id: string;
-      title: string;
-      date: Date;
-      imageUrl: string | null;
-      masses: {
-        id: string;
-        time: string;
-        intention: string;
-        intentionId: string;
-      }[];
-    };
+    // Używamy interfejsu IntentionWithDays zdefiniowanego na dole pliku
     
-    let existingIntention: IntentionWithMasses | null = null;
-    let weekIntentions: IntentionWithMasses[] = [];
+    let existingIntention: IntentionWithDays | null = null;
     
     if (isWeekId) {
-      // Pobierz datę z ID
+      // Pobieranie intencji tygodniowej
       const dateStr = id.replace('week_', '');
-      const weekStart = new Date(dateStr);
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 6);
+      const weekStartDate = new Date(dateStr);
+      const weekEndDate = new Date(dateStr);
+      weekEndDate.setDate(weekStartDate.getDate() + 6);
       
-      // Znajdź wszystkie intencje z tego tygodnia
-      weekIntentions = await prisma.intention.findMany({
+      // Znajdź intencję, która zawiera ten tydzień
+      existingIntention = await prisma.intention.findFirst({
         where: {
-          date: {
-            gte: weekStart,
-            lte: weekEnd
-          }
+          weekStart: {
+            lte: weekEndDate
+          },
+          OR: [
+            { weekEnd: { equals: undefined } },
+            { weekEnd: { gte: weekStartDate } }
+          ]
         },
         include: {
-          masses: true
-        },
-        orderBy: {
-          date: 'asc'
+          days: {
+            include: {
+              masses: {
+                include: {
+                  intentions: true
+                }
+              }
+            }
+          }
         }
-      });
+      }) as IntentionWithDays | null;
       
-      if (weekIntentions.length === 0) {
-        return NextResponse.json({ error: "Intencje na ten tydzień nie zostały znalezione" }, { status: 404 });
+      if (!existingIntention) {
+        // Jeśli nie ma intencji na dany tydzień, stwórz nowe intencje
+        if (body.days && Array.isArray(body.days)) {
+          // Stwórz intencje dla całego tygodnia z przesłanych danych
+          const result = await createWeekIntentions(body);
+          return NextResponse.json(result, { status: 201 });
+        } else {
+          return NextResponse.json({ error: "Brak intencji na ten tydzień i nie przesłano danych dla dni" }, { status: 400 });
+        }
       }
-      
-      // Użyj pierwszej intencji jako bazowej
-      existingIntention = weekIntentions[0];
     } else {
       // Standardowe wyszukiwanie po ID
       existingIntention = await prisma.intention.findUnique({
         where: { id },
-        include: { masses: true }
+        include: {
+          days: {
+            include: {
+              masses: {
+                include: {
+                  intentions: true
+                }
+              }
+            }
+          }
+        }
       });
       
       if (!existingIntention) {
@@ -300,275 +238,166 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
     
     // Przygotuj dane do aktualizacji
-    let updateDate = existingIntention.date;
     const updateTitle = body.title || existingIntention.title;
+    const updateImageUrl = body.imageUrl || existingIntention.imageUrl;
     
-    // Jeśli otrzymaliśmy dane w formacie tygodniowym, użyj daty z pierwszego dnia
-    if (body.days && Array.isArray(body.days) && body.days.length > 0) {
-      // Użyj daty z pierwszego dnia, jeśli jest dostępna
-      if (body.days[0].date) {
-        updateDate = new Date(body.days[0].date);
-      }
-    }
-    
-    // Use Prisma transaction to update intention and masses
-    const updatedIntention = await prisma.$transaction(async (prismaTransaction: Prisma.TransactionClient) => {
-      // Dla ID tygodniowego, aktualizujemy wszystkie intencje z tego tygodnia
-      if (isWeekId && weekIntentions.length > 0) {
-        // Usuń wszystkie msze z intencji tego tygodnia
-        for (const intention of weekIntentions) {
-          await prismaTransaction.mass.deleteMany({
-            where: { intentionId: intention.id }
-          });
-        }
-        
-        // Aktualizuj tytuł i obrazek dla wszystkich intencji tygodnia
-        for (const intention of weekIntentions) {
-          await prismaTransaction.intention.update({
-            where: { id: intention.id },
+    // Użyj transakcji Prisma do aktualizacji
+    const updatedIntention = await prisma.$transaction(async (tx) => {
+      // 1. Aktualizuj podstawowe dane intencji
+      // Używamy typowania dla bezpieczeństwa podczas aktualizacji
+      const updateData: { title: string; imageUrl: string | null } = {
+        title: updateTitle,
+        imageUrl: updateImageUrl || null
+      };
+      
+      await tx.intention.update({
+        where: { id: existingIntention!.id },
+        data: updateData
+      });
+      
+      // 2. Usuń wszystkie istniejące dni (kaskadowo usunie msze i intencje)
+      await tx.day.deleteMany({
+        where: { intentionId: existingIntention!.id }
+      });
+      
+      // 3. Dodaj nowe dni, msze i intencje
+      if (body.days && Array.isArray(body.days)) {
+        for (const dayData of body.days) {
+          if (!dayData.date || !dayData.masses || !Array.isArray(dayData.masses)) continue;
+          
+          // Stwórz nowy dzień
+          const newDay = await tx.day.create({
             data: {
-              title: updateTitle,
-              imageUrl: body.imageUrl || intention.imageUrl
+              date: new Date(dayData.date),
+              intentionId: existingIntention!.id
             }
           });
-        }
-        
-        // Dodaj nowe msze do odpowiednich dni
-        if (body.days && Array.isArray(body.days)) {
-          for (const day of body.days) {
-            if (!day.date || !day.masses || !Array.isArray(day.masses)) continue;
+          
+          // Dodaj msze do dnia
+          for (const massData of dayData.masses) {
+            if (!massData.time) continue;
             
-            const dayDate = new Date(day.date);
+            // Stwórz nową mszę
+            const newMass = await tx.mass.create({
+              data: {
+                time: massData.time,
+                dayId: newDay.id
+              }
+            });
             
-            // Znajdź intencję dla tego dnia lub użyj pierwszej intencji
-            const dayIntention = weekIntentions.find(i => 
-              new Date(i.date).toISOString().split('T')[0] === dayDate.toISOString().split('T')[0]
-            ) || weekIntentions[0];
-            
-            // Dodaj msze do intencji dla tego dnia
-            for (const mass of day.masses) {
-              if (!mass.time) continue;
-              
-              // Jeśli mamy nowy format z tablicą intencji
-              if (mass.intentions && Array.isArray(mass.intentions) && mass.intentions.length > 0) {
-                // Połącz wszystkie intencje w jeden tekst
-                const intentionText = mass.intentions
-                  .map((i: { intention: string }) => i.intention)
-                  .filter((text: string) => text.trim())
-                  .join('; ');
+            // Dodaj intencje do mszy
+            if (massData.intentions && Array.isArray(massData.intentions)) {
+              for (const intentionItem of massData.intentions) {
+                if (!intentionItem.intention || !intentionItem.intention.trim()) continue;
                 
-                if (intentionText) {
-                  await prismaTransaction.mass.create({
-                    data: {
-                      time: mass.time,
-                      intention: intentionText,
-                      intentionId: dayIntention.id
-                    }
-                  });
-                }
-              } 
-              // Jeśli mamy stary format z pojedynczą intencją
-              else if (mass.intention) {
-                await prismaTransaction.mass.create({
+                await tx.massIntention.create({
                   data: {
-                    time: mass.time,
-                    intention: mass.intention,
-                    intentionId: dayIntention.id
+                    intention: intentionItem.intention,
+                    massId: newMass.id
                   }
                 });
               }
             }
           }
         }
-        
-        // Zwróć pierwszą intencję z zaktualizowanymi mszami
-        return prismaTransaction.intention.findUnique({
-          where: { id: weekIntentions[0].id },
-          include: {
-            masses: true
-          }
-        });
-      } 
-      // Dla standardowego ID, aktualizujemy tylko tę jedną intencję
-      else {
-        // Update intention basic data
-        await prismaTransaction.intention.update({
-          where: { id },
-          data: {
-            title: updateTitle,
-            date: updateDate,
-            imageUrl: body.imageUrl || existingIntention.imageUrl
-          }
-        });
-        
-        // Usuń istniejące msze
-        await prismaTransaction.mass.deleteMany({
-          where: { intentionId: id }
-        });
-        
-        // Dodaj nowe msze
-        if (body.days && Array.isArray(body.days)) {
-          // Obsługa nowego formatu z dniami i intencjami
-          for (const day of body.days) {
-            if (day.masses && Array.isArray(day.masses)) {
-              for (const mass of day.masses) {
-                if (!mass.time) continue;
-                
-                // Jeśli mamy nowy format z tablicą intencji
-                if (mass.intentions && Array.isArray(mass.intentions) && mass.intentions.length > 0) {
-                  // Połącz wszystkie intencje w jeden tekst
-                  const intentionText = mass.intentions
-                    .map((i: { intention: string }) => i.intention)
-                    .filter((text: string) => text.trim())
-                    .join('; ');
-                  
-                  if (intentionText) {
-                    await prismaTransaction.mass.create({
-                      data: {
-                        time: mass.time,
-                        intention: intentionText,
-                        intentionId: id
-                      }
-                    });
-                  }
-                } 
-                // Jeśli mamy stary format z pojedynczą intencją
-                else if (mass.intention) {
-                  await prismaTransaction.mass.create({
-                    data: {
-                      time: mass.time,
-                      intention: mass.intention,
-                      intentionId: id
-                    }
-                  });
+      }
+      
+      // 4. Zwróć zaktualizowaną intencję ze wszystkimi relacjami
+      return tx.intention.findUnique({
+        where: { id: existingIntention!.id },
+        include: {
+          days: {
+            include: {
+              masses: {
+                include: {
+                  intentions: true
                 }
               }
+            },
+            orderBy: {
+              date: 'asc'
             }
           }
-        } 
-        // Obsługa starego formatu z tablicą masses
-        else if (body.masses && Array.isArray(body.masses) && body.masses.length > 0) {
-          await Promise.all(body.masses.map((mass: { time: string; intention: string }) => {
-            return prismaTransaction.mass.create({
-              data: {
-                time: mass.time,
-                intention: mass.intention,
-                intentionId: id
-              }
-            });
-          }));
         }
-        
-        // Return updated intention with masses
-        return prismaTransaction.intention.findUnique({
-          where: { id },
-          include: {
-            masses: true
-          }
-        });
-      }
+      });
     });
     
     if (!updatedIntention) {
-      return NextResponse.json({ error: "Intencja mszalna nie została znaleziona" }, { status: 404 });
+      return NextResponse.json({ error: "Nie udało się zaktualizować intencji" }, { status: 500 });
     }
     
-    // Transformuj odpowiedź do formatu tygodniowego dla kompatybilności z frontendem
-    const intentionDate = new Date(updatedIntention.date);
-    
-    // Oblicz daty początku i końca tygodnia
-    const dayOfWeek = intentionDate.getDay();
-    const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-    
-    const weekStart = new Date(intentionDate);
-    weekStart.setDate(intentionDate.getDate() - diff);
-    weekStart.setHours(0, 0, 0, 0);
-    
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
-    weekEnd.setHours(23, 59, 59, 999);
-    
+    // Przygotuj odpowiedź w jednolitym formacie
     const transformedResponse = {
-      ...updatedIntention,
       _id: updatedIntention.id,
-      weekStart: weekStart.toISOString(),
-      weekEnd: weekEnd.toISOString(),
-      days: [
-        {
-          date: updatedIntention.date,
-          masses: updatedIntention.masses.map(mass => ({
-            time: mass.time,
-            intentions: [{ intention: mass.intention }]
-          }))
-        }
-      ]
+      title: updatedIntention.title,
+      weekStart: updatedIntention.weekStart.toISOString(),
+      weekEnd: updatedIntention.weekEnd ? updatedIntention.weekEnd.toISOString() : updatedIntention.weekStart.toISOString(),
+      imageUrl: updatedIntention.imageUrl,
+      days: updatedIntention.days.map(day => ({
+        date: day.date.toISOString().split('T')[0],
+        masses: day.masses.map(mass => ({
+          time: mass.time,
+          intentions: mass.intentions.map(mi => ({ intention: mi.intention }))
+        }))
+      }))
     };
     
     return NextResponse.json(transformedResponse, { status: 200 });
   } catch (error) {
-    console.error('Błąd podczas edycji intencji mszalnej', error);
-    
-    // Check if error is about non-existing record
-    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
-      return NextResponse.json({ error: "Intencja mszalna nie została znaleziona" }, { status: 404 });
-    }
-    
-    return NextResponse.json({ error: "Błąd podczas edycji intencji mszalnej" }, { status: 500 });
+    console.error('Błąd podczas aktualizacji intencji mszalnej', error);
+    return NextResponse.json({ error: "Błąd podczas aktualizacji intencji mszalnej" }, { status: 500 });
   }
 }
 
+// DELETE - Usuwanie intencji
 export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
-  
   try {
     const id = params.id;
-    console.log('Deleting intention with ID:', id);
+    console.log('Usuwanie intencji z ID:', id);
     
-    // Sprawdź, czy ID jest w formacie week_YYYY-MM-DD
+    // Sprawdź czy ID jest w formacie 'week_YYYY-MM-DD'
     const isWeekId = id.startsWith('week_');
     
     if (isWeekId) {
-      // Pobierz datę z ID
+      // Usuwanie intencji tygodniowej
       const dateStr = id.replace('week_', '');
-      const weekStart = new Date(dateStr);
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 6);
-      
-      // Znajdź wszystkie intencje z tego tygodnia
-      const weekIntentions = await prisma.intention.findMany({
+      const weekStartDate = new Date(dateStr);
+      const weekEndDate = new Date(dateStr);
+      weekEndDate.setDate(weekStartDate.getDate() + 6);
+      // Znajdź intencję, która zawiera ten tydzień
+      const weekIntention = await prisma.intention.findFirst({
         where: {
-          date: {
-            gte: weekStart,
-            lte: weekEnd
-          }
+          weekStart: {
+            lte: weekEndDate
+          },
+          OR: [
+            { weekEnd: null },
+            { weekEnd: { gte: weekStartDate } }
+          ]
         }
       });
-      
-      if (weekIntentions.length === 0) {
+      if (!weekIntention) {
         return NextResponse.json({ error: "Intencje na ten tydzień nie zostały znalezione" }, { status: 404 });
       }
-      
-      // Use Prisma transaction to delete all intentions for the week
-      await prisma.$transaction(async (prismaTransaction: Prisma.TransactionClient) => {
-        // Delete all intentions for the week
-        for (const intention of weekIntentions) {
-          // Delete masses (will be cascaded by the database due to onDelete: Cascade)
-          await prismaTransaction.intention.delete({
-            where: { id: intention.id }
-          });
-        }
+      // Usuń intencję tygodniową (kaskadowo usunie dni, msze i intencje mszalne)
+      await prisma.intention.delete({
+        where: { id: weekIntention.id }
       });
       
       return NextResponse.json({ message: "Intencje na tydzień zostały usunięte" }, { status: 200 });
     } else {
       // Standardowe usuwanie po ID
-      // Use Prisma transaction to delete intention and masses
-      await prisma.$transaction(async (prismaTransaction: Prisma.TransactionClient) => {
-        // Delete masses (will be cascaded by the database due to onDelete: Cascade)
-        
-        // Delete intention
-        await prismaTransaction.intention.delete({
-          where: { id }
-        });
+      const intention = await prisma.intention.findUnique({
+        where: { id }
+      });
+      
+      if (!intention) {
+        return NextResponse.json({ error: "Intencja mszalna nie została znaleziona" }, { status: 404 });
+      }
+      
+      // Usuń intencję (dni, msze i intencje mszalne zostaną usunięte automatycznie - cascade delete)
+      await prisma.intention.delete({
+        where: { id }
       });
       
       return NextResponse.json({ message: "Intencja mszalna została usunięta" }, { status: 200 });
@@ -576,11 +405,92 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
   } catch (error) {
     console.error('Błąd podczas usuwania intencji mszalnej', error);
     
-    // Check if error is about non-existing record
-    if (error instanceof Error && 'code' in error && error.code === 'P2025') {
+    // Sprawdź, czy błąd dotyczy nieistniejącego rekordu
+    // Definiujemy typ dla błędów Prismy
+    type PrismaError = Error & { code?: string };
+    if (error instanceof Error && 'code' in error && (error as PrismaError).code === 'P2025') {
       return NextResponse.json({ error: "Intencja mszalna nie została znaleziona" }, { status: 404 });
     }
     
     return NextResponse.json({ error: "Błąd podczas usuwania intencji mszalnej" }, { status: 500 });
   }
+}
+
+// Funkcja pomocnicza do tworzenia intencji na cały tydzień
+async function createWeekIntentions(data: WeekIntentionData) {
+  // Stwórz nową intencję z podstawowymi danymi
+  // Use type assertion to bypass strict typing - Prisma schema allows null for weekEnd
+  const weekIntention = await prisma.intention.create({
+    data: {
+      title: data.title || "Intencje na tydzień",
+      weekStart: new Date(data.weekStart),
+      // Use null for weekEnd as it's optional in the Prisma schema
+      // Force casting to handle null/undefined type issues with Prisma
+      weekEnd: data.weekEnd ? new Date(data.weekEnd) : (null as unknown as Date),
+      imageUrl: data.imageUrl || null
+    }
+  }) as unknown as IntentionWithDays;
+  
+  // Dla każdego dnia w danych wejściowych
+  if (data.days && Array.isArray(data.days)) {
+    await Promise.all(data.days.map(async (dayData) => {
+      if (!dayData.date) return;
+      
+      // Stwórz rekord dnia
+      const day = await prisma.day.create({
+        data: {
+          date: new Date(dayData.date),
+          intentionId: weekIntention.id
+        }
+      });
+      
+      // Dla każdej mszy w danym dniu
+      if (dayData.masses && Array.isArray(dayData.masses)) {
+        await Promise.all(dayData.masses.map(async (massData) => {
+          if (!massData.time) return;
+          
+          // Stwórz rekord mszy
+          const mass = await prisma.mass.create({
+            data: {
+              time: massData.time,
+              dayId: day.id
+            }
+          });
+          
+          // Dodaj intencje do mszy
+          if (massData.intentions && Array.isArray(massData.intentions)) {
+            await Promise.all(massData.intentions.map(async (intentionItem) => {
+              if (!intentionItem.intention || !intentionItem.intention.trim()) return;
+              
+              await prisma.massIntention.create({
+                data: {
+                  intention: intentionItem.intention,
+                  massId: mass.id
+                }
+              });
+            }));
+          }
+        }));
+      }
+    }));
+  }
+  
+  // Zwróć stworzoną intencję tygodniową z pełną strukturą
+  return prisma.intention.findUnique({
+    where: { id: weekIntention.id },
+    include: {
+      days: {
+        include: {
+          masses: {
+            include: {
+              intentions: true
+            }
+          }
+        },
+        orderBy: {
+          date: 'asc'
+        }
+      }
+    }
+  });
 }
