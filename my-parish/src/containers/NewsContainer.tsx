@@ -19,7 +19,21 @@ export default function NewsContainer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [expandedNews, setExpandedNews] = useState<Set<string>>(new Set());
   const itemsPerPage = 5;
+  
+  // Toggle news item expansion
+  const toggleNewsItem = (id: string) => {
+    setExpandedNews(prevExpanded => {
+      const newExpanded = new Set(prevExpanded);
+      if (newExpanded.has(id)) {
+        newExpanded.delete(id);
+      } else {
+        newExpanded.add(id);
+      }
+      return newExpanded;
+    });
+  };
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -75,15 +89,22 @@ export default function NewsContainer() {
       ) : news.length === 0 ? (
         <div className="text-center py-8">Brak aktualności do wyświetlenia</div>
       ) : (
-        currentNews.map((newsItem) => (
-          <ParishCard
-            key={newsItem._id || newsItem.id}
-            title={newsItem.title}
-            subtitle={newsItem.subtitle}
-            content={newsItem.content}
-            date={formatDate(newsItem.date)}
-          />
-        ))
+        currentNews.map((newsItem) => {
+          const newsId = newsItem._id || newsItem.id;
+          const isExpanded = expandedNews.has(newsId);
+          
+          return (
+            <ParishCard
+              key={newsId}
+              title={newsItem.title}
+              subtitle={newsItem.subtitle}
+              content={newsItem.content}
+              date={formatDate(newsItem.date)}
+              isExpanded={isExpanded}
+              onToggle={() => toggleNewsItem(newsId)}
+            />
+          );
+        })
       )}
       
       {!loading && !error && news.length > 0 && (

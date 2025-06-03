@@ -57,9 +57,9 @@ export default function NewsCard({ news, onDelete }: NewsCardProps) {
 
   return (
     <div className="w-full border rounded-lg shadow-md p-4 bg-white mt-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">{news.title}</h3>
-        <div className="flex items-center space-x-3">
+      <div className="flex justify-between items-start gap-4">
+        <h3 className="text-lg font-semibold break-words whitespace-normal flex-1">{news.title}</h3>
+        <div className="flex items-center space-x-3 shrink-0">
           <AiOutlineEdit 
             size={20} 
             className="cursor-pointer text-blue-500 hover:text-blue-700" 
@@ -94,9 +94,9 @@ export default function NewsCard({ news, onDelete }: NewsCardProps) {
             </div>
           )}
 
-          <h4 className="text-md font-semibold mt-2">{news.subtitle}</h4>
+          <h4 className="text-md font-semibold mt-2 break-words whitespace-normal">{news.subtitle}</h4>
 
-          <p className="mt-2 text-gray-700">{news.content}</p>
+          <p className="mt-2 text-gray-700 break-words whitespace-normal">{news.content}</p>
         </div>
       )}
     </div>
