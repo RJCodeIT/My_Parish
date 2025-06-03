@@ -1,9 +1,10 @@
 "use client"
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import IntentionsForm from "@/containers/IntentionsForm";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import SectionTitle from "@/components/layout/SectionTitle";
 
 // Interfejs dla danych intencji z API
 interface Intention {
@@ -28,6 +29,7 @@ interface Intention {
 }
 
 export default function EditIntention() {
+  const router = useRouter();
   // Use useParams hook to get the ID
   const params = useParams();
   const intentionId = params.id as string;
@@ -175,8 +177,16 @@ export default function EditIntention() {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-8 text-center">Edytuj intencję</h1>
+    <div className="container mx-auto py-8 px-4">
+      <SectionTitle name="Edycja intencji" />
+      <div className="mb-6">
+        <button
+          onClick={() => router.back()}
+          className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+        >
+          &larr; Wróć
+        </button>
+      </div>
       {intention && <IntentionsForm initialData={prepareInitialData(intention)} isEditMode={true} />}
     </div>
   );
