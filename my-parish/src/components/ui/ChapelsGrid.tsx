@@ -2,25 +2,25 @@ import Image from "next/image";
 
 const chapelPhotos = [
   {
-    src: "/KaplicaSwJana.jpg",
+    src: "/mojaParafia/KaplicaSwJana.jpg",
     alt: "Kapliczka przy ulicy Sosnowej",
     description: "Zabytkowa kapliczka z XIX wieku, odnowiona w 2020 roku. Znajduje się przy skrzyżowaniu ulic...",
     aspectRatio: "3/4",
   },
   {
-    src: "/KaplicaSwJana.jpg",
+    src: "/mojaParafia/KaplicaSwJana.jpg",
     alt: "Kapliczka Matki Bożej",
     description: "Kapliczka Matki Bożej ufundowana przez rodzinę...",
     aspectRatio: "3/4",
   },
   {
-    src: "/KaplicaSwJana.jpg",
+    src: "/mojaParafia/KaplicaSwJana.jpg",
     alt: "Krzyż przydrożny",
     description: "Zabytkowy krzyż przydrożny postawiony w podziękowaniu za...",
     aspectRatio: "3/4",
   },
   {
-    src: "/KaplicaSwJana.jpg",
+    src: "/mojaParafia/KaplicaSwJana.jpg",
     alt: "Kapliczka św. Jana",
     description: "Kapliczka św. Jana z 1905 roku, charakterystyczna dla regionu...",
     aspectRatio: "3/4",

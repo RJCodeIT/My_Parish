@@ -2,22 +2,22 @@ import Image from "next/image";
 
 const churchPhotos = [
   {
-    src: "/witraz.jpg",
+    src: "/mojaParafia/witraz.jpg",
     alt: "Witraż kościoła",
     aspectRatio: "3/4",
   },
   {
-    src: "/witraz2.jpg",
+    src: "/mojaParafia/witraz2.jpg",
     alt: "Fasada kościoła",
     aspectRatio: "4/3",
   },
   {
-    src: "/witraz2.jpg",
+    src: "/mojaParafia/witraz2.jpg",
     alt: "Wnętrze kościoła",
     aspectRatio: "16/9",
   },
   {
-    src: "/witraz.jpg",
+    src: "/mojaParafia/witraz.jpg",
     alt: "Ołtarz główny",
     aspectRatio: "3/4",
   },

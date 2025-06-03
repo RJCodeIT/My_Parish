@@ -4,25 +4,25 @@ import Image from "next/image";
 
 const galleryImages = [
   {
-    src: "/KaplicaSwJana.jpg",
+    src: "/mojaParafia/KaplicaSwJana.jpg",
     alt: "Kaplica Św. Jana",
     width: 800,
     height: 600,
   },
   {
-    src: "/witraz_logo.jpg",
+    src: "/mojaParafia/witraz_logo.jpg",
     alt: "Witraż Logo",
     width: 800,
     height: 600,
   },
   {
-    src: "/witraz.jpg",
+    src: "/mojaParafia/witraz.jpg",
     alt: "Witraż",
     width: 800,
     height: 600,
   },
   {
-    src: "/witraz2.jpg",
+    src: "/mojaParafia/witraz2.jpg",
     alt: "Witraż 2",
     width: 800,
     height: 600,
