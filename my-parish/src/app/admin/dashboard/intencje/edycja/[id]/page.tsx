@@ -137,18 +137,8 @@ export default function EditIntention() {
         }))
       }));
       
-      // Jeśli nie mamy niedzieli, dodaj ją z 3 mszami i pustymi intencjami
-      if (!hasSunday && sundayDate) {
-        console.log('Dodaję niedzielę z 3 mszami');
-        days.push({
-          date: sundayDate,
-          masses: [
-            { time: "7:30", intentions: [{ intention: "" }] },
-            { time: "11:00", intentions: [{ intention: "" }] },
-            { time: "18:30", intentions: [{ intention: "" }] }
-          ]
-        });
-      }
+      // Usunięto automatyczne dodawanie 3 mszy niedzielnych,
+      // ponieważ komponent IntentionsForm teraz generuje pełny tydzień z pustymi dniami
       
       return {
         ...formattedData,

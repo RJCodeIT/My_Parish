@@ -50,20 +50,46 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
     if (isEditMode && initialData) {
       setTitle(initialData.title || "");
       
-      // Użyj dokładnie tych dat, które są przekazywane z API, bez żadnych modyfikacji
+      // Konwertuj daty z formatu ISO do formatu YYYY-MM-DD wymaganego przez input type="date"
       if (initialData.weekStart) {
-        // Użyj dokładnie tej daty, która jest w API
-        console.log('Ustawiam datę początkową:', initialData.weekStart);
-        setWeekStart(initialData.weekStart);
+        // Wyciągnij datę w formacie YYYY-MM-DD z ISO string
+        const formattedStartDate = initialData.weekStart.split('T')[0];
+        console.log('Ustawiam datę początkową:', formattedStartDate);
+        setWeekStart(formattedStartDate);
+        
+        // Wygeneruj pełny tydzień jak przy dodawaniu nowych intencji
+        const weekDates = generateWeekDates(formattedStartDate);
+        
+        // Utwórz pusty szkielet dla wszystkich 7 dni tygodnia
+        const emptyWeek: Day[] = weekDates.map(date => ({
+          date,
+          masses: []
+        }));
+        
+        // Jeśli mamy dane dla niektórych dni, uzupełnij nimi pusty szkielet
+        if (initialData.days && initialData.days.length > 0) {
+          // Dla każdego dnia w pustym tygodniu
+          for (let i = 0; i < emptyWeek.length; i++) {
+            // Znajdź odpowiadający dzień w danych (jeśli istnieje)
+            const matchingDay = initialData.days.find(day => day.date.split('T')[0] === emptyWeek[i].date);
+            
+            // Jeśli znaleziono pasujący dzień, użyj jego danych
+            if (matchingDay) {
+              emptyWeek[i].masses = matchingDay.masses;
+              if (matchingDay.id) emptyWeek[i].id = matchingDay.id;
+            }
+          }
+        }
+        
+        setDays(emptyWeek);
       }
       
       if (initialData.weekEnd) {
-        // Użyj dokładnie tej daty, która jest w API
-        console.log('Ustawiam datę końcową:', initialData.weekEnd);
-        setWeekEnd(initialData.weekEnd);
+        // Wyciągnij datę w formacie YYYY-MM-DD z ISO string
+        const formattedEndDate = initialData.weekEnd.split('T')[0];
+        console.log('Ustawiam datę końcową:', formattedEndDate);
+        setWeekEnd(formattedEndDate);
       }
-      
-      setDays(initialData.days || []);
     }
   }, [isEditMode, initialData]);
   
@@ -321,7 +347,6 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
                   }
                 }} 
                 required
-                disabled={!weekStart} // Disable until start date is selected
               />
               <p className="text-xs text-gray-500 mt-1">Data końcowa to zawsze niedziela po wybranym poniedziałku</p>
             </div>
