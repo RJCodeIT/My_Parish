@@ -2,6 +2,7 @@
 import { ReactNode, useState } from "react";
 import AdminNavbar from "@/components/layout/AdminNavbar";
 import AdminSidebar from "@/components/layout/AdminSidebar";
+import AdminFooter from "@/components/layout/AdminFooter";
 import { usePathname } from "next/navigation";
 import AlertProvider from "@/components/providers/AlertProvider";
 
@@ -38,6 +39,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </AlertProvider>
           </div>
         </main>
+        <div>
+          <AdminFooter />
+        </div>
       </div>
     </div>
   );
