@@ -4,8 +4,6 @@ import Input from "@/components/ui/Input";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useAlerts } from "@/components/ui/Alerts";
-import { readFile } from "@/utils/readDocx";
-import Image from 'next/image';
 import { isMonday, isSunday, getNextMonday, getSundayFromMonday, validateWeekRange, generateWeekDates, getPolishDayName, formatDateToPolish } from "@/utils/dateUtils";
 
 interface MassIntention {
@@ -30,7 +28,6 @@ interface IntentionData {
   title: string;
   weekStart: string;
   weekEnd: string;
-  imageUrl?: string;
   days: Day[];
 }
 
@@ -43,8 +40,6 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
   const [title, setTitle] = useState("");
   const [weekStart, setWeekStart] = useState("");
   const [weekEnd, setWeekEnd] = useState("");
-  const [image, setImage] = useState<File | null>(null);
-  const [existingImage, setExistingImage] = useState<string | undefined>("");
   const [days, setDays] = useState<Day[]>([]);
   const router = useRouter();
   const alerts = useAlerts();
@@ -67,7 +62,6 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
         setWeekEnd(initialData.weekEnd);
       }
       
-      setExistingImage(initialData.imageUrl);
       setDays(initialData.days || []);
     }
   }, [isEditMode, initialData]);
@@ -152,34 +146,7 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
     setDays(updatedDays);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const parsedContent = await readFile(file);
-      setTitle(parsedContent.title);
-      
-      // If we have a weekStart date and days array
-      if (weekStart && days.length > 0) {
-        // Add parsed intentions to the first day and first mass
-        const updatedDays = [...days];
-        
-        // If there's no mass in the first day, add one
-        if (updatedDays[0].masses.length === 0) {
-          updatedDays[0].masses.push({
-            time: "",
-            intentions: []
-          });
-        }
-        
-        // Add parsed intentions to the first mass of the first day
-        updatedDays[0].masses[0].intentions = parsedContent.content.map((text) => ({
-          intention: text.text
-        }));
-        
-        setDays(updatedDays);
-      }
-    }
-  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -221,8 +188,7 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
 
     try {
       if (isEditMode && initialData?._id) {
-        // For edit mode, handle the image upload separately
-        // First, prepare the intention data as JSON
+        // Prepare the intention data as JSON
         const intentionData = {
           title,
           weekStart: weekStart || new Date().toISOString(),
@@ -237,28 +203,8 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
                 intentions: mass.intentions.filter(intention => intention.intention.trim())
               }))
               .filter(mass => mass.intentions.length > 0)
-          })).filter(day => day.masses.length > 0),
-          imageUrl: existingImage // Keep existing image URL if no new image
+          })).filter(day => day.masses.length > 0)
         };
-        
-        // If there's a new image, upload it first
-        if (image) {
-          const imageFormData = new FormData();
-          imageFormData.append("image", image);
-          
-          const imageUploadResponse = await fetch('/mojaParafia/api/upload', {
-            method: 'POST',
-            body: imageFormData
-          });
-          
-          if (imageUploadResponse.ok) {
-            const imageData = await imageUploadResponse.json();
-            intentionData.imageUrl = imageData.imageUrl;
-          } else {
-            const errorData = await imageUploadResponse.json();
-            throw new Error(errorData.error || "Nie udało się przesłać zdjęcia");
-          }
-        }
         
         // Now update the intention with JSON data
         const fetchResponse = await fetch(`/mojaParafia/api/intentions/${initialData._id}`, {
@@ -294,7 +240,6 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
         formData.append("title", title);
         formData.append("weekStart", weekStart || new Date().toISOString());
         formData.append("weekEnd", weekEnd || new Date().toISOString());
-        if (image) formData.append("image", image);
         
         // Filter out empty masses and intentions
         const filteredDays = days.map(day => ({
@@ -315,8 +260,7 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
           title,
           weekStart,
           weekEnd,
-          days: filteredDays,
-          image: image ? "[Plik obrazu]" : "brak"
+          days: filteredDays
         });
         
         // Sprawdź, czy filteredDays zawiera dane
@@ -424,41 +368,7 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
         </div>
 
         <div className="space-y-8">
-          {existingImage && (
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">Aktualne zdjęcie</label>
-              <div className="relative h-40 w-full max-w-md rounded-lg overflow-hidden">
-                <Image 
-                  src={existingImage} 
-                  alt="Aktualne zdjęcie" 
-                  className="object-cover"
-                  fill
-                />
-              </div>
-            </div>
-          )}
-          
-          <div className="space-y-3">
-            <label className="block text-sm font-medium text-gray-700">
-              {existingImage ? "Zmień zdjęcie" : "Dodaj zdjęcie"}
-            </label>
-            <input 
-              type="file" 
-              accept="image/*" 
-              onChange={(e) => setImage(e.target.files?.[0] || null)}
-              className="w-full text-gray-600 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border file:border-neutral/10 file:text-sm file:font-medium hover:file:border-neutral/20 file:bg-gray-50"
-            />
-          </div>
 
-          <div className="space-y-3">
-            <label className="block text-sm font-medium text-gray-700">Dodaj plik .docx</label>
-            <input 
-              type="file" 
-              accept=".docx" 
-              onChange={handleFileUpload}
-              className="w-full text-gray-600 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border file:border-neutral/10 file:text-sm file:font-medium hover:file:border-neutral/20 file:bg-gray-50"
-            />
-          </div>
         </div>
       </div>
 

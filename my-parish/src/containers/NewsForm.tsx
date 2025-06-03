@@ -4,15 +4,12 @@ import Input from "@/components/ui/Input";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useAlerts } from "@/components/ui/Alerts";
-import { readFile } from "@/utils/readDocx";
-import Image from "next/image";
 
 interface NewsData {
   _id?: string;
   title: string;
   subtitle: string;
   content: string;
-  imageUrl?: string;
   date?: string;
 }
 
@@ -25,8 +22,6 @@ export default function NewsForm({ initialData, isEditMode = false }: NewsFormPr
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [content, setContent] = useState("");
-  const [image, setImage] = useState<File | null>(null);
-  const [existingImage, setExistingImage] = useState<string | undefined>("");
   const router = useRouter();
   const alerts = useAlerts();
 
@@ -36,18 +31,10 @@ export default function NewsForm({ initialData, isEditMode = false }: NewsFormPr
       setTitle(initialData.title || "");
       setSubtitle(initialData.subtitle || "");
       setContent(initialData.content || "");
-      setExistingImage(initialData.imageUrl);
     }
   }, [isEditMode, initialData]);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const parsedContent = await readFile(file);
-      setTitle(parsedContent.title);
-      setContent(parsedContent.content.map((c) => c.text).join("\n\n"));
-    }
-  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,33 +57,12 @@ export default function NewsForm({ initialData, isEditMode = false }: NewsFormPr
 
     try {
       if (isEditMode && initialData?._id) {
-        // For edit mode, handle the image upload separately
-        // First, prepare the news data as JSON
+        // Prepare the news data as JSON
         const newsData = {
           title,
           subtitle,
-          content,
-          imageUrl: existingImage // Keep existing image URL if no new image
+          content
         };
-        
-        // If there's a new image, upload it first
-        if (image) {
-          const imageFormData = new FormData();
-          imageFormData.append("image", image);
-          
-          const imageUploadResponse = await fetch('/mojaParafia/api/upload', {
-            method: 'POST',
-            body: imageFormData
-          });
-          
-          if (imageUploadResponse.ok) {
-            const imageData = await imageUploadResponse.json();
-            newsData.imageUrl = imageData.imageUrl;
-          } else {
-            const errorData = await imageUploadResponse.json();
-            throw new Error(errorData.error || "Nie udało się przesłać zdjęcia");
-          }
-        }
         
         // Now update the news with JSON data
         const fetchResponse = await fetch(`/mojaParafia/api/news/${initialData._id}`, {
@@ -132,7 +98,6 @@ export default function NewsForm({ initialData, isEditMode = false }: NewsFormPr
         formData.append("title", title);
         formData.append("subtitle", subtitle);
         formData.append("content", content);
-        if (image) formData.append("image", image);
 
         const response = await axios.post("/mojaParafia/api/news", formData, {
           headers: { "Content-Type": "multipart/form-data" },
@@ -175,65 +140,7 @@ export default function NewsForm({ initialData, isEditMode = false }: NewsFormPr
           required 
         />
 
-        {existingImage && (
-          <div className="space-y-3">
-            <label className="block text-sm font-medium text-gray-700">Aktualne zdjęcie</label>
-            <div className="relative h-40 w-full max-w-md rounded-lg overflow-hidden">
-              <Image 
-                src={existingImage} 
-                alt="Aktualne zdjęcie" 
-                className="object-cover"
-                fill
-              />
-            </div>
-          </div>
-        )}
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {existingImage ? "Zmień zdjęcie" : "Dodaj zdjęcie"}
-          </label>
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={() => document.getElementById('image-upload')?.click()}
-              className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100"
-            >
-              Wybierz plik
-            </button>
-            <span className="text-sm text-gray-500">
-              {image ? image.name : "Nie wybrano pliku"}
-            </span>
-            <input
-              id="image-upload"
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImage(e.target.files?.[0] || null)}
-              className="hidden"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Dodaj plik .docx</label>
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={() => document.getElementById('docx-upload')?.click()}
-              className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100"
-            >
-              Wybierz plik
-            </button>
-            <span className="text-sm text-gray-500">Nie wybrano pliku</span>
-            <input 
-              id="docx-upload"
-              type="file" 
-              accept=".docx" 
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-          </div>
-        </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Treść</label>

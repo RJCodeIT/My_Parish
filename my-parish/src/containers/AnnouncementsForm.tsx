@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import Input from "@/components/ui/Input";
 import { useRouter } from "next/navigation";
 import { useAlerts } from "@/components/ui/Alerts";
-import { readFile } from "@/utils/readDocx";
 
 interface AnnouncementContent {
   order: number;
@@ -14,7 +13,6 @@ interface Announcement {
   _id?: string;
   title: string;
   date: string;
-  imageUrl?: string;
   content: AnnouncementContent[];
   extraInfo?: string;
 }
@@ -27,8 +25,6 @@ interface AnnouncementsFormProps {
 export default function AnnouncementsForm({ initialData, isEditMode = false }: AnnouncementsFormProps) {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
-  const [image, setImage] = useState<File | null>(null);
-  const [existingImage, setExistingImage] = useState<string | undefined>(undefined);
   const [extraInfo, setExtraInfo] = useState("");
   const [content, setContent] = useState<AnnouncementContent[]>([]);
   const router = useRouter();
@@ -43,7 +39,6 @@ export default function AnnouncementsForm({ initialData, isEditMode = false }: A
         const formattedDate = new Date(initialData.date).toISOString().split('T')[0];
         setDate(formattedDate);
       }
-      setExistingImage(initialData.imageUrl);
       setExtraInfo(initialData.extraInfo || "");
       setContent(initialData.content || []);
     }
@@ -63,15 +58,7 @@ export default function AnnouncementsForm({ initialData, isEditMode = false }: A
     setContent(content.filter((_, i) => i !== index));
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const parsedContent = await readFile(file);
-      setTitle(parsedContent.title);
-      setContent(parsedContent.content);
-      setExtraInfo(parsedContent.extraInfo);
-    }
-  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,34 +78,13 @@ export default function AnnouncementsForm({ initialData, isEditMode = false }: A
       let response;
       
       if (isEditMode && initialData?._id) {
-        // For edit mode, we need to handle the image upload separately
-        // First, prepare the announcement data as JSON
+        // Prepare the announcement data as JSON
         const announcementData = {
           title,
           date: date || new Date().toISOString(),
           content,
-          extraInfo,
-          imageUrl: existingImage // Keep existing image URL if no new image
+          extraInfo
         };
-        
-        // If there's a new image, upload it first
-        if (image) {
-          const imageFormData = new FormData();
-          imageFormData.append("image", image);
-          
-          const imageUploadResponse = await fetch('/mojaParafia/api/upload', {
-            method: 'POST',
-            body: imageFormData
-          });
-          
-          if (imageUploadResponse.ok) {
-            const imageData = await imageUploadResponse.json();
-            announcementData.imageUrl = imageData.imageUrl;
-          } else {
-            const errorData = await imageUploadResponse.json();
-            throw new Error(errorData.error || "Nie udało się przesłać zdjęcia");
-          }
-        }
         
         // Now update the announcement with JSON data
         response = await fetch(`/mojaParafia/api/announcements/${initialData._id}`, {
@@ -134,7 +100,6 @@ export default function AnnouncementsForm({ initialData, isEditMode = false }: A
         const formData = new FormData();
         formData.append("title", title);
         formData.append("date", date || new Date().toISOString());
-        if (image) formData.append("image", image);
         formData.append("extraInfo", extraInfo);
         formData.append("content", JSON.stringify(content));
         
@@ -197,51 +162,7 @@ export default function AnnouncementsForm({ initialData, isEditMode = false }: A
           onChange={(e) => setDate(e.target.value)}
         />
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Dodaj zdjęcie</label>
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={() => document.getElementById('image-upload')?.click()}
-              className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100"
-            >
-              Wybierz plik
-            </button>
-            <span className="text-sm text-gray-500">
-              {image ? image.name : "Nie wybrano pliku"}
-            </span>
-            <input
-              id="image-upload"
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImage(e.target.files?.[0] || null)}
-              className="hidden"
-            />
-          </div>
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Dodaj plik .docx
-          </label>
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={() => document.getElementById('docx-upload')?.click()}
-              className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100"
-            >
-              Wybierz plik
-            </button>
-            <span className="text-sm text-gray-500">Nie wybrano pliku</span>
-            <input 
-              id="docx-upload"
-              type="file" 
-              accept=".docx" 
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-          </div>
-        </div>
       </div>
 
       <div className="space-y-4">
