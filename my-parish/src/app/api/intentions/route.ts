@@ -144,6 +144,10 @@ export async function POST(req: Request) {
     });
     
     // Format the response
+    if (!createdIntention) {
+      return NextResponse.json({ error: "Failed to create intention" }, { status: 500 });
+    }
+    
     const formattedDays = createdIntention.days.map(day => {
       const formattedMasses = day.masses.map(mass => {
         return {
