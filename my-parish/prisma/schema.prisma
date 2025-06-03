@@ -115,7 +115,7 @@ model Intention {
   id          String   @id @default(cuid())
   title       String
   weekStart   DateTime @default(now()) // Start date of the week
-  weekEnd     DateTime // End date of the week
+  weekEnd     DateTime? // Optional to allow migration from existing data
   imageUrl    String?
   days        Day[]
 }
@@ -135,8 +135,8 @@ model Day {
 model Mass {
   id          String    @id @default(cuid())
   time        String
-  dayId       String
-  day         Day       @relation(fields: [dayId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  dayId       String?   // Optional to allow migration from existing data
+  day         Day?      @relation(fields: [dayId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   intentions  MassIntention[]
 
   @@index([dayId])

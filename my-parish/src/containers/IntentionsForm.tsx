@@ -28,6 +28,7 @@ interface IntentionData {
   title: string;
   weekStart: string;
   weekEnd: string;
+  imageUrl?: string;
   days: Day[];
 }
 
@@ -185,25 +186,27 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
       alerts.showError("Dodaj przynajmniej jedną mszę z intencją");
       return;
     }
+    
+    // Filter out empty masses and intentions for all operations
+    const filteredDays = days.map(day => ({
+      ...day,
+      masses: day.masses
+        .filter(mass => mass.time.trim())
+        .map(mass => ({
+          ...mass,
+          intentions: mass.intentions.filter(intention => intention.intention.trim())
+        }))
+        .filter(mass => mass.intentions.length > 0)
+    })).filter(day => day.masses.length > 0);
 
     try {
       if (isEditMode && initialData?._id) {
-        // Prepare the intention data as JSON
+        // Prepare the intention data as JSON for update
         const intentionData = {
           title,
           weekStart: weekStart || new Date().toISOString(),
           weekEnd: weekEnd || new Date().toISOString(),
-          days: days.map(day => ({
-            ...day,
-            // Filter out empty masses and intentions
-            masses: day.masses
-              .filter(mass => mass.time.trim())
-              .map(mass => ({
-                ...mass,
-                intentions: mass.intentions.filter(intention => intention.intention.trim())
-              }))
-              .filter(mass => mass.intentions.length > 0)
-          })).filter(day => day.masses.length > 0)
+          days: filteredDays
         };
         
         // Now update the intention with JSON data
@@ -235,26 +238,6 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
           }
         }
       } else {
-        // For create mode, continue using FormData
-        const formData = new FormData();
-        formData.append("title", title);
-        formData.append("weekStart", weekStart || new Date().toISOString());
-        formData.append("weekEnd", weekEnd || new Date().toISOString());
-        
-        // Filter out empty masses and intentions
-        const filteredDays = days.map(day => ({
-          ...day,
-          masses: day.masses
-            .filter(mass => mass.time.trim())
-            .map(mass => ({
-              ...mass,
-              intentions: mass.intentions.filter(intention => intention.intention.trim())
-            }))
-            .filter(mass => mass.intentions.length > 0)
-        })).filter(day => day.masses.length > 0);
-        
-        formData.append("days", JSON.stringify(filteredDays));
-        
         // Logowanie danych formularza dla diagnostyki
         console.log("Dane formularza:", {
           title,
@@ -268,6 +251,13 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
           alerts.showError("Brak dni z mszami i intencjami do zapisania. Dodaj przynajmniej jedną mszę z intencją.");
           return;
         }
+        
+        // Use FormData to handle potential image upload
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("weekStart", weekStart || new Date().toISOString());
+        formData.append("weekEnd", weekEnd || new Date().toISOString());
+        formData.append("days", JSON.stringify(filteredDays));
         
         const axiosResponse = await axios.post("/mojaParafia/api/intentions", formData, {
           headers: { "Content-Type": "multipart/form-data" },
@@ -329,35 +319,6 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
                       setWeekEnd(getSundayFromMonday(newDate));
                     }
                   }
-                }} 
-                required
-              />
-              <p className="text-xs text-gray-500 mt-1">Wybierz poniedziałek jako datę początkową</p>
-            </div>
-            <div>
-              <Input 
-                label="Data końcowa tygodnia (niedziela)" 
-                type="date" 
-                name="weekEnd" 
-                value={weekEnd} 
-                onChange={(e) => {
-                  const newDate = e.target.value;
-                  if (newDate && !isSunday(newDate)) {
-                    alerts.showError("Data końcowa musi być niedzielą");
-                    // Don't update if not a Sunday
-                    return;
-                  }
-                  
-                  // If we have a start date, validate the range
-                  if (weekStart && newDate) {
-                    const validation = validateWeekRange(weekStart, newDate);
-                    if (!validation.isValid) {
-                      alerts.showError(validation.message || "Nieprawidłowy zakres dat");
-                      return;
-                    }
-                  }
-                  
-                  setWeekEnd(newDate);
                 }} 
                 required
                 disabled={!weekStart} // Disable until start date is selected
