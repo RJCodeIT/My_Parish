@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { AiOutlineUp, AiOutlineDown } from "react-icons/ai";
 import PageContainer from "@/components/layout/PageContainer";
 import Pagination from "@/components/ui/Pagination";
+import SearchForm from "@/components/ui/SearchForm";
 import Image from "next/image";
 import SectionTitle from "@/components/layout/SectionTitle";
 
@@ -37,69 +38,6 @@ interface Intention {
   intentionTime?: string;
   description?: string;
 };
-
-// Dane mockowe do użycia w przypadku braku danych z API
-const mockIntentions: Intention[] = [
-  {
-    id: "1",
-    _id: "1",
-    title: "Intencje Mszalne 3-9 czerwca 2025",
-    date: "2025-06-03",
-    weekStart: "2025-06-03",
-    weekEnd: "2025-06-09",
-    masses: [
-      { time: "7:00", intention: "Za dusze w czyśćcu cierpiące" },
-      { time: "18:00", intention: "Za śp. Jana i Marię Kowalskich" }
-    ],
-    days: [
-      {
-        date: "2025-06-03",
-        masses: [
-          { time: "7:00", intention: "Za dusze w czyśćcu cierpiące" },
-          { time: "18:00", intention: "Za śp. Jana i Marię Kowalskich" }
-        ]
-      },
-      {
-        date: "2025-06-04",
-        masses: [
-          { time: "7:00", intention: "O błogosławieństwo dla rodziny Nowaków" },
-          { time: "18:00", intention: "Za śp. Annę Wiśniewską" }
-        ]
-      },
-      {
-        date: "2025-06-05",
-        masses: [
-          { time: "7:00", intention: "Za parafian" },
-          { time: "18:00", intention: "Dziękczynna w intencji Marii z okazji urodzin" }
-        ]
-      }
-    ]
-  },
-  {
-    id: "2",
-    _id: "2",
-    title: "Intencje Mszalne 10-16 czerwca 2025",
-    date: "2025-06-10",
-    weekStart: "2025-06-10",
-    weekEnd: "2025-06-16",
-    days: [
-      {
-        date: "2025-06-10",
-        masses: [
-          { time: "7:00", intention: "Za śp. Tadeusza Zielińskiego" },
-          { time: "18:00", intention: "O zdrowie dla Krzysztofa" }
-        ]
-      },
-      {
-        date: "2025-06-11",
-        masses: [
-          { time: "7:00", intention: "Za dusze w czyśćcu cierpiące" },
-          { time: "18:00", intention: "Za śp. Helenę i Józefa" }
-        ]
-      }
-    ]
-  }
-];
 
 // Format date for display (DD-MM-YYYY)
 function formatDate(dateString: string) {
@@ -244,6 +182,7 @@ export default function Intentions() {
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedIntentions, setExpandedIntentions] = useState<Set<string>>(new Set());
   const [useMock, setUseMock] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -263,19 +202,11 @@ export default function Intentions() {
         const data = await response.json();
         console.log('Odpowiedź z API intencji:', data);
         
-        // Sprawdź, czy dane są puste lub nieprawidłowe
-        if (!data || data.length === 0) {
-          console.log('Brak danych z API, używam danych mockowych');
-          setUseMock(true);
-          setIntentions(mockIntentions);
-        } else {
-          setIntentions(data);
-        }
+        // Ustaw dane z API, nawet jeśli są puste
+        setIntentions(data);
       } catch (err) {
         console.error('Błąd podczas pobierania intencji:', err);
-        setError('Błąd ładowania intencji. Używam danych testowych.');
-        setUseMock(true);
-        setIntentions(mockIntentions);
+        setError('Błąd ładowania intencji. Spróbuj odświeżyć stronę.');
       } finally {
         setLoading(false);
       }
@@ -296,10 +227,22 @@ export default function Intentions() {
     });
   };
 
+  // Handle search
+  const handleSearch = (query: string) => {
+    setSearchQuery(query.toLowerCase());
+    setCurrentPage(1); // Reset to first page when searching
+  };
+
+  // Filter intentions based on search query
+  const filteredIntentions = intentions.filter((intention) => {
+    if (!searchQuery) return true;
+    return intention.title.toLowerCase().includes(searchQuery);
+  });
+
   // Calculate pagination
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentIntentions = intentions.slice(startIndex, endIndex);
+  const currentIntentions = filteredIntentions.slice(startIndex, endIndex);
 
   // Przenieślismy funkcje formatowania na poziom modułu
 
@@ -307,6 +250,10 @@ export default function Intentions() {
     <div>
       <SectionTitle name="Intencje Mszalne" />
       <PageContainer>
+        <SearchForm 
+          onSearch={handleSearch}
+          placeholder="Szukaj w intencjach..."
+        />
         {loading ? (
           <div className="text-center py-8">Ładowanie intencji...</div>
         ) : error && !useMock ? (
@@ -337,10 +284,10 @@ export default function Intentions() {
           </>
         )}
         
-        {!loading && !error && intentions.length > 0 && (
+        {!loading && !error && filteredIntentions.length > 0 && (
           <Pagination
             itemsPerPage={itemsPerPage}
-            totalItems={intentions.length}
+            totalItems={filteredIntentions.length}
             onPageChange={setCurrentPage}
           />
         )}

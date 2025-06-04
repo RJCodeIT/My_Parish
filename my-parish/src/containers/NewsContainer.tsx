@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import ParishCard from "@/components/ui/ParishCard";
 import Pagination from "@/components/ui/Pagination";
 import PageContainer from "@/components/layout/PageContainer";
+import SearchForm from "@/components/ui/SearchForm";
 
 type News = {
   id: string;
@@ -20,6 +21,7 @@ export default function NewsContainer() {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedNews, setExpandedNews] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
   const itemsPerPage = 5;
   
   // Toggle news item expansion
@@ -60,10 +62,25 @@ export default function NewsContainer() {
     fetchNews();
   }, []);
 
+  // Handle search
+  const handleSearch = (query: string) => {
+    setSearchQuery(query.toLowerCase());
+    setCurrentPage(1); // Reset to first page when searching
+  };
+
+  // Filter news based on search query
+  const filteredNews = news.filter((newsItem) => {
+    if (!searchQuery) return true;
+    return (
+      newsItem.title.toLowerCase().includes(searchQuery) ||
+      newsItem.subtitle.toLowerCase().includes(searchQuery)
+    );
+  });
+
   // Calculate pagination
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentNews = news.slice(startIndex, endIndex);
+  const currentNews = filteredNews.slice(startIndex, endIndex);
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -81,6 +98,11 @@ export default function NewsContainer() {
       <h2 className="text-xl font-bold text-primary mb-6 text-center">
         Aktualności
       </h2>
+      
+      <SearchForm 
+        onSearch={handleSearch}
+        placeholder="Szukaj w aktualnościach..."
+      />
       
       {loading ? (
         <div className="text-center py-8">Ładowanie aktualności...</div>
@@ -107,10 +129,10 @@ export default function NewsContainer() {
         })
       )}
       
-      {!loading && !error && news.length > 0 && (
+      {!loading && !error && filteredNews.length > 0 && (
         <Pagination
           itemsPerPage={itemsPerPage}
-          totalItems={news.length}
+          totalItems={filteredNews.length}
           onPageChange={setCurrentPage}
         />
       )}

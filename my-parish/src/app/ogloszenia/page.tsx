@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Pagination from "@/components/ui/Pagination";
 import PageContainer from "@/components/layout/PageContainer";
 import SectionTitle from "@/components/layout/SectionTitle";
+import SearchForm from "@/components/ui/SearchForm";
 import { AiOutlineDown, AiOutlineUp } from "react-icons/ai";
 
 type Announcement = {
@@ -26,6 +27,7 @@ export default function Announcements() {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedAnnouncements, setExpandedAnnouncements] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
   const itemsPerPage = 5;
   
   // Toggle announcement expansion
@@ -66,10 +68,22 @@ export default function Announcements() {
     fetchAnnouncements();
   }, []);
 
+  // Handle search
+  const handleSearch = (query: string) => {
+    setSearchQuery(query.toLowerCase());
+    setCurrentPage(1); // Reset to first page when searching
+  };
+
+  // Filter announcements based on search query
+  const filteredAnnouncements = announcements.filter((announcement) => {
+    if (!searchQuery) return true;
+    return announcement.title.toLowerCase().includes(searchQuery);
+  });
+
   // Calculate pagination
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentAnnouncements = announcements.slice(startIndex, endIndex);
+  const currentAnnouncements = filteredAnnouncements.slice(startIndex, endIndex);
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -88,6 +102,10 @@ export default function Announcements() {
     <div>
       <SectionTitle name="Ogłoszenia duszpasterskie" />
       <PageContainer>
+        <SearchForm 
+          onSearch={handleSearch}
+          placeholder="Szukaj w ogłoszeniach..."
+        />
         {loading ? (
           <div className="text-center py-8">Ładowanie ogłoszeń...</div>
         ) : error ? (
@@ -147,10 +165,10 @@ export default function Announcements() {
             );
           })
         )}
-        {!loading && !error && announcements.length > 0 && (
+        {!loading && !error && filteredAnnouncements.length > 0 && (
           <Pagination
             itemsPerPage={itemsPerPage}
-            totalItems={announcements.length}
+            totalItems={filteredAnnouncements.length}
             onPageChange={setCurrentPage}
           />
         )}
