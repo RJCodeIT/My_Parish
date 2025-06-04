@@ -98,9 +98,13 @@ export default function ParishGroups() {
           placeholder="Szukaj po nazwie grupy, opisie lub prowadzącym..."
         />
         <div className="mt-4 space-y-4">
-          {filteredGroups.map((group) => (
-            <GroupCard key={group._id} group={group} onDelete={handleDelete} />
-          ))}
+          {filteredGroups.length > 0 ? (
+            filteredGroups.map((group) => (
+              <GroupCard key={group._id} group={group} onDelete={handleDelete} />
+            ))
+          ) : (
+            <div className="text-center text-gray-500">Brak grup parafialnych</div>
+          )}
         </div>
       </div>
     </div>

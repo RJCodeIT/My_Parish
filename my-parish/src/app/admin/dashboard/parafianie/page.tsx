@@ -111,9 +111,13 @@ export default function Parishioners() {
           placeholder="Szukaj po imieniu, nazwisku, adresie lub emailu..."
         />
         <div className="mt-4 space-y-4">
-          {filteredParishioners.map((parishioner) => (
-            <ParishionerCard key={parishioner._id} parishioner={parishioner} onDelete={handleDelete} />
-          ))}
+          {filteredParishioners.length > 0 ? (
+            filteredParishioners.map((parishioner) => (
+              <ParishionerCard key={parishioner._id} parishioner={parishioner} onDelete={handleDelete} />
+            ))
+          ) : (
+            <div className="text-center text-gray-500">Brak parafian</div>
+          )}
         </div>
       </div>
     </div>
