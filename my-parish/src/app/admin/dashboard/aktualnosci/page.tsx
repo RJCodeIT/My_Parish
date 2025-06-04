@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import SectionTitle from "@/components/layout/SectionTitle";
 import NewsCard from "@/components/ui/NewsCard";
+import AdminSearchBar from "@/components/ui/AdminSearchBar";
 import { useAlerts } from "@/components/ui/Alerts";
 import axios from "axios";
 
@@ -16,6 +17,7 @@ interface News {
 
 export default function News() {
   const [newsList, setNewsList] = useState<News[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const alerts = useAlerts();
 
   useEffect(() => {
@@ -48,21 +50,39 @@ export default function News() {
     }, 500);
   };
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query.toLowerCase());
+  };
+
+  const filteredNews = newsList.filter((news) => {
+    const searchStr = `${news.title} ${news.subtitle} ${news.date}`.toLowerCase();
+    return searchStr.includes(searchQuery);
+  });
+
   return (
     <div>
       <SectionTitle name="Aktualności" />
-      <div className="mt-4">
-        {newsList.length > 0 ? (
-          newsList.map((news) => (
-            <NewsCard 
-              key={news._id} 
-              news={news} 
-              onDelete={handleDelete} 
-            />
-          ))
-        ) : (
-          <p className="text-center text-gray-500">Brak aktualności</p>
-        )}
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-primary">Wszystkie Aktualności</h1>
+        </div>
+        <AdminSearchBar 
+          onSearch={handleSearch}
+          placeholder="Szukaj w aktualnościach..."
+        />
+        <div className="mt-4">
+          {filteredNews.length > 0 ? (
+            filteredNews.map((news) => (
+              <NewsCard 
+                key={news._id} 
+                news={news} 
+                onDelete={handleDelete} 
+              />
+            ))
+          ) : (
+            <p className="text-center text-gray-500">Brak aktualności</p>
+          )}
+        </div>
       </div>
     </div>
   );
