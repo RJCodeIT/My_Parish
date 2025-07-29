@@ -124,25 +124,25 @@ export default function AdminDashboard() {
 
   // Render dashboard with statistics
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
       <SectionTitle name="Statystyki parafii" />
       
       {/* Year selector */}
-      <div className="flex items-center justify-center gap-4 mb-2">
+      <div className="flex items-center justify-center gap-2 sm:gap-4 mb-2">
         <button 
           onClick={handlePreviousYear}
           disabled={selectedYear <= currentSystemYear - 5}
-          className={`flex items-center justify-center p-2 rounded-full ${selectedYear <= currentSystemYear - 5 ? 'text-gray-400 cursor-not-allowed' : 'text-primary hover:bg-primary/10 transition-colors'}`}
+          className={`flex items-center justify-center p-1 sm:p-2 rounded-full ${selectedYear <= currentSystemYear - 5 ? 'text-gray-400 cursor-not-allowed' : 'text-primary hover:bg-primary/10 transition-colors'}`}
           aria-label="Poprzedni rok"
         >
-          <FaAngleLeft size={24} />
+          <FaAngleLeft size={20} className="sm:text-2xl" />
         </button>
         
         <div className="relative">
           <select 
             value={selectedYear}
             onChange={handleYearChange}
-            className="text-xl font-semibold bg-transparent border-b border-primary text-primary appearance-none pl-2 pr-8 py-1 cursor-pointer focus:outline-none"
+            className="text-base sm:text-lg md:text-xl font-semibold bg-transparent border-b border-primary text-primary appearance-none pl-1 sm:pl-2 pr-6 sm:pr-8 py-1 cursor-pointer focus:outline-none"
             aria-label="Wybierz rok"
           >
             {availableYears.map(year => (
@@ -150,7 +150,7 @@ export default function AdminDashboard() {
             ))}
           </select>
           <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </div>
@@ -159,41 +159,41 @@ export default function AdminDashboard() {
         <button 
           onClick={handleNextYear}
           disabled={selectedYear >= currentSystemYear}
-          className={`flex items-center justify-center p-2 rounded-full ${selectedYear >= currentSystemYear ? 'text-gray-400 cursor-not-allowed' : 'text-primary hover:bg-primary/10 transition-colors'}`}
+          className={`flex items-center justify-center p-1 sm:p-2 rounded-full ${selectedYear >= currentSystemYear ? 'text-gray-400 cursor-not-allowed' : 'text-primary hover:bg-primary/10 transition-colors'}`}
           aria-label="Następny rok"
         >
-          <FaAngleRight size={24} />
+          <FaAngleRight size={20} className="sm:text-2xl" />
         </button>
       </div>
       
       {statistics && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 px-0 sm:px-2 md:px-4 lg:px-6">
           {/* Groups Statistics - Custom Card */}
           <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 transform transition duration-300 hover:shadow-lg">
-            <div className="relative bg-blue-700 p-4 text-white">
+            <div className="relative bg-blue-700 p-3 sm:p-4 text-white">
               <div className="flex items-center">
-                <div className="mr-3 text-white bg-white/20 p-2 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="text-2xl" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <div className="mr-2 sm:mr-3 text-white bg-white/20 p-1.5 sm:p-2 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="text-xl sm:text-2xl" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12.296 5.672c0.528 0 0.957-0.428 0.957-0.956 0-0.53-0.429-0.958-0.957-0.958-0.531 0-0.959 0.428-0.959 0.958 0 0.527 0.428 0.956 0.959 0.956zM7.722 5.672c0.528 0 0.957-0.428 0.957-0.956 0-0.53-0.428-0.958-0.957-0.958-0.53 0-0.959 0.428-0.959 0.958 0 0.527 0.428 0.956 0.959 0.956zM16.87 5.672c0.528 0 0.957-0.428 0.957-0.956 0-0.53-0.428-0.958-0.957-0.958-0.53 0-0.959 0.428-0.959 0.958 0 0.527 0.428 0.956 0.959 0.956zM12.296 10.007c1.059 0 1.915-0.857 1.915-1.914 0-1.057-0.856-1.913-1.915-1.913-1.059 0-1.915 0.857-1.915 1.913 0 1.057 0.856 1.914 1.915 1.914zM7.722 10.007c1.059 0 1.915-0.857 1.915-1.914 0-1.057-0.856-1.913-1.915-1.913-1.059 0-1.915 0.857-1.915 1.913 0 1.057 0.856 1.914 1.915 1.914zM16.87 10.007c1.059 0 1.915-0.857 1.915-1.914 0-1.057-0.856-1.913-1.915-1.913-1.059 0-1.915 0.857-1.915 1.913 0 1.057 0.856 1.914 1.915 1.914zM7.722 14.353c1.589 0 2.874-1.286 2.874-2.871 0-1.587-1.285-2.873-2.874-2.873-1.588 0-2.872 1.286-2.872 2.873 0 1.585 1.284 2.871 2.872 2.871zM16.87 14.353c1.589 0 2.874-1.286 2.874-2.871 0-1.587-1.285-2.873-2.874-2.873-1.588 0-2.872 1.286-2.872 2.873 0 1.585 1.284 2.871 2.872 2.871zM12.296 16.281c-4.014 0-7.295 3.281-7.295 7.294h14.59c0-4.013-3.281-7.294-7.295-7.294zM7.722 16.281c-4.233 0-7.722 3.489-7.722 7.719h5.831c0-1.034 0.196-2.019 0.549-2.929-1.285-0.74-2.197-1.88-2.451-3.168 1.139-0.921 2.588-1.474 4.166-1.474 0.010 0 0.018 0.002 0.028 0.002 0.240-0.072 0.516-0.112 0.821-0.125-0.224 0.235-0.424 0.494-0.62 0.75-0.196 0.256-0.345 0.538-0.513 0.811-0.167 0.272-0.351 0.52-0.482 0.812-0.021 0.047-0.045 0.093-0.065 0.14-0.137 0.308-0.217 0.638-0.3 0.967-0.082 0.329-0.164 0.659-0.2 1-0.036 0.341-0.018 0.689-0.027 1.033-0.006 0.259-0.069 0.505-0.015 0.759h-2.256c0.094-2.298 1.044-4.372 2.522-5.882-0.32-0.404-0.574-0.847-0.746-1.318-0.177-0.073-0.358-0.138-0.52-0.23M16.87 16.281c-0.037 0-0.072 0.005-0.109 0.005 0.268 0.246 0.514 0.511 0.736 0.796 0.609 0.781 1.067 1.706 1.33 2.603 0.264 0.897 0.324 1.791 0.262 2.662-0.031 0.437-0.009 0.883-0.123 1.312-0.033 0.124-0.066 0.248-0.115 0.34h1.979c-0.267-4.001-3.607-7.719-7.698-7.719 0.001 0 0.001 0 0.002 0 0.139 0.033 0.262 0.004 0.344 0.1 0.212 0.015 0.424 0.030 0.634 0.059 0.419 0.056 0.83 0.134 1.231 0.254 0.4 0.12 0.791 0.27 1.167 0.451 0.187 0.09 0.371 0.185 0.549 0.291 0.089 0.053 0.179 0.105 0.267 0.163-0.114-0.039-0.243-0.033-0.359-0.059-0.229-0.052-0.445-0.124-0.637-0.227-0.383-0.203-0.526-0.484-0.675-0.774 0.407 0.176 0.82 0.338 1.238 0.49 0.418 0.151 0.84 0.287 1.266 0.406 0.425 0.119 0.851 0.223 1.283 0.3 0.215 0.038 0.432 0.070 0.65 0.093-0.195 0.212-0.415 0.405-0.643 0.598-0.229 0.193-0.463 0.379-0.704 0.559-0.242 0.179-0.49 0.353-0.749 0.508-0.258 0.154-0.52 0.295-0.787 0.433-0.132 0.069-0.267 0.134-0.402 0.199 0.135-0.086 0.272-0.17 0.422-0.232 0.149-0.063 0.311-0.103 0.47-0.152 0.319-0.097 0.645-0.18 0.967-0.273 0.321-0.093 0.642-0.191 0.951-0.31 0.309-0.119 0.613-0.25 0.896-0.411 0.282-0.162 0.551-0.345 0.786-0.561 0.235-0.216 0.44-0.458 0.612-0.719 0.172-0.262 0.313-0.54 0.429-0.83 0.059-0.145 0.111-0.294 0.155-0.444z" />
                   </svg>
                 </div>
-                <h2 className="text-lg font-semibold">Grupy parafialne</h2>
+                <h2 className="text-base sm:text-lg font-semibold">Grupy parafialne</h2>
               </div>
               <div className="absolute top-0 right-0 bottom-0 left-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-30"></div>
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
             </div>
-            <div className="p-6 space-y-4 bg-gradient-to-b from-white to-gray-50">
+            <div className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4 bg-gradient-to-b from-white to-gray-50">
               <div className="flex justify-between items-center">
-                <div className="text-gray-700 font-medium">Liczba grup:</div>
-                <div className="text-2xl font-bold text-primary">{statistics.groups.totalCount}</div>
+                <div className="text-sm sm:text-base text-gray-700 font-medium">Liczba grup:</div>
+                <div className="text-xl sm:text-2xl font-bold text-primary">{statistics.groups.totalCount}</div>
               </div>
               <div className="flex justify-between items-center">
-                <div className="text-gray-700 font-medium">Liczba członków:</div>
-                <div className="text-2xl font-bold text-primary">{statistics.groups.membersCount}</div>
+                <div className="text-sm sm:text-base text-gray-700 font-medium">Liczba członków:</div>
+                <div className="text-xl sm:text-2xl font-bold text-primary">{statistics.groups.membersCount}</div>
               </div>
               <div className="flex justify-between items-center">
-                <div className="text-gray-700 font-medium">Średnio osób w grupie:</div>
-                <div className="text-xl font-medium text-primary">
+                <div className="text-sm sm:text-base text-gray-700 font-medium">Średnio osób w grupie:</div>
+                <div className="text-base sm:text-xl font-medium text-primary">
                   {statistics.groups.totalCount > 0 
                     ? (statistics.groups.membersCount / statistics.groups.totalCount).toFixed(1) 
                     : 0}

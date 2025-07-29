@@ -84,37 +84,37 @@ export default function StatisticsCard({
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 transform transition duration-300 hover:shadow-lg">
       {/* Header with background gradient and icon */}
-      <div className={`relative ${bgColorClass} p-4 text-white`}>
+      <div className={`relative ${bgColorClass} p-3 sm:p-4 text-white`}>
         <div className="flex items-center">
-          <div className="mr-3 text-white bg-white/20 p-2 rounded-full">
+          <div className="mr-2 sm:mr-3 text-white bg-white/20 p-1.5 sm:p-2 rounded-full">
             {renderIcon()}
           </div>
-          <h2 className="text-lg font-semibold">{title}</h2>
+          <h2 className="text-base sm:text-lg font-semibold">{title}</h2>
         </div>
         <div className="absolute top-0 right-0 bottom-0 left-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-30"></div>
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
       </div>
       
       {/* Card content with softer colors */}
-      <div className="p-6 space-y-4 bg-gradient-to-b from-white to-gray-50">
+      <div className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4 bg-gradient-to-b from-white to-gray-50">
         <div className="flex justify-between items-center">
-          <div className="text-gray-700 font-medium">Rok {currentYear}:</div>
-          <div className="text-2xl font-bold text-primary">{currentValue}{suffix}</div>
+          <div className="text-sm sm:text-base text-gray-700 font-medium">Rok {currentYear}:</div>
+          <div className="text-xl sm:text-2xl font-bold text-primary">{currentValue}{suffix}</div>
         </div>
         <div className="flex justify-between items-center">
-          <div className="text-gray-700 font-medium">Rok {previousYear}:</div>
-          <div className="text-xl text-gray-700">{previousValue}{suffix}</div>
+          <div className="text-sm sm:text-base text-gray-700 font-medium">Rok {previousYear}:</div>
+          <div className="text-base sm:text-xl text-gray-700">{previousValue}{suffix}</div>
         </div>
         <div className="flex justify-between items-center">
-          <div className="text-gray-700 font-medium">Zmiana:</div>
-          <div className="flex items-center text-xl">
+          <div className="text-sm sm:text-base text-gray-700 font-medium">Zmiana:</div>
+          <div className="flex items-center text-base sm:text-xl">
             {renderChangeIndicator(change, inverse)}
           </div>
         </div>
         {showAverage && denominator > 0 && (
           <div className="flex justify-between items-center">
-            <div className="text-gray-700 font-medium">Średnio:</div>
-            <div className="text-xl font-medium text-primary">
+            <div className="text-sm sm:text-base text-gray-700 font-medium">Średnio:</div>
+            <div className="text-base sm:text-xl font-medium text-primary">
               {(currentValue / denominator).toFixed(1)}{suffix}
             </div>
           </div>

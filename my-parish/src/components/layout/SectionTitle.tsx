@@ -6,7 +6,7 @@ type SectionTitleProps = {
 
 export default function SectionTitle({ name }: SectionTitleProps) {
   return (
-    <div className="container mx-auto px-4 pt-8">
+    <div className="container mx-auto px-4">
       <h1 className="text-4xl font-bold text-primary text-center mb-2 relative">
         <span className="relative">
           {name}

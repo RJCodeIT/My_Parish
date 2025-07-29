@@ -94,6 +94,22 @@ export default function AdminSidebar({
     // Cleanup
     return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
+  
+  // Control body scroll when sidebar is open on mobile devices only
+  useEffect(() => {
+    if (isOpen && isMobile) {
+      // Prevent scrolling on the main content when sidebar is open on mobile
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Re-enable scrolling when sidebar is closed or on desktop
+      document.body.style.overflow = '';
+    }
+    
+    // Cleanup function to ensure scrolling is re-enabled when component unmounts
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen, isMobile]);
 
   const toggleSection = (label: string) => {
     setOpenSections((prev) =>
