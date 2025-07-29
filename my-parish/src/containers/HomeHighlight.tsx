@@ -35,16 +35,16 @@ export default function HomeHighlight({ searchResults }: HomeHighlightProps) {
     <PageContainer>
       <div className="grid grid-cols-1 md:grid-cols-[2fr,1fr] gap-6">
         <div className="flex flex-col space-y-6">
-          <div className="grid grid-cols-2 gap-6 h-[150px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <Link
               href="/ogloszenia"
               className="block hover:transform hover:scale-[1.02] transition-all h-full"
             >
-              <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-6 border border-neutral/30 h-full flex flex-col">
-                <h2 className="text-xl font-bold text-primary mb-2 text-center">
+              <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-4 sm:p-6 border border-neutral/30 h-full flex flex-col">
+                <h2 className="text-lg sm:text-xl font-bold text-primary mb-2 text-center">
                   Ogłoszenia duszpasterskie
                 </h2>
-                <p className="text-neutral italic text-center mt-auto">
+                <p className="text-sm sm:text-base text-neutral italic text-center mt-auto line-clamp-2 sm:line-clamp-none">
                   {announcements.title}
                 </p>
               </div>
@@ -53,21 +53,21 @@ export default function HomeHighlight({ searchResults }: HomeHighlightProps) {
               href="/intencje-mszalne"
               className="block hover:transform hover:scale-[1.02] transition-all h-full"
             >
-              <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-6 border border-neutral/30 h-full flex flex-col">
-                <h2 className="text-xl font-bold text-primary mb-2 text-center">
+              <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-4 sm:p-6 border border-neutral/30 h-full flex flex-col">
+                <h2 className="text-lg sm:text-xl font-bold text-primary mb-2 text-center">
                   Intencje Mszalne
                 </h2>
-                <p className="text-neutral italic text-center mt-auto">
+                <p className="text-sm sm:text-base text-neutral italic text-center mt-auto line-clamp-2 sm:line-clamp-none">
                   {massIntentions.title}
                 </p>
               </div>
             </Link>
           </div>
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-6 border border-neutral/30">
-            <h2 className="text-xl font-bold text-primary mb-4 text-center">
+          <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-4 sm:p-6 border border-neutral/30">
+            <h2 className="text-lg sm:text-xl font-bold text-primary mb-3 sm:mb-4 text-center">
               Polecane
             </h2>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               {recommendations.map((recommendation) => (
                 <RecommendationCard
                   key={recommendation.link}
@@ -78,9 +78,9 @@ export default function HomeHighlight({ searchResults }: HomeHighlightProps) {
             </div>
           </div>
         </div>
-        <div className="h-full flex items-center">
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-6 border border-neutral/30 w-full">
-            <div className="relative w-full aspect-[3/4] max-w-[300px] mx-auto overflow-hidden group">
+        <div className="h-full flex items-center mt-4 md:mt-0">
+          <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-4 sm:p-6 border border-neutral/30 w-full">
+            <div className="relative w-full aspect-[3/4] max-w-[250px] sm:max-w-[300px] mx-auto overflow-hidden group">
               <Image
                 src="/mojaParafia/witraz.jpg"
                 alt="Witraż"
