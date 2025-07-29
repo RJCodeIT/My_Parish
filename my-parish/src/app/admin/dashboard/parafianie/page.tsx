@@ -102,21 +102,21 @@ export default function Parishioners() {
   return (
     <div>
       <SectionTitle name="Parafianie" />
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-primary">Wszyscy Parafianie</h1>
+      <div className="p-3 sm:p-4 md:p-6">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-primary">Wszyscy Parafianie</h1>
         </div>
         <AdminSearchBar 
           onSearch={handleSearch}
-          placeholder="Szukaj po imieniu, nazwisku, adresie lub emailu..."
+          placeholder="Szukaj parafian..."
         />
-        <div className="mt-4 space-y-4">
+        <div className="mt-3 sm:mt-4 space-y-3 sm:space-y-4">
           {filteredParishioners.length > 0 ? (
             filteredParishioners.map((parishioner) => (
               <ParishionerCard key={parishioner._id} parishioner={parishioner} onDelete={handleDelete} />
             ))
           ) : (
-            <div className="text-center text-gray-500">Brak parafian</div>
+            <div className="text-center text-gray-500 py-4">Brak parafian</div>
           )}
         </div>
       </div>

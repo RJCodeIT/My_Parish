@@ -178,12 +178,12 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-12">
+    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-8 sm:space-y-12">
       {/* 📌 Sekcja: Dane wiernego */}
-      <div className="space-y-8">
-        <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           <h3 className="text-lg font-medium text-gray-900">Dane wiernego</h3>
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
             <div>
               <Input 
                 label="Imię" 
@@ -238,9 +238,9 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
         </div>
 
         {/* 📌 Sekcja: Adres */}
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           <h3 className="text-lg font-medium text-gray-900">Adres</h3>
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
             <div>
               <Input 
                 label="Ulica" 
@@ -281,9 +281,9 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
         </div>
 
         {/* 📌 Sekcja: Sakramenty */}
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           <h3 className="text-lg font-medium text-gray-900">Sakramenty</h3>
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
             {formData.sacraments.map((sacrament, index) => (
               <div key={sacrament.type}>
                 <Input
@@ -305,17 +305,17 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
             name="notes"
             value={formData.notes}
             onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
-            className="w-full min-h-[120px] px-4 py-2.5 text-gray-600 border border-neutral/10 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+            className="w-full min-h-[120px] px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-gray-600 border border-neutral/10 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
             rows={3}
           ></textarea>
         </div>
       </div>
 
       {/* 📌 Przycisk zapisu */}
-      <div className="flex justify-end pt-8">
+      <div className="flex justify-center sm:justify-end pt-6 sm:pt-8">
         <button 
           type="submit" 
-          className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+          className="w-full sm:w-auto inline-flex justify-center items-center px-4 sm:px-6 py-2.5 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
         >
           {isEditMode ? 'Zapisz zmiany' : 'Dodaj Wiernego'}
         </button>

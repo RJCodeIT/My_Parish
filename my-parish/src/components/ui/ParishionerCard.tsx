@@ -63,13 +63,14 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
   };
 
   return (
-    <div className="w-full border rounded-lg shadow-md p-4 bg-white">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <h3 className="text-lg font-semibold">
+    <div className="w-full border rounded-lg shadow-md p-3 sm:p-4 bg-white">
+      <div className="flex flex-row justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+          <h3 className="text-base sm:text-lg font-semibold">
             {parishioner.firstName} {parishioner.lastName}
           </h3>
-          <p className="text-sm text-gray-600">{parishioner.phoneNumber || "Brak telefonu"}</p>
+          {/* Numer telefonu widoczny tylko na większych ekranach */}
+          <p className="hidden sm:block text-sm text-gray-600">{parishioner.phoneNumber || "Brak telefonu"}</p>
         </div>
         <div className="flex items-center space-x-3">
           <AiOutlineEdit 
@@ -84,19 +85,23 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
         </div>
       </div>
       {isExpanded && (
-        <div className="mt-4">
-          <p className="text-sm text-gray-600">
+        <div className="mt-3 sm:mt-4">
+          {/* Numer telefonu widoczny tylko na mobilnych urządzeniach */}
+          <p className="block sm:hidden text-xs text-gray-600 font-medium">
+            Telefon: {parishioner.phoneNumber || "Brak telefonu"}
+          </p>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1 sm:mt-0">
             Data urodzenia: {new Date(parishioner.dateOfBirth).toLocaleDateString()}
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-xs sm:text-sm text-gray-600 mt-1 break-words">
             Adres: {parishioner.address.street} {parishioner.address.houseNumber}, {parishioner.address.postalCode} {parishioner.address.city}
           </p>
-          {parishioner.email && <p className="text-sm text-gray-600">Email: {parishioner.email}</p>}
-          {parishioner.notes && <p className="text-sm text-gray-600">Notatki: {parishioner.notes}</p>}
-          <div className="mt-4">
-            <h4 className="text-lg font-semibold">Sakramenty:</h4>
+          {parishioner.email && <p className="text-xs sm:text-sm text-gray-600 mt-1 break-words">Email: {parishioner.email}</p>}
+          {parishioner.notes && <p className="text-xs sm:text-sm text-gray-600 mt-1">Notatki: {parishioner.notes}</p>}
+          <div className="mt-3 sm:mt-4">
+            <h4 className="text-base sm:text-lg font-semibold">Sakramenty:</h4>
             {parishioner.sacraments.length > 0 ? (
-              <ul className="list-disc list-inside text-sm text-gray-700">
+              <ul className="list-disc list-inside text-xs sm:text-sm text-gray-700 mt-1">
                 {parishioner.sacraments.map((sacrament, index) => (
                   <li key={index}>
                     {sacramentTranslations[sacrament.type] || sacrament.type} – {new Date(sacrament.date).toLocaleDateString()}
@@ -104,19 +109,19 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-gray-500">Brak sakramentów</p>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1">Brak sakramentów</p>
             )}
           </div>
-          <div className="mt-4">
-            <h4 className="text-lg font-semibold">Grupy parafialne:</h4>
+          <div className="mt-3 sm:mt-4">
+            <h4 className="text-base sm:text-lg font-semibold">Grupy parafialne:</h4>
             {groups.length > 0 ? (
-              <ul className="list-disc list-inside text-sm text-gray-700">
+              <ul className="list-disc list-inside text-xs sm:text-sm text-gray-700 mt-1">
                 {groups.map((group, index) => (
                   <li key={index}>{group}</li>
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-gray-500">Nie należy do żadnej grupy</p>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1">Nie należy do żadnej grupy</p>
             )}
           </div>
         </div>

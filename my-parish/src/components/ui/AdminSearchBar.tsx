@@ -18,16 +18,16 @@ export default function AdminSearchBar({ onSearch, placeholder }: AdminSearchBar
   };
 
   return (
-    <div className="w-full mb-6">
+    <div className="w-full mb-4 sm:mb-6">
       <div className="relative">
         <input
           type="text"
           value={searchQuery}
           onChange={handleSearch}
           placeholder={placeholder}
-          className="w-full pl-12 pr-4 py-3 bg-white rounded-lg border border-neutral-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-base"
+          className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-3 bg-white rounded-lg border border-neutral-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm sm:text-base"
         />
-        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400 w-5 h-5" />
+        <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4 sm:w-5 sm:h-5" />
       </div>
     </div>
   );
