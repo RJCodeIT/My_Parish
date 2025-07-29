@@ -72,11 +72,8 @@ export default function Announcements() {
 
   return (
     <div>
-      <SectionTitle name="Wszystkie ogłoszenia duszpasterskie" />
+      <SectionTitle name="Ogłoszenia duszpasterskie" />
       <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-primary">Wszystkie Ogłoszenia</h1>
-        </div>
         <AdminSearchBar 
           onSearch={handleSearch}
           placeholder="Szukaj w ogłoszeniach..."

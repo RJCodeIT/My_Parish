@@ -63,9 +63,6 @@ export default function News() {
     <div>
       <SectionTitle name="Aktualności" />
       <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-primary">Wszystkie Aktualności</h1>
-        </div>
         <AdminSearchBar 
           onSearch={handleSearch}
           placeholder="Szukaj w aktualnościach..."

@@ -103,9 +103,6 @@ export default function Parishioners() {
     <div>
       <SectionTitle name="Parafianie" />
       <div className="p-3 sm:p-4 md:p-6">
-        <div className="flex justify-between items-center mb-4 sm:mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-primary">Wszyscy Parafianie</h1>
-        </div>
         <AdminSearchBar 
           onSearch={handleSearch}
           placeholder="Szukaj parafian..."

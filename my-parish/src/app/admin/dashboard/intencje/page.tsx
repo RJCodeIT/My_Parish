@@ -82,11 +82,8 @@ export default function Intentions() {
 
   return (
     <div>
-      <SectionTitle name="Wszystkie intencje" />
+      <SectionTitle name="Intencje mszalne" />
       <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-primary">Wszystkie Intencje</h1>
-        </div>
         <AdminSearchBar 
           onSearch={handleSearch}
           placeholder="Szukaj w intencjach..."
