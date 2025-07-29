@@ -62,12 +62,12 @@ export default function News() {
   return (
     <div>
       <SectionTitle name="Aktualności" />
-      <div className="p-6">
+      <div className="p-3 sm:p-6">
         <AdminSearchBar 
           onSearch={handleSearch}
-          placeholder="Szukaj w aktualnościach..."
+          placeholder="Szukaj aktualności..."
         />
-        <div className="mt-4">
+        <div className="mt-3 sm:mt-4">
           {filteredNews.length > 0 ? (
             filteredNews.map((news) => (
               <NewsCard 
@@ -77,7 +77,7 @@ export default function News() {
               />
             ))
           ) : (
-            <p className="text-center text-gray-500">Brak aktualności</p>
+            <p className="text-center text-gray-500 p-4">Brak aktualności</p>
           )}
         </div>
       </div>

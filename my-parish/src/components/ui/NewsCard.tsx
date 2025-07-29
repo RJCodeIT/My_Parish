@@ -56,17 +56,17 @@ export default function NewsCard({ news, onDelete }: NewsCardProps) {
   };
 
   return (
-    <div className="w-full border rounded-lg shadow-md p-4 bg-white mt-4">
-      <div className="flex justify-between items-start gap-4">
-        <h3 className="text-lg font-semibold break-words whitespace-normal flex-1">{news.title}</h3>
-        <div className="flex items-center space-x-3 shrink-0">
+    <div className="w-full border rounded-lg shadow-md p-3 sm:p-4 bg-white mt-3 sm:mt-4">
+      <div className="flex justify-between items-start gap-2 sm:gap-4">
+        <h3 className="text-base sm:text-lg font-semibold break-words whitespace-normal flex-1">{news.title}</h3>
+        <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
           <AiOutlineEdit 
-            size={20} 
+            size={18} 
             className="cursor-pointer text-blue-500 hover:text-blue-700" 
             onClick={handleEdit}
           />
           <AiOutlineDelete 
-            size={20} 
+            size={18} 
             className="cursor-pointer text-red-500 hover:text-red-700" 
             onClick={handleDelete} 
           />
@@ -74,17 +74,16 @@ export default function NewsCard({ news, onDelete }: NewsCardProps) {
             className="cursor-pointer" 
             onClick={() => setIsExpanded(!isExpanded)}
           >
-            {isExpanded ? <AiOutlineUp size={20} /> : <AiOutlineDown size={20} />}
+            {isExpanded ? <AiOutlineUp size={18} /> : <AiOutlineDown size={18} />}
           </span>
         </div>
       </div>
+      <p className="text-xs text-gray-500 mt-1">{new Date(news.date).toLocaleDateString()}</p>
 
       {isExpanded && (
-        <div className="mt-4">
-          <p className="text-sm text-gray-600">Data: {new Date(news.date).toLocaleDateString()}</p>
-          
+        <div className="mt-3 sm:mt-4">
           {news.imageUrl && (
-            <div className="relative h-60 mt-2">
+            <div className="relative h-40 sm:h-60 mt-2">
               <Image
                 src={news.imageUrl}
                 alt={news.title}
@@ -94,9 +93,10 @@ export default function NewsCard({ news, onDelete }: NewsCardProps) {
             </div>
           )}
 
-          <h4 className="text-md font-semibold mt-2 break-words whitespace-normal">{news.subtitle}</h4>
-
-          <p className="mt-2 text-gray-700 break-words whitespace-normal">{news.content}</p>
+          <div className="mt-3">
+            <h4 className="text-sm sm:text-md font-semibold mb-2 break-words whitespace-normal">{news.subtitle}</h4>
+            <p className="text-xs sm:text-sm text-gray-700 break-words whitespace-normal">{news.content}</p>
+          </div>
         </div>
       )}
     </div>
