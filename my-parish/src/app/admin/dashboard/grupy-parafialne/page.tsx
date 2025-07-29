@@ -89,21 +89,21 @@ export default function ParishGroups() {
   return (
     <div>
       <SectionTitle name="Grupy Parafialne" />
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-primary">Wszystkie Grupy</h1>
+      <div className="p-3 sm:p-6">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-primary">Wszystkie Grupy</h1>
         </div>
         <AdminSearchBar 
           onSearch={handleSearch}
-          placeholder="Szukaj po nazwie grupy, opisie lub prowadzącym..."
+          placeholder="Szukaj grupy..."
         />
-        <div className="mt-4 space-y-4">
+        <div className="mt-3 sm:mt-4 space-y-3 sm:space-y-4">
           {filteredGroups.length > 0 ? (
             filteredGroups.map((group) => (
               <GroupCard key={group._id} group={group} onDelete={handleDelete} />
             ))
           ) : (
-            <div className="text-center text-gray-500">Brak grup parafialnych</div>
+            <div className="text-center text-gray-500 p-4">Brak grup parafialnych</div>
           )}
         </div>
       </div>

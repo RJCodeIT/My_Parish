@@ -59,12 +59,13 @@ export default function GroupCard({ group, onDelete }: GroupCardProps) {
   };
 
   return (
-    <div className="w-full border rounded-lg shadow-md p-4 bg-white">
+    <div className="w-full border rounded-lg shadow-md p-3 sm:p-4 bg-white">
       <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <h3 className="text-lg font-semibold">{group.name}</h3>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+          <h3 className="text-base sm:text-lg font-semibold">{group.name}</h3>
+          {/* Opis grupy widoczny tylko na większych ekranach */}
           {group.description && (
-            <p className="text-sm text-gray-600">{group.description}</p>
+            <p className="hidden sm:block text-sm text-gray-600">{group.description}</p>
           )}
         </div>
         <div className="flex items-center space-x-3">
@@ -89,6 +90,13 @@ export default function GroupCard({ group, onDelete }: GroupCardProps) {
 
       {isExpanded && (
         <div className="mt-4">
+          {/* Opis grupy widoczny tylko na urządzeniach mobilnych w rozwijanym elemencie */}
+          {group.description && (
+            <div className="block sm:hidden mb-3">
+              <h4 className="text-sm font-semibold">Opis:</h4>
+              <p className="text-xs text-gray-600">{group.description}</p>
+            </div>
+          )}
           <div className="mt-4">
             <div className="flex items-center gap-2">
               <h4 className="text-lg font-semibold">Lider:</h4>

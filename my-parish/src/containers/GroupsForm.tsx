@@ -129,7 +129,7 @@ export default function GroupsForm({ initialData, isEditMode = false }: GroupsFo
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-5xl mx-auto mt-12 p-6 bg-white rounded-lg shadow-md space-y-6"
+      className="max-w-5xl mx-auto mt-6 sm:mt-12 p-4 sm:p-6 bg-white rounded-lg shadow-md space-y-4 sm:space-y-6"
     >
       <Input
         label="Nazwa grupy"
@@ -164,10 +164,10 @@ export default function GroupsForm({ initialData, isEditMode = false }: GroupsFo
         value={formData.meetingSchedule}
         onChange={handleChange}
       />
-      <div className="flex justify-end mt-4">
+      <div className="flex justify-center sm:justify-end mt-4">
         <button
           type="submit"
-          className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+          className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors w-full sm:w-auto"
         >
           {isEditMode ? "Zapisz zmiany" : "Dodaj grupę"}
         </button>
