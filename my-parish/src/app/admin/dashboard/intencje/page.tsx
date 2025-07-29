@@ -83,12 +83,12 @@ export default function Intentions() {
   return (
     <div>
       <SectionTitle name="Intencje mszalne" />
-      <div className="p-6">
+      <div className="p-3 sm:p-6">
         <AdminSearchBar 
           onSearch={handleSearch}
-          placeholder="Szukaj w intencjach..."
+          placeholder="Szukaj intencji..."
         />
-        <div className="mt-4 space-y-4">
+        <div className="mt-3 sm:mt-4 space-y-3 sm:space-y-4">
           {filteredIntentions.length > 0 ? (
             filteredIntentions.map((intention) => (
               <IntentionCard 

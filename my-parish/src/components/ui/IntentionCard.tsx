@@ -60,17 +60,17 @@ export default function IntentionCard({ intention, onDelete }: IntentionCardProp
   };
 
   return (
-    <div className="w-full border rounded-lg shadow-md p-4 bg-white mt-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">{intention.title}</h3>
-        <div className="flex items-center space-x-3">
+    <div className="w-full border rounded-lg shadow-md p-3 sm:p-4 bg-white mt-3 sm:mt-4">
+      <div className="flex justify-between items-start sm:items-center gap-2 sm:gap-4">
+        <h3 className="text-base sm:text-lg font-semibold break-words whitespace-normal flex-1">{intention.title}</h3>
+        <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
           <AiOutlineEdit 
-            size={20} 
+            size={18} 
             className="cursor-pointer text-blue-500 hover:text-blue-700" 
             onClick={handleEdit}
           />
           <AiOutlineDelete 
-            size={20} 
+            size={18} 
             className="cursor-pointer text-red-500 hover:text-red-700" 
             onClick={handleDelete} 
           />
@@ -78,12 +78,12 @@ export default function IntentionCard({ intention, onDelete }: IntentionCardProp
             className="cursor-pointer" 
             onClick={() => setIsExpanded(!isExpanded)}
           >
-            {isExpanded ? <AiOutlineUp size={20} /> : <AiOutlineDown size={20} />}
+            {isExpanded ? <AiOutlineUp size={18} /> : <AiOutlineDown size={18} />}
           </span>
         </div>
       </div>
       
-      <p className="text-sm text-gray-600 mt-2">
+      <p className="text-xs sm:text-sm text-gray-600 mt-1 sm:mt-2">
         {intention.weekStart && intention.weekEnd ? (
           <>Tydzień: {new Date(intention.weekStart).toLocaleDateString()} - {new Date(intention.weekEnd).toLocaleDateString()}</>
         ) : (
@@ -92,9 +92,9 @@ export default function IntentionCard({ intention, onDelete }: IntentionCardProp
       </p>
 
       {isExpanded && (
-        <div className="mt-4">
+        <div className="mt-3 sm:mt-4">
           {intention.imageUrl && (
-            <div className="relative w-full h-60 mt-2">
+            <div className="relative w-full h-40 sm:h-60 mt-2">
               <Image 
                 src={intention.imageUrl} 
                 alt="Intencja" 
@@ -106,18 +106,18 @@ export default function IntentionCard({ intention, onDelete }: IntentionCardProp
 
           {intention.days && intention.days.length > 0 ? (
             // Display grouped by days
-            <div className="mt-4 space-y-4">
+            <div className="mt-3 sm:mt-4 space-y-3 sm:space-y-4">
               {intention.days.map((day, dayIndex) => (
-                <div key={dayIndex} className="border-t pt-3">
-                  <h4 className="font-medium text-gray-800 mb-2">
+                <div key={dayIndex} className="border-t pt-2 sm:pt-3">
+                  <h4 className="font-medium text-gray-800 mb-1 sm:mb-2 text-sm sm:text-base">
                     {new Date(day.date).toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </h4>
-                  <ul className="list-disc list-inside text-gray-700">
+                  <ul className="list-disc list-inside text-gray-700 text-xs sm:text-sm">
                     {day.masses.map((mass, massIndex) => (
                       <li key={massIndex}>
                         <strong>{mass.time}</strong>
                         {mass.intentions && mass.intentions.length > 0 ? (
-                          <div className="ml-4">
+                          <div className="ml-3 sm:ml-4">
                             {mass.intentions.map((intention, idx) => (
                               <div key={idx}>– {intention.intention}</div>
                             ))}
@@ -133,7 +133,7 @@ export default function IntentionCard({ intention, onDelete }: IntentionCardProp
             </div>
           ) : (
             // Fallback to flat list for backward compatibility
-            <ul className="list-disc list-inside mt-2 text-gray-700">
+            <ul className="list-disc list-inside mt-2 text-gray-700 text-xs sm:text-sm">
               {intention.masses.map((mass, index) => (
                 <li key={index}>
                   <strong>{mass.time}</strong>
