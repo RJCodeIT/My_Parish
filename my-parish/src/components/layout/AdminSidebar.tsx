@@ -1,8 +1,8 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AiOutlineDown, AiOutlineUp } from "react-icons/ai";
-import { useState } from "react";
+import { AiOutlineDown, AiOutlineUp, AiOutlineClose } from "react-icons/ai";
+import { useState, useEffect } from "react";
 import { 
   FaHome, 
   FaUsers, 
@@ -77,6 +77,23 @@ export default function AdminSidebar({
 }) {
   const pathname = usePathname();
   const [openSections, setOpenSections] = useState<string[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Detect mobile devices
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Initial check
+    checkIfMobile();
+    
+    // Add event listener
+    window.addEventListener('resize', checkIfMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkIfMobile);
+  }, []);
 
   const toggleSection = (label: string) => {
     setOpenSections((prev) =>
@@ -86,12 +103,19 @@ export default function AdminSidebar({
 
   return (
     <aside
-      className={`fixed left-0 w-80 bg-white/95 backdrop-blur-sm shadow-lg h-screen transition-transform duration-300 border-r border-neutral/10 ${
+      className={`fixed left-0 top-0 ${isMobile ? 'w-full' : 'w-80'} bg-white shadow-lg h-screen transition-transform duration-300 border-r border-neutral/10 ${
         isOpen ? "translate-x-0" : "-translate-x-full"
-      }`}
+      } z-50 overflow-y-auto`}
     >
       <div className="p-6 flex justify-between items-center border-b border-neutral/10">
         <span className="text-xl font-semibold text-gray-800">Menu</span>
+        <button
+          onClick={toggleSidebar}
+          className="text-gray-700 hover:text-primary transition-colors block sm:hidden"
+          aria-label="Zamknij menu"
+        >
+          <AiOutlineClose size={24} />
+        </button>
       </div>
 
       <nav className="p-4 space-y-2">

@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import AdminNavbar from "@/components/layout/AdminNavbar";
 import AdminSidebar from "@/components/layout/AdminSidebar";
 import AdminFooter from "@/components/layout/AdminFooter";
@@ -10,6 +10,23 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const isAuthPage = pathname?.startsWith("/admin/auth");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile devices
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Initial check
+    checkIfMobile();
+    
+    // Add event listener
+    window.addEventListener('resize', checkIfMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkIfMobile);
+  }, []);
 
   if (isAuthPage) {
     return <AlertProvider>{children}</AlertProvider>;
@@ -18,15 +35,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   return (
-    <div className="min-h-screen flex bg-gray-50/50">
+    <div className="min-h-screen flex bg-gray-50/50 overflow-x-hidden">
       <AdminSidebar
         isOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
       />
       <div
         className={`flex-1 flex flex-col transition-all duration-300 ${
-          isSidebarOpen ? "ml-80" : "ml-0"
-        }`}
+          isSidebarOpen && !isMobile ? "ml-80" : "ml-0"
+        } ${isMobile && isSidebarOpen ? "invisible" : "visible"}`}
       >
         <AdminNavbar
           isSidebarOpen={isSidebarOpen}
