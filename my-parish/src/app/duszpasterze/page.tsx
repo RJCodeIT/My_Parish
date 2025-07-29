@@ -4,7 +4,7 @@ import SectionTitle from "@/components/layout/SectionTitle";
 export default function Priests() {
   return (
     <div>
-      <SectionTitle name="Duszpasterze" />
+      <SectionTitle name="Duszpasterze" className="mt-8"/>
       <PageContainer>
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
           Duszpasterze naszej parafii

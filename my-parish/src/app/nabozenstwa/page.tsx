@@ -4,7 +4,7 @@ import SectionTitle from "@/components/layout/SectionTitle";
 export default function Devotions() {
   return (
     <div>
-      <SectionTitle name="Nabożeństwa" />
+      <SectionTitle name="Nabożeństwa" className="mt-8"/>
       <PageContainer>
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
           Stałe nabożeństwa w naszej parafii

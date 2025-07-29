@@ -7,7 +7,7 @@ import NewsContainer from "@/containers/NewsContainer";
 export default function Home() {
   return (
     <div>
-      <SectionTitle name="Aktualności" />
+      <SectionTitle name="Aktualności" className="mt-8" />
       <HomeHighlight/>
       <NewsContainer />
     </div>

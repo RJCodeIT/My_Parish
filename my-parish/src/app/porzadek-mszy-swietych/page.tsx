@@ -4,7 +4,7 @@ import SectionTitle from "@/components/layout/SectionTitle";
 export default function Schedule() {
   return (
     <div>
-      <SectionTitle name="Porządek Mszy Świętych" />
+      <SectionTitle name="Porządek Mszy Świętych" className="mt-8"/>
       <PageContainer>
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
           Porządek Mszy Świętych

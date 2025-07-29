@@ -4,7 +4,7 @@ import SectionTitle from "@/components/layout/SectionTitle";
 export default function Sacraments() {
   return (
     <div>
-      <SectionTitle name="Sakramenty" />
+      <SectionTitle name="Sakramenty" className="mt-8"/>
       <PageContainer>
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
           Sakramenty Święte

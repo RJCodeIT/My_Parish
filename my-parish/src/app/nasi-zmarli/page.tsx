@@ -15,7 +15,7 @@ export default function Memorial() {
 
   return (
     <div>
-      <SectionTitle name="Nasi zmarli" />
+      <SectionTitle name="Nasi zmarli" className="mt-8"/>
       <PageContainer>
         <p className="text-lg text-gray-700 mb-6">
           Pamięć o naszych bliskich zmarłych jest ważnym elementem życia

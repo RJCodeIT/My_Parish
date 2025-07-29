@@ -5,7 +5,7 @@ import { MapPin, Phone, Mail, Clock } from "lucide-react";
 export default function Contact() {
   return (
     <div>
-      <SectionTitle name="Kontakt" />
+      <SectionTitle name="Kontakt" className="mt-8"/>
       <PageContainer>
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Contact Information */}

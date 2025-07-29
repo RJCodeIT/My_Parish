@@ -2,11 +2,12 @@ import React from "react";
 
 type SectionTitleProps = {
   name: string;
+  className?: string;
 };
 
-export default function SectionTitle({ name }: SectionTitleProps) {
+export default function SectionTitle({ name, className }: SectionTitleProps) {
   return (
-    <div className="container mx-auto px-4">
+    <div className={`container mx-auto px-4 ${className || ''}`}>
       <h1 className="text-4xl font-bold text-primary text-center mb-2 relative">
         <span className="relative">
           {name}

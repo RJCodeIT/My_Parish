@@ -5,7 +5,7 @@ import ChapelsGrid from "@/components/ui/ChapelsGrid";
 export default function Chapels() {
   return (
     <div>
-      <SectionTitle name="Kapliczki i inne" />
+      <SectionTitle name="Kapliczki i inne" className="mt-8"/>
       <PageContainer>
         <div className="space-y-8">
           <div className="text-center space-y-4">

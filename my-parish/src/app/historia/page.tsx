@@ -4,7 +4,7 @@ import SectionTitle from "@/components/layout/SectionTitle";
 export default function History() {
   return (
     <div>
-      <SectionTitle name="Historia kościoła" />
+      <SectionTitle name="Historia kościoła" className="mt-8"/>
       <PageContainer>
         <p className="text-lg text-gray-700">
           Historia naszego kościoła sięga <strong>XV wieku</strong>, kiedy to

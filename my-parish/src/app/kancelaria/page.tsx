@@ -4,7 +4,7 @@ import SectionTitle from "@/components/layout/SectionTitle";
 export default function Office() {
   return (
     <div>
-      <SectionTitle name="Kancelaria" />
+      <SectionTitle name="Kancelaria" className="mt-8"/>
       <PageContainer>
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
           Godziny urzędowania

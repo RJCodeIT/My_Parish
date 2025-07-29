@@ -248,7 +248,7 @@ export default function Intentions() {
 
   return (
     <div>
-      <SectionTitle name="Intencje Mszalne" />
+      <SectionTitle name="Intencje Mszalne" className="mt-8"/>
       <PageContainer>
         <SearchForm 
           onSearch={handleSearch}

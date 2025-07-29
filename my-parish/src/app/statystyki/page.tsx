@@ -11,7 +11,7 @@ const statistics = [
 export default function Statistics() {
   return (
     <div>
-      <SectionTitle name="Statystyki" />
+      <SectionTitle name="Statystyki" className="mt-8"/>
       <PageContainer>
         <p className="text-lg text-gray-700 mb-6">
           Poniżej przedstawiamy statystyki dotyczące sakramentów oraz

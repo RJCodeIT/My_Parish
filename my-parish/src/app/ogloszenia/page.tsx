@@ -100,7 +100,7 @@ export default function Announcements() {
 
   return (
     <div>
-      <SectionTitle name="Ogłoszenia duszpasterskie" />
+      <SectionTitle name="Ogłoszenia duszpasterskie" className="mt-8"/>
       <PageContainer>
         <SearchForm 
           onSearch={handleSearch}

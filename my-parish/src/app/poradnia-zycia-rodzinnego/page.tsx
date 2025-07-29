@@ -4,7 +4,7 @@ import SectionTitle from "@/components/layout/SectionTitle";
 export default function Counseling() {
   return (
     <div>
-      <SectionTitle name="Poradnia życia rodzinnego" />
+      <SectionTitle name="Poradnia życia rodzinnego" className="mt-8"/>
       <PageContainer>
         <p className="text-lg text-gray-700">
           Poradnia Życia Rodzinnego to miejsce, gdzie narzeczeni, małżonkowie
