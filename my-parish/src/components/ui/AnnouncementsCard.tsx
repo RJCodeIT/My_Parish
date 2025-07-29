@@ -43,17 +43,17 @@ export default function AnnouncementCard({ announcement, onDelete }: Announcemen
   };
 
   return (
-    <div className="w-full border rounded-lg shadow-md p-4 bg-white mt-4">
+    <div className="w-full border rounded-lg shadow-md p-3 sm:p-4 bg-white mt-3 sm:mt-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">{announcement.title}</h3>
-        <div className="flex items-center space-x-3">
+        <h3 className="text-base sm:text-lg font-semibold">{announcement.title}</h3>
+        <div className="flex items-center space-x-2 sm:space-x-3">
           <AiOutlineEdit 
-            size={20} 
+            size={18} 
             className="cursor-pointer text-blue-500 hover:text-blue-700" 
             onClick={handleEdit}
           />
           <AiOutlineDelete 
-            size={20} 
+            size={18} 
             className="cursor-pointer text-red-500 hover:text-red-700" 
             onClick={handleDelete} 
           />
@@ -61,17 +61,16 @@ export default function AnnouncementCard({ announcement, onDelete }: Announcemen
             className="cursor-pointer" 
             onClick={() => setIsExpanded(!isExpanded)}
           >
-            {isExpanded ? <AiOutlineUp size={20} /> : <AiOutlineDown size={20} />}
+            {isExpanded ? <AiOutlineUp size={18} /> : <AiOutlineDown size={18} />}
           </span>
         </div>
       </div>
+      <p className="text-xs text-gray-500 mt-1">{new Date(announcement.date).toLocaleDateString()}</p>
 
       {isExpanded && (
-        <div className="mt-4">
-          <p className="text-sm text-gray-600">Data: {new Date(announcement.date).toLocaleDateString()}</p>
-          
+        <div className="mt-3 sm:mt-4">
           {announcement.imageUrl && (
-            <div className="relative w-full h-60 mt-2">
+            <div className="relative w-full h-40 sm:h-60 mt-2">
               <Image
                 src={announcement.imageUrl}
                 alt="Zdjęcie ogłoszenia"
@@ -81,14 +80,20 @@ export default function AnnouncementCard({ announcement, onDelete }: Announcemen
             </div>
           )}
 
-          <ul className="list-disc list-inside mt-2 text-gray-700">
-            {announcement.content.map((item) => (
-              <li key={item.order}>{item.text}</li>
-            ))}
-          </ul>
+          <div className="mt-3">
+            <h4 className="text-sm font-semibold mb-1">Treść:</h4>
+            <ul className="list-disc list-inside text-xs sm:text-sm text-gray-700 space-y-1">
+              {announcement.content.map((item) => (
+                <li key={item.order}>{item.text}</li>
+              ))}
+            </ul>
+          </div>
 
           {announcement.extraInfo && (
-            <p className="mt-2 text-sm text-gray-700">{announcement.extraInfo}</p>
+            <div className="mt-3">
+              <h4 className="text-sm font-semibold mb-1">Dodatkowe informacje:</h4>
+              <p className="text-xs sm:text-sm text-gray-700">{announcement.extraInfo}</p>
+            </div>
           )}
         </div>
       )}
