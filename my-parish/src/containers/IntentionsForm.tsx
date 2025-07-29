@@ -308,7 +308,7 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto space-y-12">
+    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto space-y-6 sm:space-y-8 px-3 sm:px-6 w-full">
 
       <div className="space-y-8">
         <div className="space-y-8">
@@ -320,7 +320,7 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
             required 
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <Input 
                 label="Data początkowa tygodnia (poniedziałek)" 
@@ -359,7 +359,7 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
       </div>
 
       <div className="space-y-8">
-        <div className="flex justify-between items-center border-b border-neutral/10 pb-4">
+        <div className="flex justify-between items-center border-b border-neutral/10 pb-3 sm:pb-4">
           <h3 className="text-lg font-medium text-gray-900">Intencje na tydzień</h3>
         </div>
         
@@ -370,34 +370,36 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
         )}
 
         {days.length > 0 && (
-          <div className="space-y-10">
+          <div className="space-y-6 sm:space-y-10">
             {days.map((day, dayIndex) => {
               // Format the day date for display using our utility functions
               const polishDayName = getPolishDayName(day.date);
               const formattedDate = formatDateToPolish(day.date);
 
               return (
-                <div key={dayIndex} className="border border-neutral/10 rounded-xl overflow-hidden">
-                  <div className="bg-gray-50 px-6 py-4 border-b border-neutral/10">
-                    <h4 className="font-medium text-gray-900">{polishDayName}, {formattedDate}</h4>
+                <div key={dayIndex} className="border border-neutral/10 rounded-lg sm:rounded-xl overflow-hidden max-w-full">
+                  <div className="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-neutral/10">
+                    <h4 className="font-medium text-gray-900 text-sm sm:text-base">{polishDayName}, {formattedDate}</h4>
                   </div>
                 
-                  <div className="p-6 space-y-6">
+                  <div className="px-3 py-3 sm:p-6 space-y-3 sm:space-y-6 overflow-x-hidden">
                     {day.masses.length === 0 ? (
-                      <p className="text-gray-500 text-center py-4">Brak mszy na ten dzień</p>
+                      <p className="text-gray-500 text-center py-3 sm:py-4 text-sm sm:text-base">Brak mszy na ten dzień</p>
                     ) : (
                       day.masses.map((mass, massIndex) => (
-                        <div key={massIndex} className="bg-white border border-neutral/10 rounded-lg p-5 space-y-4">
-                          <div className="flex items-center justify-between">
-                            <div className="w-1/3">
-                              <Input
-                                label="Godzina mszy"
+                        <div key={massIndex} className="bg-white border border-neutral/10 rounded-lg px-3 py-3 sm:p-5 space-y-2 sm:space-y-4 max-w-full">
+                          <div className="grid grid-cols-[2fr,auto] gap-1 items-end max-w-full mb-2">
+                            <div className="max-w-full">
+                              <label className="text-xs font-medium mb-1 block">Godzina mszy<span className="text-red-500 ml-1">*</span></label>
+                              <input
+                                type="text"
                                 name={`time-${dayIndex}-${massIndex}`}
                                 value={mass.time}
                                 onChange={(e) => {
                                   const filteredValue = e.target.value.replace(/[^0-9:.]/g, "");
                                   handleMassTimeChange(dayIndex, massIndex, filteredValue);
                                 }}
+                                className="w-full px-1.5 sm:px-3 py-1 sm:py-2 text-xs sm:text-base border border-neutral/10 rounded-lg focus:ring-1 focus:ring-primary/20 focus:border-primary"
                                 required
                               />
                             </div>
@@ -407,10 +409,10 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
                                 e.preventDefault();
                                 handleRemoveMass(dayIndex, massIndex);
                               }}
-                              className="text-gray-400 hover:text-red-500 transition-colors p-2 hover:bg-gray-50 rounded-lg"
+                              className="text-gray-400 hover:text-red-500 p-1 hover:bg-gray-50 rounded-lg"
                               title="Usuń mszę"
                             >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                               </svg>
                             </button>
@@ -418,7 +420,7 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
                           
                           <div className="space-y-3">
                             <div className="flex justify-between items-center">
-                              <h5 className="text-sm font-medium text-gray-700">Intencje</h5>
+                              <h5 className="text-xs sm:text-sm font-medium text-gray-700">Intencje</h5>
                               <button 
                                 type="button" 
                                 onClick={(e) => {
@@ -427,21 +429,22 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
                                 }}
                                 className="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center"
                               >
-                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                 </svg>
                                 Dodaj intencję
                               </button>
                             </div>
                             
-                            <div className="space-y-3">
+                            <div className="space-y-2 sm:space-y-3">
+                              <p className="text-xs font-medium mb-1">Intencje:</p>
                               {mass.intentions.map((intention, intentionIndex) => (
-                                <div key={intentionIndex} className="flex items-start space-x-3">
+                                <div key={intentionIndex} className="grid grid-cols-[1fr,auto] gap-1 max-w-full">
                                   <input
                                     type="text"
                                     value={intention.intention}
                                     onChange={(e) => handleIntentionChange(dayIndex, massIndex, intentionIndex, e.target.value)}
-                                    className="flex-1 px-4 py-2.5 border border-neutral/10 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                                    className="w-full px-1.5 sm:px-3 py-1 sm:py-2 text-xs sm:text-base border border-neutral/10 rounded-lg focus:ring-1 focus:ring-primary/20 focus:border-primary"
                                     placeholder="Intencja"
                                     required
                                   />
@@ -451,10 +454,10 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
                                       e.preventDefault();
                                       handleRemoveIntention(dayIndex, massIndex, intentionIndex);
                                     }}
-                                    className="text-gray-400 hover:text-red-500 transition-colors p-2.5 hover:bg-gray-50 rounded-lg"
+                                    className="text-gray-400 hover:text-red-500 p-1 hover:bg-gray-50 rounded-lg"
                                     title="Usuń intencję"
                                   >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                   </button>
@@ -466,16 +469,16 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
                       ))
                     )}
                     
-                    <div className="flex justify-center pt-2">
+                    <div className="flex justify-center pt-1 sm:pt-2">
                       <button 
                         type="button" 
                         onClick={(e) => {
                           e.preventDefault();
                           handleAddMass(dayIndex);
                         }}
-                        className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary transition-colors px-4 py-2 border border-dashed border-neutral/20 rounded-lg hover:border-primary/30"
+                        className="inline-flex items-center text-xs sm:text-sm font-medium text-gray-700 hover:text-primary transition-colors px-3 sm:px-4 py-1.5 sm:py-2 border border-dashed border-neutral/20 rounded-lg hover:border-primary/30"
                       >
-                        <svg className="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
                         Dodaj mszę na {getPolishDayName(day.date)}
@@ -489,10 +492,10 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
         )}
       </div>
 
-      <div className="flex justify-end pt-8">
+      <div className="flex justify-center sm:justify-end pt-6 sm:pt-8">
         <button 
           type="submit" 
-          className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+          className="w-full sm:w-auto inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
         >
           {isEditMode ? "Zaktualizuj intencje na tydzień" : "Dodaj intencje na tydzień"}
         </button>
