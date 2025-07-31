@@ -5,7 +5,7 @@ export default function History() {
   return (
     <div>
       <SectionTitle name="Historia kościoła" className="mt-8"/>
-      <PageContainer>
+      <PageContainer className="px-6">
         <p className="text-lg text-gray-700">
           Historia naszego kościoła sięga <strong>XV wieku</strong>, kiedy to
           miejscowa ludność, kierowana głęboką wiarą i potrzebą wspólnej

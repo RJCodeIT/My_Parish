@@ -7,7 +7,7 @@ export default function Chapels() {
     <div>
       <SectionTitle name="Kapliczki i inne" className="mt-8"/>
       <PageContainer>
-        <div className="space-y-8">
+        <div className="space-y-8 mb-6">
           <div className="text-center space-y-4">
             <h2 className="text-2xl font-bold text-primary">
               Kapliczki i krzyże przydrożne

@@ -18,7 +18,7 @@ export default function Statistics() {
           uczestnictwa wiernych w liturgii na przestrzeni ostatnich lat.
         </p>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto mb-6">
           <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
             <thead className="bg-gray-100">
               <tr>
