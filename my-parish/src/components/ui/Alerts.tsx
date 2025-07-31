@@ -108,7 +108,7 @@ export const AlertProvider: React.FC<AlertProviderProps> = ({ children }) => {
       {children}
       
       {/* Fixed position container for alerts */}
-      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md">
+      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-[85%] sm:max-w-md">
         {successMessage && (
           <Alert 
             type="success" 
@@ -140,19 +140,19 @@ export const AlertProvider: React.FC<AlertProviderProps> = ({ children }) => {
         )}
         
         {confirmationMessage && (
-          <div className="bg-white border border-gray-200 rounded-lg shadow-xl p-6 mb-4 animate-fadeIn">
+          <div className="bg-white border border-gray-200 rounded-lg shadow-xl p-3 sm:p-6 mb-4 animate-fadeIn w-[90%] sm:w-full mx-auto">
             <div className="text-center">
-              <div className="mx-auto w-12 h-12 flex items-center justify-center rounded-full bg-amber-100 mb-4">
-                <AlertTriangle className="text-amber-500" size={24} />
+              <div className="mx-auto w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-amber-100 mb-2 sm:mb-4">
+                <AlertTriangle className="text-amber-500" size={16} />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Potwierdzenie</h3>
-              <p className="text-gray-600 mb-6">{confirmationMessage}</p>
-              <div className="flex justify-center space-x-4">
+              <h3 className="text-sm sm:text-lg font-medium text-gray-900 mb-1 sm:mb-2">Potwierdzenie</h3>
+              <p className="text-xs sm:text-base text-gray-600 mb-3 sm:mb-6">{confirmationMessage}</p>
+              <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
                 <button
                   onClick={() => {
                     if (cancelHandler) cancelHandler();
                   }}
-                  className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                  className="w-full sm:w-auto px-3 sm:px-5 py-1.5 sm:py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium text-xs sm:text-base"
                 >
                   Anuluj
                 </button>
@@ -163,7 +163,7 @@ export const AlertProvider: React.FC<AlertProviderProps> = ({ children }) => {
                       hideConfirmation();
                     }
                   }}
-                  className="px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                  className="w-full sm:w-auto px-3 sm:px-5 py-1.5 sm:py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium text-xs sm:text-base"
                 >
                   OK
                 </button>
@@ -261,23 +261,23 @@ interface ConfirmationDialogProps {
 export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({ message, onConfirm, onCancel }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 animate-fadeIn">
-      <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+      <div className="bg-white rounded-lg shadow-xl p-3 sm:p-6 max-w-[85%] sm:max-w-md w-full mx-2 sm:mx-4">
         <div className="text-center">
-          <div className="mx-auto w-12 h-12 flex items-center justify-center rounded-full bg-amber-100 mb-4">
-            <AlertTriangle className="text-amber-500" size={24} />
+          <div className="mx-auto w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-amber-100 mb-2 sm:mb-4">
+            <AlertTriangle className="text-amber-500" size={16} />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Potwierdzenie</h3>
-          <p className="text-gray-600 mb-6">{message}</p>
-          <div className="flex justify-center space-x-4">
+          <h3 className="text-sm sm:text-lg font-medium text-gray-900 mb-1 sm:mb-2">Potwierdzenie</h3>
+          <p className="text-xs sm:text-base text-gray-600 mb-3 sm:mb-6">{message}</p>
+          <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
             <button
               onClick={onCancel}
-              className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+              className="w-full sm:w-auto px-3 sm:px-5 py-1.5 sm:py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium text-xs sm:text-base"
             >
               Anuluj
             </button>
             <button
               onClick={onConfirm}
-              className="px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
+              className="w-full sm:w-auto px-3 sm:px-5 py-1.5 sm:py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium text-xs sm:text-base"
             >
               OK
             </button>
