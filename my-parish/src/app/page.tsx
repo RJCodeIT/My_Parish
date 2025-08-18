@@ -1,7 +1,7 @@
 'use client';
 
 import SectionTitle from "@/components/layout/SectionTitle";
-import Hero from "@/components/ui/Hero";
+import HomeHero from "@/components/ui/HomeHero";
 import RecommendationsPanel from "@/components/ui/RecommendationsPanel";
 import HomeHighlight from "@/containers/HomeHighlight";
 import NewsContainer from "@/containers/NewsContainer";
@@ -10,10 +10,8 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="relative">
-        <Hero 
+        <HomeHero 
           imageUrl="/mojaParafia/witraz.jpg"
-          quote="Błogosławieni czystego serca, albowiem oni Boga oglądać będą."
-          source="Ewangelia wg św. Mateusza 5:8"
           altText="Witraż kościelny"
         />
       </div>

@@ -5,6 +5,7 @@ interface HeroProps {
   imageUrl: string;
   quote: string;
   source: string;
+  pageName?: string;
   altText?: string;
   className?: string;
 }
@@ -13,6 +14,7 @@ export default function Hero({
   imageUrl, 
   quote, 
   source, 
+  pageName,
   altText = 'Zdjęcie parafii',
   className = ''
 }: HeroProps) {
@@ -33,7 +35,15 @@ export default function Hero({
       </div>
       
       {/* Quote Container */}
-      <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
+        {pageName && (
+          <div className="mb-8 relative z-10">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white text-center uppercase tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)]">
+              {pageName}
+            </h1>
+            <div className="h-1 w-32 sm:w-48 md:w-64 bg-gradient-to-r from-transparent via-white to-transparent mx-auto mt-3"></div>
+          </div>
+        )}
         <div className="relative bg-white/85 backdrop-blur-lg p-7 sm:p-9 md:p-12 rounded-2xl max-w-3xl shadow-[0_10px_50px_-12px_rgba(0,0,0,0.4)] border border-white/40 transform transition-all duration-500 hover:scale-[1.02] hover:bg-white/95">
           <div className="absolute -top-1 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/60 to-transparent"></div>
           <div className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
