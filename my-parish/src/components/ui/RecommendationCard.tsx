@@ -9,9 +9,10 @@ export default function RecommendationCard({ title, href }: RecommendationCardPr
   return (
     <Link 
       href={href} 
-      className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm border border-neutral/20 hover:shadow-md hover:border-secondary/50 transition-all h-24"
+      className="group flex items-center justify-center p-5 bg-white/80 rounded-xl shadow-md border border-primary/10 hover:shadow-lg hover:bg-white/95 transition-all h-24 relative overflow-hidden"
     >
-      <h3 className="font-semibold text-primary text-center">{title}</h3>
+      <div className="absolute inset-0 bg-primary/5 w-0 group-hover:w-full transition-all duration-500 ease-in-out"></div>
+      <h3 className="font-semibold text-primary text-center relative z-10 group-hover:text-secondary transition-colors duration-300">{title}</h3>
     </Link>
   );
 }

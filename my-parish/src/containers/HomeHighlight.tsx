@@ -1,7 +1,5 @@
-import Link from "next/link";
 import Image from "next/image";
-import RecommendationCard from "@/components/ui/RecommendationCard";
-import recommendations from "@/const/recommendations";
+import Link from "next/link";
 import PageContainer from "@/components/layout/PageContainer";
 
 interface SearchResults {
@@ -33,63 +31,68 @@ export default function HomeHighlight({ searchResults }: HomeHighlightProps) {
 
   return (
     <PageContainer>
-      <div className="grid grid-cols-1 md:grid-cols-[2fr,1fr] gap-6">
-        <div className="flex flex-col space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <Link
-              href="/ogloszenia"
-              className="block hover:transform hover:scale-[1.02] transition-all h-full"
-            >
-              <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-4 sm:p-6 border border-neutral/30 h-full flex flex-col">
-                <h2 className="text-lg sm:text-xl font-bold text-primary mb-2 text-center">
-                  Ogłoszenia duszpasterskie
-                </h2>
-                <p className="text-sm sm:text-base text-neutral italic text-center mt-auto line-clamp-2 sm:line-clamp-none">
-                  {announcements.title}
-                </p>
-              </div>
-            </Link>
-            <Link
-              href="/intencje-mszalne"
-              className="block hover:transform hover:scale-[1.02] transition-all h-full"
-            >
-              <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-4 sm:p-6 border border-neutral/30 h-full flex flex-col">
-                <h2 className="text-lg sm:text-xl font-bold text-primary mb-2 text-center">
-                  Intencje Mszalne
-                </h2>
-                <p className="text-sm sm:text-base text-neutral italic text-center mt-auto line-clamp-2 sm:line-clamp-none">
-                  {massIntentions.title}
-                </p>
-              </div>
-            </Link>
-          </div>
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-4 sm:p-6 border border-neutral/30">
-            <h2 className="text-lg sm:text-xl font-bold text-primary mb-3 sm:mb-4 text-center">
-              Polecane
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-              {recommendations.map((recommendation) => (
-                <RecommendationCard
-                  key={recommendation.link}
-                  title={recommendation.name}
-                  href={recommendation.link}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="h-full flex items-center mt-4 md:mt-0">
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-4 sm:p-6 border border-neutral/30 w-full">
-            <div className="relative w-full aspect-[3/4] max-w-[250px] sm:max-w-[300px] mx-auto overflow-hidden group">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr,2fr] gap-8">
+        {/* Image Column */}
+        <div className="h-full flex items-center">
+          <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg p-6 sm:p-8 border border-primary/10 w-full transform transition-all duration-300 hover:shadow-xl">
+            <div className="relative w-full aspect-[3/4] max-w-[280px] sm:max-w-[320px] mx-auto overflow-hidden rounded-xl group">
               <Image
                 src="/mojaParafia/witraz.jpg"
                 alt="Witraż"
                 fill
-                className="object-cover rounded-lg transition-transform duration-500 ease-in-out group-hover:scale-110 group-hover:rotate-1"
+                className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-110 group-hover:rotate-1"
                 priority
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             </div>
           </div>
+        </div>
+        
+        {/* Announcements and Mass Intentions Column */}
+        <div className="flex flex-col space-y-6">
+          <Link
+            href="/ogloszenia"
+            className="block group h-full"
+          >
+            <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg p-6 sm:p-8 border border-primary/10 h-full flex flex-col transform transition-all duration-300 group-hover:shadow-xl group-hover:scale-[1.02] group-hover:bg-white/95">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                  </svg>
+                </div>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-primary mb-3 text-center">
+                Ogłoszenia duszpasterskie
+              </h2>
+              <div className="h-px w-16 bg-primary/30 mx-auto mb-4"></div>
+              <p className="text-sm sm:text-base text-neutral-700 text-center mt-auto line-clamp-2 sm:line-clamp-none italic">
+                {announcements.title}
+              </p>
+            </div>
+          </Link>
+          
+          <Link
+            href="/intencje-mszalne"
+            className="block group h-full"
+          >
+            <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg p-6 sm:p-8 border border-primary/10 h-full flex flex-col transform transition-all duration-300 group-hover:shadow-xl group-hover:scale-[1.02] group-hover:bg-white/95">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-primary mb-3 text-center">
+                Intencje Mszalne
+              </h2>
+              <div className="h-px w-16 bg-primary/30 mx-auto mb-4"></div>
+              <p className="text-sm sm:text-base text-neutral-700 text-center mt-auto line-clamp-2 sm:line-clamp-none italic">
+                {massIntentions.title}
+              </p>
+            </div>
+          </Link>
         </div>
       </div>
     </PageContainer>

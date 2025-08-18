@@ -96,12 +96,12 @@ export default function NewsContainer() {
   return (
     <PageContainer>
       <h2 className="text-xl font-bold text-primary mb-6 text-center">
-        Aktualności
+        Wydarzenia
       </h2>
       
       <SearchForm 
         onSearch={handleSearch}
-        placeholder="Szukaj w aktualnościach..."
+        placeholder="Szukaj w wydarzeniach..."
       />
       
       {loading ? (

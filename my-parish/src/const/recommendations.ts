@@ -7,7 +7,6 @@ const recommendations = [
   { name: "Anioł Beskidów", link: "http://www.aniolbeskidow.pl/" },
   { name: "Gość Niedzielny", link: "https://bielsko.gosc.pl/" },
   { name: "Niedziela", link: "https://www.niedziela.pl/" },
-  { name: "Katolicka Agencja Informacyjna", link: "https://www.ekai.pl/" },
 ];
 
 export default recommendations;
