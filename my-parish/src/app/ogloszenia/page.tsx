@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Pagination from "@/components/ui/Pagination";
 import PageContainer from "@/components/layout/PageContainer";
-import SectionTitle from "@/components/layout/SectionTitle";
+import Hero from "@/components/ui/Hero";
 import SearchForm from "@/components/ui/SearchForm";
 import { AiOutlineDown, AiOutlineUp } from "react-icons/ai";
 
@@ -99,9 +99,17 @@ export default function Announcements() {
   // No helper functions needed here
 
   return (
-    <div>
-      <SectionTitle name="Ogłoszenia duszpasterskie" className="mt-8"/>
-      <PageContainer>
+    <div className="flex flex-col min-h-screen">
+      <div className="relative">
+        <Hero 
+          imageUrl="/mojaParafia/KaplicaSwJana.jpg"
+          quote="Słowo Chrystusa niech w was mieszka w całym swym bogactwie: z całą mądrością nauczajcie i napominajcie się wzajemnie."
+          source="List do Kolosan 3:16"
+          pageName="Ogłoszenia duszpasterskie"
+          altText="Kościół parafialny"
+        />
+      </div>
+      <PageContainer className="mt-8">
         <SearchForm 
           onSearch={handleSearch}
           placeholder="Szukaj w ogłoszeniach..."

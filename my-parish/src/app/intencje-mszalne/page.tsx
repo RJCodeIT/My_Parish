@@ -5,7 +5,7 @@ import PageContainer from "@/components/layout/PageContainer";
 import Pagination from "@/components/ui/Pagination";
 import SearchForm from "@/components/ui/SearchForm";
 import Image from "next/image";
-import SectionTitle from "@/components/layout/SectionTitle";
+import Hero from "@/components/ui/Hero";
 
 interface MassIntention {
   id?: string;
@@ -247,9 +247,17 @@ export default function Intentions() {
   // Przenieślismy funkcje formatowania na poziom modułu
 
   return (
-    <div>
-      <SectionTitle name="Intencje Mszalne" className="mt-8"/>
-      <PageContainer>
+    <div className="flex flex-col min-h-screen">
+      <div className="relative">
+        <Hero 
+          imageUrl="/mojaParafia/KaplicaSwJana.jpg"
+          quote="Nieustannie się módlcie. W każdym położeniu dziękujcie, taka jest bowiem wola Boża w Jezusie Chrystusie względem was."
+          source="1 List do Tesaloniczan 5:17-18"
+          pageName="Intencje Mszalne"
+          altText="Kościół parafialny"
+        />
+      </div>
+      <PageContainer className="mt-8">
         <SearchForm 
           onSearch={handleSearch}
           placeholder="Szukaj w intencjach..."

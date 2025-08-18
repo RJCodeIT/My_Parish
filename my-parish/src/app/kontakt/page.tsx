@@ -1,12 +1,15 @@
 import PageContainer from "@/components/layout/PageContainer";
-import SectionTitle from "@/components/layout/SectionTitle";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import ContactHero from "@/components/ui/ContactHero";
 
 export default function Contact() {
   return (
-    <div className="overflow-x-hidden w-full">
-      <SectionTitle name="Kontakt" className="mt-4"/>
-      <PageContainer>
+    <div className="overflow-x-hidden w-full flex flex-col min-h-screen">
+      <ContactHero 
+        imageUrl="/mojaParafia/KaplicaSwJana.jpg"
+        altText="Kościół parafialny"
+      />
+      <PageContainer className="mt-8">
         <div className="w-full max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 overflow-hidden">
           {/* Contact Information */}
           <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-md p-2 sm:p-6 border border-neutral/30 space-y-4 w-full">

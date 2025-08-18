@@ -1,11 +1,19 @@
 import PageContainer from "@/components/layout/PageContainer";
-import SectionTitle from "@/components/layout/SectionTitle";
+import Hero from "@/components/ui/Hero";
 
 export default function History() {
   return (
-    <div>
-      <SectionTitle name="Historia kościoła" className="mt-8"/>
-      <PageContainer className="px-6">
+    <div className="flex flex-col min-h-screen">
+      <div className="relative">
+        <Hero 
+          imageUrl="/mojaParafia/KaplicaSwJana.jpg"
+          quote="Pamiętaj o dniach minionych, rozważaj lata poprzednich pokoleń."
+          source="Księga Powtórzonego Prawa 32:7"
+          pageName="Historia kościoła"
+          altText="Kościół parafialny"
+        />
+      </div>
+      <PageContainer className="px-6 mt-8">
         <p className="text-lg text-gray-700">
           Historia naszego kościoła sięga <strong>XV wieku</strong>, kiedy to
           miejscowa ludność, kierowana głęboką wiarą i potrzebą wspólnej

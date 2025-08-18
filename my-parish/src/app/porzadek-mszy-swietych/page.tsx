@@ -1,11 +1,19 @@
 import PageContainer from "@/components/layout/PageContainer";
-import SectionTitle from "@/components/layout/SectionTitle";
+import Hero from "@/components/ui/Hero";
 
 export default function Schedule() {
   return (
-    <div>
-      <SectionTitle name="Porządek Mszy Świętych" className="mt-8"/>
-      <PageContainer>
+    <div className="flex flex-col min-h-screen">
+      <div className="relative">
+        <Hero 
+          imageUrl="/mojaParafia/KaplicaSwJana.jpg"
+          quote="Ilekroć bowiem spożywacie ten chleb i pijecie kielich, śmierć Pana głosicie, aż przyjdzie."
+          source="1 List do Koryntian 11:26"
+          pageName="Porządek Mszy Świętych"
+          altText="Kościół parafialny"
+        />
+      </div>
+      <PageContainer className="mt-8">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
           Porządek Mszy Świętych
         </h2>

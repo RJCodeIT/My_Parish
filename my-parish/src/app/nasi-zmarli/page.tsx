@@ -1,5 +1,5 @@
 import PageContainer from "@/components/layout/PageContainer";
-import SectionTitle from "@/components/layout/SectionTitle";
+import Hero from "@/components/ui/Hero";
 
 export default function Memorial() {
   const deceased = [
@@ -14,9 +14,17 @@ export default function Memorial() {
   ];
 
   return (
-    <div>
-      <SectionTitle name="Nasi zmarli" className="mt-8"/>
-      <PageContainer>
+    <div className="flex flex-col min-h-screen">
+      <div className="relative">
+        <Hero 
+          imageUrl="/mojaParafia/KaplicaSwJana.jpg"
+          quote="Błogosławieni, którzy umierają w Panu. Zaiste, mowi Duch, niech odpoczną od swoich mozolów, bo idą wraz z nimi ich czyny."
+          source="Apokalipsa św. Jana 14:13"
+          pageName="Nasi zmarli"
+          altText="Kościół parafialny"
+        />
+      </div>
+      <PageContainer className="mt-8">
         <p className="text-lg text-gray-700 mb-6">
           Pamięć o naszych bliskich zmarłych jest ważnym elementem życia
           wspólnoty parafialnej. Nasz cmentarz parafialny znajduje się przy

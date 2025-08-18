@@ -1,5 +1,5 @@
 import PageContainer from "@/components/layout/PageContainer";
-import SectionTitle from "@/components/layout/SectionTitle";
+import Hero from "@/components/ui/Hero";
 import Image from "next/image";
 
 const galleryImages = [
@@ -31,9 +31,17 @@ const galleryImages = [
 
 export default function Gallery() {
   return (
-    <div className="min-h-screen">
-      <SectionTitle name="Galeria" className="mt-8"/>
-      <PageContainer>
+    <div className="flex flex-col min-h-screen">
+      <div className="relative">
+        <Hero 
+          imageUrl="/mojaParafia/KaplicaSwJana.jpg"
+          quote="Jak miłe są przybytki Twoje, Panie Zastępów! Dusza moja pragnie i tęskni do przedsionków Pańskich."
+          source="Psalm 84:2-3"
+          pageName="Galeria"
+          altText="Kościół parafialny"
+        />
+      </div>
+      <PageContainer className="mt-8">
         <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {galleryImages.map((image, index) => (

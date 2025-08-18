@@ -1,11 +1,19 @@
 import PageContainer from "@/components/layout/PageContainer";
-import SectionTitle from "@/components/layout/SectionTitle";
+import Hero from "@/components/ui/Hero";
 
 export default function Investments() {
   return (
-    <div>
-      <SectionTitle name="Inwestycje" className="mt-8"/>
-      <PageContainer>
+    <div className="flex flex-col min-h-screen">
+      <div className="relative">
+        <Hero 
+          imageUrl="/mojaParafia/KaplicaSwJana.jpg"
+          quote="Kto by między wami chciał stać się wielkim, niech będzie waszym sługą."
+          source="Ewangelia wg św. Mateusza 20:26"
+          pageName="Inwestycje"
+          altText="Kościół parafialny"
+        />
+      </div>
+      <PageContainer className="mt-8">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
           Inwestycje parafialne
         </h2>

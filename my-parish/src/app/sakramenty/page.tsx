@@ -1,11 +1,19 @@
 import PageContainer from "@/components/layout/PageContainer";
-import SectionTitle from "@/components/layout/SectionTitle";
+import Hero from "@/components/ui/Hero";
 
 export default function Sacraments() {
   return (
-    <div>
-      <SectionTitle name="Sakramenty" className="mt-8"/>
-      <PageContainer>
+    <div className="flex flex-col min-h-screen">
+      <div className="relative">
+        <Hero 
+          imageUrl="/mojaParafia/KaplicaSwJana.jpg"
+          quote="Kto uwierzy i przyjmie chrzest, będzie zbawiony."
+          source="Ewangelia wg św. Marka 16:16"
+          pageName="Sakramenty"
+          altText="Kościół parafialny"
+        />
+      </div>
+      <PageContainer className="mt-8">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
           Sakramenty Święte
         </h2>

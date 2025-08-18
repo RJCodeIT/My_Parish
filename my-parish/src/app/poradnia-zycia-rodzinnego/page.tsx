@@ -1,11 +1,19 @@
 import PageContainer from "@/components/layout/PageContainer";
-import SectionTitle from "@/components/layout/SectionTitle";
+import Hero from "@/components/ui/Hero";
 
 export default function Counseling() {
   return (
-    <div>
-      <SectionTitle name="Poradnia życia rodzinnego" className="mt-8"/>
-      <PageContainer>
+    <div className="flex flex-col min-h-screen">
+      <div className="relative">
+        <Hero 
+          imageUrl="/mojaParafia/KaplicaSwJana.jpg"
+          quote="Co Bóg złączył, tego człowiek niech nie rozdziela."
+          source="Ewangelia wg św. Mateusza 19:6"
+          pageName="Poradnia życia rodzinnego"
+          altText="Kościół parafialny"
+        />
+      </div>
+      <PageContainer className="mt-8">
         <p className="text-lg text-gray-700">
           Poradnia Życia Rodzinnego to miejsce, gdzie narzeczeni, małżonkowie
           oraz rodziny mogą uzyskać pomoc i wsparcie w budowaniu trwałych,

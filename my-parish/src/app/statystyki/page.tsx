@@ -1,5 +1,5 @@
 import PageContainer from "@/components/layout/PageContainer";
-import SectionTitle from "@/components/layout/SectionTitle";
+import Hero from "@/components/ui/Hero";
 
 const statistics = [
   { year: 2020, baptisms: 45, firstCommunions: 50, confirmations: 48, weddings: 20, funerals: 30, dominicantes: 500, comunicantes: 300, annualCommunions: 25000 },
@@ -10,9 +10,17 @@ const statistics = [
 
 export default function Statistics() {
   return (
-    <div>
-      <SectionTitle name="Statystyki" className="mt-8"/>
-      <PageContainer>
+    <div className="flex flex-col min-h-screen">
+      <div className="relative">
+        <Hero 
+          imageUrl="/mojaParafia/KaplicaSwJana.jpg"
+          quote="Niech każdy bada własne postępowanie, a powody do chluby niech szuka tylko w sobie samym."
+          source="List do Galatów 6:4"
+          pageName="Statystyki"
+          altText="Kościół parafialny"
+        />
+      </div>
+      <PageContainer className="mt-8">
         <p className="text-lg text-gray-700 mb-6">
           Poniżej przedstawiamy statystyki dotyczące sakramentów oraz
           uczestnictwa wiernych w liturgii na przestrzeni ostatnich lat.
