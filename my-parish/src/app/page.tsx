@@ -9,7 +9,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
       <div className="relative">
         <HomeHero 
-          imageUrl="/mojaParafia/KaplicaSwJana.jpg"
+          imageUrl="/mojaParafia/hero.jpg"
           altText="Witraż kościelny"
         />
       </div>

@@ -145,9 +145,9 @@ export default function NewsContainer() {
         <aside className="w-full md:w-[340px] self-stretch">
           <div className="grid h-full grid-rows-3 gap-6">
             {/* Image 1 */}
-            <figure className="relative w-full h-full rounded-2xl overflow-hidden shadow-xl ring-1 ring-yellow-200/50 bg-amber-50/30">
+            <figure className="relative w-full h-full rounded-2xl overflow-hidden shadow-[0_8px_24px_-10px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.45)] transition-shadow duration-300 ring-1 ring-yellow-200/40 bg-amber-50/30">
               <Image
-                src="/mojaParafia/witraz.jpg"
+                src="/mojaParafia/witraz3.jpg"
                 alt="Witraż kościelny"
                 fill
                 className="object-cover object-center scale-[1.06] transition-transform duration-700 ease-out"
@@ -158,9 +158,9 @@ export default function NewsContainer() {
             </figure>
 
             {/* Image 2 */}
-            <figure className="relative w-full h-full rounded-2xl overflow-hidden shadow-xl ring-1 ring-yellow-200/50 bg-amber-50/30">
+            <figure className="relative w-full h-full rounded-2xl overflow-hidden shadow-[0_8px_24px_-10px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.45)] transition-shadow duration-300 ring-1 ring-yellow-200/40 bg-amber-50/30">
               <Image
-                src="/mojaParafia/witraz.jpg"
+                src="/mojaParafia/witraz4.jpg"
                 alt="Witraż kościelny"
                 fill
                 className="object-cover object-center scale-[1.04]"
@@ -170,9 +170,9 @@ export default function NewsContainer() {
             </figure>
 
             {/* Image 3 */}
-            <figure className="relative w-full h-full rounded-2xl overflow-hidden shadow-xl ring-1 ring-yellow-200/50 bg-amber-50/30">
+            <figure className="relative w-full h-full rounded-2xl overflow-hidden shadow-[0_8px_24px_-10px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.45)] transition-shadow duration-300 ring-1 ring-yellow-200/40 bg-amber-50/30">
               <Image
-                src="/mojaParafia/witraz.jpg"
+                src="/mojaParafia/witraz5.jpg"
                 alt="Witraż kościelny"
                 fill
                 className="object-cover object-center scale-[1.04]"

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { PiChurchDuotone } from "react-icons/pi";
 import { 
   FaBars, 
   FaTimes, 
@@ -96,15 +96,10 @@ export default function Navbar() {
       <div className="container mx-auto px-6 py-5">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="relative w-12 h-12 overflow-hidden rounded-full border-2 border-white shadow-md transition-all duration-300 group-hover:border-primary">
-              <Image
-                src="/mojaParafia/witraz_logo.jpg"
-                alt="Logo"
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-110"
-              />
+            <div className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-white shadow-md transition-all duration-300 group-hover:border-primary bg-white/10">
+              <PiChurchDuotone className={`${isScrolled ? 'text-neutral-900' : 'text-white'} transition-colors`} size={28} />
             </div>
-            <span className={`text-2xl font-bold ${isScrolled ? 'text-primary' : 'text-white'} transition-all duration-300 group-hover:text-secondary`}>
+            <span className={`text-2xl font-bold ${isScrolled ? 'text-neutral-900' : 'text-white'} transition-colors duration-300 ${isScrolled ? 'hover:!text-gray-500 group-hover:!text-gray-500' : 'hover:!text-gray-300 group-hover:!text-gray-300'}`}>
               Moja Parafia
             </span>
           </Link>
@@ -223,13 +218,8 @@ export default function Navbar() {
           <div className="lg:hidden fixed inset-0 top-0 left-0 w-screen h-screen bg-white/98 backdrop-blur-md z-[9999] overflow-y-auto">
             <div className="flex justify-between items-center p-6 border-b border-gray-200 bg-white sticky top-0 z-10 shadow-sm">
               <div className="flex items-center space-x-3">
-                <div className="relative w-12 h-12 overflow-hidden rounded-full border-2 border-primary/30 shadow-md">
-                  <Image
-                    src="/mojaParafia/witraz_logo.jpg"
-                    alt="Logo"
-                    fill
-                    className="object-cover"
-                  />
+                <div className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary/30 shadow-md bg-primary/5">
+                  <PiChurchDuotone className="text-primary" size={28} />
                 </div>
                 <span className="text-2xl font-bold text-primary">
                   Moja Parafia

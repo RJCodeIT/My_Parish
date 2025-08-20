@@ -39,10 +39,10 @@ export default function HomeHero({
             <div className="hidden sm:flex items-center justify-center md:translate-x-8 lg:translate-x-12 xl:translate-x-16">
               <div className="relative">
                 <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-br from-primary/60 via-white/30 to-emerald-400/50 blur-sm opacity-60" />
-                <div className="relative bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl p-4 sm:p-5 border border-white/40 w-[220px] sm:w-[240px] md:w-[280px] lg:w-[300px] transition-all duration-500 hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.4)] hover:-translate-y-1">
+                <div className="relative bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl p-2 sm:p-3 border border-white/20 w-[220px] sm:w-[240px] md:w-[280px] lg:w-[300px] transition-all duration-500 hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.4)] hover:-translate-y-1">
                   <div className="relative w-full h-[55vh] md:h-[65vh] overflow-hidden rounded-xl group">
                     <Image
-                      src="/mojaParafia/witraz.jpg"
+                      src="/mojaParafia/witraz1.jpg"
                       alt="Witraż"
                       fill
                       className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-110 group-hover:rotate-[0.5deg]"
@@ -59,7 +59,7 @@ export default function HomeHero({
               {/* Heading Area */}
               <div className="text-center md:text-left space-y-2 md:space-y-2">
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] text-white">
-                  <span className="bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-emerald-200">Kościół rzymskokatolicki pw. Przemienienia Pańskiego</span>
+                  <span className="bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-stone-200 opacity-90">Kościół rzymskokatolicki pw. Przemienienia Pańskiego</span>
                 </h1>
               </div>
 
