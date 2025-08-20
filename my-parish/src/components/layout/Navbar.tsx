@@ -156,6 +156,9 @@ export default function Navbar() {
                   <Link href="/inwestycje" className={navStyles.dropdownItem}>
                     <FaLandmark className="mr-2" /> Inwestycje
                   </Link>
+                  <Link href="/galeria" className={navStyles.dropdownItem}>
+                    <FaImages className="mr-2" /> Galeria
+                  </Link>
                 </div>
               )}
             </div>
@@ -207,10 +210,6 @@ export default function Navbar() {
             <Link href="/ogloszenia" className={`${navStyles.navLink} flex items-center space-x-2`}>
               <FaBullhorn className={`${isScrolled ? 'text-primary' : 'text-white'}`} />
               <span>Ogłoszenia</span>
-            </Link>
-            <Link href="/galeria" className={`${navStyles.navLink} flex items-center space-x-2`}>
-              <FaImages className={`${isScrolled ? 'text-primary' : 'text-white'}`} />
-              <span>Galeria</span>
             </Link>
             <Link href="/kontakt" className={`${navStyles.navLink} flex items-center space-x-2`}>
               <FaEnvelope className={`${isScrolled ? 'text-primary' : 'text-white'}`} />
@@ -307,6 +306,14 @@ export default function Navbar() {
                     >
                       <FaLandmark className="text-primary" size={18} />
                       <span>Inwestycje</span>
+                    </Link>
+                    <Link 
+                      href="/galeria" 
+                      onClick={() => setIsMobileMenuOpen(false)} 
+                      className="flex items-center space-x-3 py-2 px-4 hover:bg-gray-50 rounded-lg transition-colors duration-300"
+                    >
+                      <FaImages className="text-primary" size={18} />
+                      <span>Galeria</span>
                     </Link>
                   </div>
                 )}
@@ -409,14 +416,6 @@ export default function Navbar() {
               >
                 <FaBullhorn className="text-primary" size={20} />
                 <span>Ogłoszenia</span>
-              </Link>
-              <Link 
-                href="/galeria" 
-                onClick={() => setIsMobileMenuOpen(false)} 
-                className="flex items-center space-x-3 py-3 px-4 hover:bg-gray-50 rounded-lg text-lg text-primary transition-colors duration-300"
-              >
-                <FaImages className="text-primary" size={20} />
-                <span>Galeria</span>
               </Link>
               <Link 
                 href="/kontakt" 

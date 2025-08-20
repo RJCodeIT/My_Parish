@@ -1,5 +1,12 @@
 import Image from 'next/image';
 import { FaQuoteLeft } from 'react-icons/fa';
+import { Cormorant_Garamond } from 'next/font/google';
+
+const titleFont = Cormorant_Garamond({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['500', '600', '700'],
+  display: 'swap',
+});
 
 interface HeroProps {
   imageUrl: string;
@@ -38,10 +45,11 @@ export default function Hero({
       <div className="absolute inset-0 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
         {pageName && (
           <div className="mb-8 relative z-10">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white text-center uppercase tracking-widest drop-shadow-[0_2px_5px_rgba(0,0,0,0.9)]">
+            <h1
+              className={`${titleFont.className} text-4xl sm:text-5xl md:text-6xl font-semibold md:font-bold text-white/95 text-center tracking-[0.03em] sm:tracking-[0.045em] md:tracking-[0.06em] leading-tight`}
+            >
               {pageName}
             </h1>
-            <div className="h-1 w-32 sm:w-48 md:w-64 bg-gradient-to-r from-transparent via-white to-transparent mx-auto mt-3"></div>
           </div>
         )}
         <div className="relative bg-white/85 backdrop-blur-lg p-7 sm:p-9 md:p-12 rounded-2xl max-w-3xl shadow-[0_10px_50px_-12px_rgba(0,0,0,0.4)] border border-white/40 transform transition-all duration-500 hover:scale-[1.02] hover:bg-white/95">
