@@ -21,7 +21,7 @@ import {
   FaUsers, 
   FaHeart, 
   FaChartBar, 
-  FaBookDead 
+  FaBook 
 } from "react-icons/fa";
 
 export default function Navbar() {
@@ -197,7 +197,7 @@ export default function Navbar() {
                     <FaChartBar className="mr-2" /> Statystyki
                   </Link>
                   <Link href="/nasi-zmarli" className={navStyles.dropdownItem}>
-                    <FaBookDead className="mr-2" /> Nasi zmarli
+                    <FaBook className="mr-2" /> Nasi zmarli
                   </Link>
                 </div>
               )}
@@ -394,7 +394,7 @@ export default function Navbar() {
                       onClick={() => setIsMobileMenuOpen(false)} 
                       className="flex items-center space-x-3 py-2 px-4 hover:bg-gray-50 rounded-lg transition-colors duration-300"
                     >
-                      <FaBookDead className="text-primary" size={18} />
+                      <FaBook className="text-primary" size={18} />
                       <span>Nasi zmarli</span>
                     </Link>
                   </div>
