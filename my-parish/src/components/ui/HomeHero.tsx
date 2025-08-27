@@ -23,23 +23,23 @@ export default function HomeHero({
           alt={altText}
           fill
           priority
-          className="object-cover will-change-transform transition-transform duration-[4000ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:scale-105 brightness-[0.8]"
+          className="object-cover will-change-transform transition-transform duration-[4000ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:scale-105 brightness-[0.8] z-0"
         />
         {/* Soft vignette and aurora-like gradients */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
-        <div className="pointer-events-none absolute -top-24 -left-24 h-[60vh] w-[60vh] rounded-full blur-3xl opacity-30 bg-primary/40" />
-        <div className="pointer-events-none absolute -bottom-24 -right-24 h-[60vh] w-[60vh] rounded-full blur-3xl opacity-30 bg-emerald-500/30" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_45%,rgba(0,0,0,0.5)_100%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80 z-1" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent z-1" />
+        <div className="pointer-events-none absolute -top-24 -left-24 h-[60vh] w-[60vh] rounded-full blur-3xl opacity-30 bg-primary/40 z-1" />
+        <div className="pointer-events-none absolute -bottom-24 -right-24 h-[60vh] w-[60vh] rounded-full blur-3xl opacity-30 bg-emerald-500/30 z-1" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_45%,rgba(0,0,0,0.5)_100%)] z-1" />
 
         {/* Content Container */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex items-center">
-          <div className="grid grid-cols-1 md:grid-cols-[auto,1fr] gap-3 md:gap-4 w-full items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-[auto,1fr] gap-6 md:gap-8 w-full items-stretch">
             {/* Left Column - Decorative Image Card */}
-            <div className="hidden sm:flex items-center justify-center md:translate-x-8 lg:translate-x-12 xl:translate-x-16">
+            <div className="hidden sm:flex items-center justify-center md:translate-x-0 lg:translate-x-4 xl:translate-x-8">
               <div className="relative">
                 <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-br from-primary/60 via-white/30 to-emerald-400/50 blur-sm opacity-60" />
-                <div className="relative bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl p-2 sm:p-3 border border-white/20 w-[220px] sm:w-[240px] md:w-[280px] lg:w-[300px] transition-all duration-500 hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.4)] hover:-translate-y-1">
+                <div className="relative bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl p-2 sm:p-3 border border-white/20 w-[200px] sm:w-[220px] md:w-[260px] lg:w-[280px] transition-all duration-500 hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.4)] hover:-translate-y-1">
                   <div className="relative w-full h-[55vh] md:h-[65vh] overflow-hidden rounded-xl group">
                     <Image
                       src="/mojaParafia/witraz1.jpg"
@@ -55,10 +55,10 @@ export default function HomeHero({
             </div>
 
             {/* Right Column - Heading + Actions */}
-            <div className="flex flex-col justify-center gap-4 md:gap-6 max-w-[880px] mx-auto w-full py-2">
+            <div className="flex flex-col justify-center gap-4 md:gap-6 max-w-[880px] w-full py-2 md:pl-4 lg:pl-6">
               {/* Heading Area */}
               <div className="text-center md:text-left space-y-2 md:space-y-2">
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] text-white">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.1] text-white">
                   <span className="bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-stone-200 opacity-90">Kościół rzymskokatolicki pw. Przemienienia Pańskiego</span>
                 </h1>
               </div>
