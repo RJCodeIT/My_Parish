@@ -59,6 +59,15 @@ export default function IntentionCard({ intention, onDelete }: IntentionCardProp
     router.push(`/admin/dashboard/intencje/edycja/${intention._id}`);
   };
 
+  // Format like: "1 września - Poniedziałek" (weekday with capital letter)
+  const formatPolishDateWithWeekday = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const dayMonth = d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' });
+    const weekday = d.toLocaleDateString('pl-PL', { weekday: 'long' });
+    const weekdayCapitalized = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+    return `${dayMonth} - ${weekdayCapitalized}`;
+  };
+
   return (
     <div className="w-full border rounded-lg shadow-md p-3 sm:p-4 bg-white mt-3 sm:mt-4">
       <div className="flex justify-between items-start sm:items-center gap-2 sm:gap-4">
@@ -110,7 +119,7 @@ export default function IntentionCard({ intention, onDelete }: IntentionCardProp
               {intention.days.map((day, dayIndex) => (
                 <div key={dayIndex} className="border-t pt-2 sm:pt-3">
                   <h4 className="font-medium text-gray-800 mb-1 sm:mb-2 text-sm sm:text-base">
-                    {new Date(day.date).toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    {formatPolishDateWithWeekday(day.date)}
                   </h4>
                   <ul className="list-disc list-inside text-gray-700 text-xs sm:text-sm">
                     {day.masses.map((mass, massIndex) => (

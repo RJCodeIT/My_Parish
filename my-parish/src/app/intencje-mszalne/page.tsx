@@ -63,25 +63,22 @@ function formatDate(dateString: string) {
   }
 }
 
-// Format day name (e.g., "Poniedziałek, 3 czerwca 2025")
-function formatDayName(dateString: string) {
+// (removed) formatDayName – zastąpione przez formatDayHeading
+
+// Format like: "1 września - Poniedziałek" (weekday capitalized)
+function formatDayHeading(dateString: string) {
   try {
     if (!dateString) return "Data nieokreślona";
-    
+
     const date = new Date(dateString);
-    
-    if (isNaN(date.getTime())) {
-      return dateString;
-    }
-    
-    return date.toLocaleDateString('pl-PL', { 
-      weekday: 'long', 
-      day: 'numeric', 
-      month: 'long',
-      year: 'numeric'
-    });
+    if (isNaN(date.getTime())) return dateString;
+
+    const dayMonth = date.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' });
+    const weekday = date.toLocaleDateString('pl-PL', { weekday: 'long' });
+    const weekdayCapitalized = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+    return `${dayMonth} - ${weekdayCapitalized}`;
   } catch (error) {
-    console.error("Error formatting day name:", error);
+    console.error("Error formatting day heading:", error);
     return dateString;
   }
 }
@@ -131,7 +128,7 @@ function IntentionCardPublic({ intention, isExpanded, onToggle }: {
               {intention.days.map((day, dayIndex) => (
                 <div key={dayIndex} className="border-t pt-3">
                   <h4 className="font-medium text-gray-800 mb-2 text-center">
-                    {formatDayName(day.date)}
+                    {formatDayHeading(day.date)}
                   </h4>
                   <ul className="list-disc list-inside text-gray-700">
                     {day.masses.map((mass, massIndex) => (
