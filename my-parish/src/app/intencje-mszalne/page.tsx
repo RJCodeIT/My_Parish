@@ -22,6 +22,8 @@ interface Mass {
 interface Day {
   date: string;
   masses: Mass[];
+  liturgicalName?: string;
+  headerColor?: string;
 }
 
 interface Intention {
@@ -127,8 +129,12 @@ function IntentionCardPublic({ intention, isExpanded, onToggle }: {
             <div className="mt-4 space-y-4">
               {intention.days.map((day, dayIndex) => (
                 <div key={dayIndex} className="border-t pt-3">
-                  <h4 className="font-medium text-gray-800 mb-2 text-center">
+                  <h4
+                    className="font-medium mb-2 text-center"
+                    style={{ color: day.headerColor || '#111827' }}
+                  >
                     {formatDayHeading(day.date)}
+                    {day.liturgicalName ? ` - ${day.liturgicalName}` : ''}
                   </h4>
                   <ul className="list-disc list-inside text-gray-700">
                     {day.masses.map((mass, massIndex) => (

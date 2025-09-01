@@ -19,6 +19,8 @@ interface Mass {
 interface Day {
   date: string;
   masses: Mass[];
+  liturgicalName?: string;
+  headerColor?: string;
 }
 
 interface Intention {
@@ -118,8 +120,11 @@ export default function IntentionCard({ intention, onDelete }: IntentionCardProp
             <div className="mt-3 sm:mt-4 space-y-3 sm:space-y-4">
               {intention.days.map((day, dayIndex) => (
                 <div key={dayIndex} className="border-t pt-2 sm:pt-3">
-                  <h4 className="font-medium text-gray-800 mb-1 sm:mb-2 text-sm sm:text-base">
-                    {formatPolishDateWithWeekday(day.date)}
+                  <h4
+                    className="font-medium mb-1 sm:mb-2 text-sm sm:text-base"
+                    style={{ color: day.headerColor || '#111827' }}
+                  >
+                    {formatPolishDateWithWeekday(day.date)} - {day.liturgicalName || 'Dzień Powszedni'}
                   </h4>
                   <ul className="list-disc list-inside text-gray-700 text-xs sm:text-sm">
                     {day.masses.map((mass, massIndex) => (

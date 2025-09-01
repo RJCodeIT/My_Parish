@@ -4,7 +4,7 @@ import Input from "@/components/ui/Input";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useAlerts } from "@/components/ui/Alerts";
-import { isMonday, isSunday, getNextMonday, getSundayFromMonday, validateWeekRange, generateWeekDates, getPolishDayName, formatDateToPolish } from "@/utils/dateUtils";
+import { isMonday, getNextMonday, getSundayFromMonday, validateWeekRange, generateWeekDates, getPolishDayName } from "@/utils/dateUtils";
 
 interface MassIntention {
   id?: string;
@@ -21,6 +21,8 @@ interface Day {
   id?: string;
   date: string;
   masses: Mass[];
+  liturgicalName?: string; // e.g., "Dzień Powszedni" (default)
+  headerColor?: string; // hex color for date + weekday + liturgical name
 }
 
 interface IntentionData {
@@ -45,6 +47,21 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
   const router = useRouter();
   const alerts = useAlerts();
 
+  // Format like: "1 września - Poniedziałek" (weekday with capital letter)
+  const formatDayHeading = (dateStr: string) => {
+    try {
+      if (!dateStr) return "Data nieokreślona";
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      const dayMonth = d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' });
+      const weekday = d.toLocaleDateString('pl-PL', { weekday: 'long' });
+      const weekdayCapitalized = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+      return `${dayMonth} - ${weekdayCapitalized}`;
+    } catch {
+      return dateStr || "Data nieokreślona";
+    }
+  };
+
   // Initialize form with existing data if in edit mode
   useEffect(() => {
     if (isEditMode && initialData) {
@@ -63,7 +80,9 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
         // Utwórz pusty szkielet dla wszystkich 7 dni tygodnia
         const emptyWeek: Day[] = weekDates.map(date => ({
           date,
-          masses: []
+          masses: [],
+          liturgicalName: "Dzień Powszedni",
+          headerColor: "#111827" // Tailwind gray-900
         }));
         
         // Jeśli mamy dane dla niektórych dni, uzupełnij nimi pusty szkielet
@@ -77,6 +96,8 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
             if (matchingDay) {
               emptyWeek[i].masses = matchingDay.masses;
               if (matchingDay.id) emptyWeek[i].id = matchingDay.id;
+              emptyWeek[i].liturgicalName = matchingDay.liturgicalName || "Dzień Powszedni";
+              emptyWeek[i].headerColor = matchingDay.headerColor || "#111827";
             }
           }
         }
@@ -122,7 +143,9 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
     
     const newDays: Day[] = weekDates.map(date => ({
       date,
-      masses: []
+      masses: [],
+      liturgicalName: "Dzień Powszedni",
+      headerColor: "#111827"
     }));
     
     setDays(newDays);
@@ -372,17 +395,46 @@ export default function IntentionsForm({ initialData, isEditMode = false }: Inte
         {days.length > 0 && (
           <div className="space-y-6 sm:space-y-10">
             {days.map((day, dayIndex) => {
-              // Format the day date for display using our utility functions
-              const polishDayName = getPolishDayName(day.date);
-              const formattedDate = formatDateToPolish(day.date);
-
               return (
                 <div key={dayIndex} className="border border-neutral/10 rounded-lg sm:rounded-xl overflow-hidden max-w-full">
                   <div className="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-neutral/10">
-                    <h4 className="font-medium text-gray-900 text-sm sm:text-base">{polishDayName}, {formattedDate}</h4>
+                    <h4 className="font-medium text-sm sm:text-base" style={{ color: day.headerColor || '#111827' }}>{formatDayHeading(day.date)} - {day.liturgicalName || 'Dzień Powszedni'}</h4>
                   </div>
                 
                   <div className="px-3 py-3 sm:p-6 space-y-3 sm:space-y-6 overflow-x-hidden">
+                    <div className="grid grid-cols-1 sm:grid-cols-[1fr,auto] gap-2 items-end max-w-full mb-2">
+                      <div className="max-w-full">
+                        <label className="text-xs font-medium mb-1 block">Nazwa liturgiczna dnia</label>
+                        <input
+                          type="text"
+                          name={`liturgicalName-${dayIndex}`}
+                          value={day.liturgicalName ?? 'Dzień Powszedni'}
+                          onChange={(e) => {
+                            const updated = [...days];
+                            updated[dayIndex].liturgicalName = e.target.value;
+                            setDays(updated);
+                          }}
+                          className="w-full px-1.5 sm:px-3 py-1 sm:py-2 text-xs sm:text-base border border-neutral/10 rounded-lg focus:ring-1 focus:ring-primary/20 focus:border-primary"
+                          placeholder="Np. Wspomnienie św. ... / Uroczystość ... / Dzień Powszedni"
+                        />
+                      </div>
+                      <div className="flex sm:justify-end items-end">
+                        <div>
+                          <label className="text-xs font-medium mb-1 block">Kolor nagłówka</label>
+                          <input
+                            type="color"
+                            name={`headerColor-${dayIndex}`}
+                            value={day.headerColor || '#111827'}
+                            onChange={(e) => {
+                              const updated = [...days];
+                              updated[dayIndex].headerColor = e.target.value;
+                              setDays(updated);
+                            }}
+                            className="h-8 w-10 p-0 border border-neutral/10 rounded cursor-pointer"
+                          />
+                        </div>
+                      </div>
+                    </div>
                     {day.masses.length === 0 ? (
                       <p className="text-gray-500 text-center py-3 sm:py-4 text-sm sm:text-base">Brak mszy na ten dzień</p>
                     ) : (

@@ -127,6 +127,9 @@ model Day {
   intentionId String
   intention   Intention @relation(fields: [intentionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   masses      Mass[]
+  // Optional customizations from admin form
+  liturgicalName String?
+  headerColor    String?
 
   @@index([intentionId])
 }

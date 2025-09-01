@@ -40,6 +40,8 @@ export async function GET() {
         return {
           id: day.id,
           date: day.date.toISOString(),
+          liturgicalName: (day as any).liturgicalName ?? null,
+          headerColor: (day as any).headerColor ?? null,
           masses: formattedMasses
         };
       });
@@ -94,7 +96,9 @@ export async function POST(req: Request) {
       const day = await prisma.day.create({
         data: {
           date: new Date(dayData.date),
-          intentionId: intention.id
+          intentionId: intention.id,
+          liturgicalName: (dayData as any).liturgicalName ?? null,
+          headerColor: (dayData as any).headerColor ?? null
         }
       });
       
@@ -163,6 +167,8 @@ export async function POST(req: Request) {
       return {
         id: day.id,
         date: day.date.toISOString(),
+        liturgicalName: (day as any).liturgicalName ?? null,
+        headerColor: (day as any).headerColor ?? null,
         masses: formattedMasses
       };
     });

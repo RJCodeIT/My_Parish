@@ -25,6 +25,8 @@ interface Intention {
       intentions?: Array<{ intention: string }>;
       intention?: string;
     }>;
+    liturgicalName?: string;
+    headerColor?: string;
   }>;
 }
 
@@ -133,6 +135,8 @@ export default function EditIntention() {
       // Przygotuj dni z intencjami
       const days = intention.days.map(day => ({
         date: day.date,
+        liturgicalName: day.liturgicalName ?? 'Dzień Powszedni',
+        headerColor: day.headerColor ?? '#111827',
         masses: day.masses.map(mass => ({
           time: mass.time,
           intentions: mass.intentions || (mass.intention ? [{ intention: mass.intention }] : [{ intention: '' }])

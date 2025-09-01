@@ -37,6 +37,8 @@ interface MassData {
 interface DayData {
   date: string;
   masses: MassData[];
+  liturgicalName?: string | null;
+  headerColor?: string | null;
 }
 
 interface WeekIntentionData {
@@ -103,6 +105,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         imageUrl: weekIntention.imageUrl,
         days: weekIntention.days.map(day => ({
           date: day.date.toISOString().split('T')[0],
+          liturgicalName: (day as any).liturgicalName ?? null,
+          headerColor: (day as any).headerColor ?? null,
           masses: day.masses.map(mass => ({
             time: mass.time,
             intentions: mass.intentions.map(intention => ({
@@ -143,6 +147,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         imageUrl: intention.imageUrl,
         days: intention.days.map(day => ({
           date: day.date.toISOString().split('T')[0],
+          liturgicalName: (day as any).liturgicalName ?? null,
+          headerColor: (day as any).headerColor ?? null,
           masses: day.masses.map(mass => ({
             time: mass.time,
             intentions: mass.intentions.map(intention => ({
@@ -269,7 +275,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
           const newDay = await tx.day.create({
             data: {
               date: new Date(dayData.date),
-              intentionId: existingIntention!.id
+              intentionId: existingIntention!.id,
+              liturgicalName: dayData.liturgicalName ?? null,
+              headerColor: dayData.headerColor ?? null
             }
           });
           
@@ -335,6 +343,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       imageUrl: updatedIntention.imageUrl,
       days: updatedIntention.days.map(day => ({
         date: day.date.toISOString().split('T')[0],
+        liturgicalName: (day as any).liturgicalName ?? null,
+        headerColor: (day as any).headerColor ?? null,
         masses: day.masses.map(mass => ({
           time: mass.time,
           intentions: mass.intentions.map(mi => ({ intention: mi.intention }))
@@ -440,7 +450,9 @@ async function createWeekIntentions(data: WeekIntentionData) {
       const day = await prisma.day.create({
         data: {
           date: new Date(dayData.date),
-          intentionId: weekIntention.id
+          intentionId: weekIntention.id,
+          liturgicalName: dayData.liturgicalName ?? null,
+          headerColor: dayData.headerColor ?? null
         }
       });
       
