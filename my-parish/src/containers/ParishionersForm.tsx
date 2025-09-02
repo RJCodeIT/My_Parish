@@ -37,6 +37,23 @@ interface ParishionerData {
   address: Address;
   sacraments: Sacrament[];
   notes: string;
+  // deceased
+  isDeceased?: boolean;
+  deceasedAt?: string;
+  placeOfDeath?: string;
+  deathCertificateNumber?: string;
+  deathCertificateIssuedBy?: string;
+  deathReporterName?: string;
+  deathReporterRelation?: string;
+  deathReporterPhone?: string;
+  deathNotes?: string;
+  // funeral
+  funeralDate?: string;
+  funeralLocation?: string;
+  cemeteryName?: string;
+  cremation?: boolean | null;
+  officiant?: string;
+  funeralNotes?: string;
 }
 
 interface ParishionersFormProps {
@@ -58,6 +75,21 @@ const defaultFormData: ParishionerData = {
   },
   sacraments: Object.keys(SACRAMENT_LABELS).map((key) => ({ type: key, date: "" })),
   notes: "",
+  isDeceased: false,
+  deceasedAt: "",
+  placeOfDeath: "",
+  deathCertificateNumber: "",
+  deathCertificateIssuedBy: "",
+  deathReporterName: "",
+  deathReporterRelation: "",
+  deathReporterPhone: "",
+  deathNotes: "",
+  funeralDate: "",
+  funeralLocation: "",
+  cemeteryName: "",
+  cremation: null,
+  officiant: "",
+  funeralNotes: "",
 };
 
 export default function ParishionersForm({ initialData, isEditMode = false }: ParishionersFormProps) {
@@ -78,8 +110,11 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
       // Format date strings properly for input fields (YYYY-MM-DD)
       const formattedData = {
         ...initialData,
+        isDeceased: typeof initialData.isDeceased === 'boolean' ? initialData.isDeceased : false,
         // Convert date strings to proper format for date inputs
         dateOfBirth: initialData.dateOfBirth ? formatDateForInput(initialData.dateOfBirth) : "",
+        deceasedAt: initialData.deceasedAt ? formatDateForInput(initialData.deceasedAt) : "",
+        funeralDate: initialData.funeralDate ? formatDateForInput(initialData.funeralDate) : "",
         sacraments: allSacraments.map(s => ({
           ...s,
           date: s.date ? formatDateForInput(s.date) : ""
@@ -133,10 +168,48 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
   
     const filteredSacraments = formData.sacraments.filter((s) => s.date !== "");
   
+    const hasDeceasedBlock = !!(
+      formData.deceasedAt || formData.placeOfDeath || formData.deathCertificateNumber ||
+      formData.deathCertificateIssuedBy || formData.deathReporterName || formData.deathReporterRelation ||
+      formData.deathReporterPhone || formData.deathNotes || formData.isDeceased
+    );
+
+    const hasFuneralBlock = !!(
+      formData.funeralDate || formData.funeralLocation || formData.cemeteryName ||
+      typeof formData.cremation === 'boolean' || formData.officiant || formData.funeralNotes
+    );
+
+    const deceased = hasDeceasedBlock
+      ? {
+          deceasedAt: formData.deceasedAt || undefined,
+          placeOfDeath: formData.placeOfDeath || undefined,
+          deathCertificateNumber: formData.deathCertificateNumber || undefined,
+          deathCertificateIssuedBy: formData.deathCertificateIssuedBy || undefined,
+          deathReporterName: formData.deathReporterName || undefined,
+          deathReporterRelation: formData.deathReporterRelation || undefined,
+          deathReporterPhone: formData.deathReporterPhone || undefined,
+          deathNotes: formData.deathNotes || undefined,
+        }
+      : undefined;
+
+    const funeral = hasFuneralBlock
+      ? {
+          funeralDate: formData.funeralDate || undefined,
+          funeralLocation: formData.funeralLocation || undefined,
+          cemeteryName: formData.cemeteryName || undefined,
+          cremation: typeof formData.cremation === 'boolean' ? formData.cremation : undefined,
+          officiant: formData.officiant || undefined,
+          funeralNotes: formData.funeralNotes || undefined,
+        }
+      : undefined;
+
     const formattedFormData = {
       ...formData,
+      isDeceased: formData.isDeceased,
+      deceased,
+      funeral,
       sacraments: filteredSacraments,
-    };
+    } as const;
   
     try {
       let response;
@@ -309,8 +382,147 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
             rows={3}
           ></textarea>
         </div>
-      </div>
 
+        {/* 📌 Sekcja: Zgon (tylko w edycji i gdy parafianin jest zmarły) */}
+        {isEditMode && formData.isDeceased && (
+          <div className="space-y-6 sm:space-y-8">
+            <h3 className="text-lg font-medium text-gray-900">Dane zgonu</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
+              <div>
+                <Input
+                  label="Data zgonu"
+                  name="deceasedAt"
+                  type="date"
+                  value={formData.deceasedAt || ""}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <Input
+                  label="Miejsce zgonu"
+                  name="placeOfDeath"
+                  value={formData.placeOfDeath || ""}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <Input
+                  label="Nr aktu zgonu"
+                  name="deathCertificateNumber"
+                  value={formData.deathCertificateNumber || ""}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <Input
+                  label="Wystawca aktu"
+                  name="deathCertificateIssuedBy"
+                  value={formData.deathCertificateIssuedBy || ""}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <Input
+                  label="Zgłaszający"
+                  name="deathReporterName"
+                  value={formData.deathReporterName || ""}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <Input
+                  label="Relacja"
+                  name="deathReporterRelation"
+                  value={formData.deathReporterRelation || ""}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <Input
+                  label="Telefon zgłaszającego"
+                  name="deathReporterPhone"
+                  value={formData.deathReporterPhone || ""}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Uwagi dot. zgonu</label>
+                <textarea
+                  name="deathNotes"
+                  value={formData.deathNotes || ""}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, deathNotes: e.target.value }))}
+                  className="w-full min-h-[100px] px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-gray-600 border border-neutral/10 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 📌 Sekcja: Pogrzeb (tylko w edycji i gdy parafianin jest zmarły) */}
+        {isEditMode && formData.isDeceased && (
+          <div className="space-y-6 sm:space-y-8">
+            <h3 className="text-lg font-medium text-gray-900">Dane pogrzebu</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
+              <div>
+                <Input
+                  label="Data pogrzebu"
+                  name="funeralDate"
+                  type="date"
+                  value={formData.funeralDate || ""}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <Input
+                  label="Miejsce liturgii"
+                  name="funeralLocation"
+                  value={formData.funeralLocation || ""}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <Input
+                  label="Cmentarz"
+                  name="cemeteryName"
+                  value={formData.cemeteryName || ""}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  id="cremation"
+                  name="cremation"
+                  type="checkbox"
+                  checked={!!formData.cremation}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, cremation: e.target.checked }))}
+                  className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
+                />
+                <label htmlFor="cremation" className="text-sm text-gray-700">Kremacja</label>
+              </div>
+              <div>
+                <Input
+                  label="Celebrans"
+                  name="officiant"
+                  value={formData.officiant || ""}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Uwagi dot. pogrzebu</label>
+                <textarea
+                  name="funeralNotes"
+                  value={formData.funeralNotes || ""}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, funeralNotes: e.target.value }))}
+                  className="w-full min-h-[100px] px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-gray-600 border border-neutral/10 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        
+      </div>
+      
       {/* 📌 Przycisk zapisu */}
       <div className="flex justify-center sm:justify-end pt-6 sm:pt-8">
         <button 
