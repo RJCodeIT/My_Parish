@@ -92,7 +92,10 @@ export async function PUT(_request: NextRequest, { params }: { params: { id: str
         }
       }
       
-      // Aktualizuj podstawowe dane parafianina
+      // Aktualizuj podstawowe dane parafianina + opcjonalnie dane zgonu/pogrzebu
+      const deceased = body.deceased || undefined;
+      const funeral = body.funeral || undefined;
+
       await prismaTransaction.parishioner.update({
         where: { id },
         data: {
@@ -101,7 +104,26 @@ export async function PUT(_request: NextRequest, { params }: { params: { id: str
           dateOfBirth: body.dateOfBirth ? new Date(body.dateOfBirth) : undefined,
           phoneNumber: body.phoneNumber || undefined,
           email: body.email || undefined,
-          notes: body.notes || undefined
+          notes: body.notes || undefined,
+
+          // Update deceased data if provided (nested structure)
+          isDeceased: typeof body.isDeceased === 'boolean' ? body.isDeceased : (deceased ? true : undefined),
+          deceasedAt: deceased?.deceasedAt ? new Date(deceased.deceasedAt) : (body.deceasedAt ? new Date(body.deceasedAt) : undefined),
+          placeOfDeath: deceased?.placeOfDeath ?? body.placeOfDeath ?? undefined,
+          deathCertificateNumber: deceased?.deathCertificateNumber ?? body.deathCertificateNumber ?? undefined,
+          deathCertificateIssuedBy: deceased?.deathCertificateIssuedBy ?? body.deathCertificateIssuedBy ?? undefined,
+          deathReporterName: deceased?.deathReporterName ?? body.deathReporterName ?? undefined,
+          deathReporterRelation: deceased?.deathReporterRelation ?? body.deathReporterRelation ?? undefined,
+          deathReporterPhone: deceased?.deathReporterPhone ?? body.deathReporterPhone ?? undefined,
+          deathNotes: deceased?.deathNotes ?? body.deathNotes ?? undefined,
+
+          // Update funeral data if provided (nested structure)
+          funeralDate: funeral?.funeralDate ? new Date(funeral.funeralDate) : (body.funeralDate ? new Date(body.funeralDate) : undefined),
+          funeralLocation: funeral?.funeralLocation ?? body.funeralLocation ?? undefined,
+          cemeteryName: funeral?.cemeteryName ?? body.cemeteryName ?? undefined,
+          cremation: typeof (funeral?.cremation) === 'boolean' ? funeral?.cremation : (typeof body.cremation === 'boolean' ? body.cremation : undefined),
+          officiant: funeral?.officiant ?? body.officiant ?? undefined,
+          funeralNotes: funeral?.funeralNotes ?? body.funeralNotes ?? undefined,
         }
       });
       

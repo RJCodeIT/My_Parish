@@ -2,9 +2,10 @@ import React from "react";
 import Input from "./Input";
 import { useAlerts } from "./Alerts";
 
-export default function MarkAsDeceasedModal({ onClose }: { onClose?: () => void }) {
+export default function MarkAsDeceasedModal({ parishionerId, onClose }: { parishionerId: string; onClose?: () => void }) {
   const alerts = useAlerts();
   const [step, setStep] = React.useState<1 | 2>(1);
+  const [submitting, setSubmitting] = React.useState(false);
 
   // Step 1: Death data
   const [deceasedAt, setDeceasedAt] = React.useState<string>("");
@@ -36,11 +37,16 @@ export default function MarkAsDeceasedModal({ onClose }: { onClose?: () => void 
     setStep(2);
   };
 
-  const handleSubmit = () => {
-    // Frontend only: just log and close
+  const handleSubmit = async () => {
+    if (!deceasedAt) {
+      setError("Data zgonu jest wymagana.");
+      setStep(1);
+      return;
+    }
+
     const payload = {
       deceased: {
-        deceasedAt: deceasedAt ? new Date(deceasedAt) : null,
+        deceasedAt,
         placeOfDeath,
         deathCertificateNumber,
         deathCertificateIssuedBy,
@@ -50,7 +56,7 @@ export default function MarkAsDeceasedModal({ onClose }: { onClose?: () => void 
         deathNotes,
       },
       funeral: {
-        funeralDate: funeralDate ? new Date(funeralDate) : null,
+        funeralDate,
         funeralLocation,
         cemeteryName,
         cremation,
@@ -58,8 +64,26 @@ export default function MarkAsDeceasedModal({ onClose }: { onClose?: () => void 
         funeralNotes,
       },
     };
-    console.log("Mark as deceased payload:", payload);
-    onClose?.();
+
+    try {
+      setSubmitting(true);
+      const res = await fetch(`/mojaParafia/api/parishioners/${parishionerId}/deceased`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error || "Nie udało się oznaczyć jako zmarłego");
+      }
+      alerts.showSuccess("Parafianin oznaczony jako zmarły");
+      onClose?.();
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Wystąpił błąd";
+      alerts.showError(message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
@@ -172,15 +196,17 @@ export default function MarkAsDeceasedModal({ onClose }: { onClose?: () => void 
               <div className="mt-6 flex flex-col sm:flex-row gap-2 sm:justify-end">
                 <button
                   type="button"
-                  className="w-full sm:w-auto px-4 py-2 text-sm rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800"
+                  className="w-full sm:w-auto px-4 py-2 text-sm rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 disabled:opacity-60"
                   onClick={handleCancel}
+                  disabled={submitting}
                 >
                   Anuluj
                 </button>
                 <button
                   type="button"
-                  className="w-full sm:w-auto px-4 py-2 text-sm rounded-md bg-blue-600 hover:bg-blue-700 text-white"
+                  className="w-full sm:w-auto px-4 py-2 text-sm rounded-md bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-60"
                   onClick={handleNext}
+                  disabled={submitting}
                 >
                   Dalej
                 </button>
@@ -248,24 +274,27 @@ export default function MarkAsDeceasedModal({ onClose }: { onClose?: () => void 
               <div className="mt-6 flex flex-col sm:flex-row gap-2 sm:justify-end">
                 <button
                   type="button"
-                  className="w-full sm:w-auto px-4 py-2 text-sm rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800"
+                  className="w-full sm:w-auto px-4 py-2 text-sm rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 disabled:opacity-60"
                   onClick={handleCancel}
+                  disabled={submitting}
                 >
                   Anuluj
                 </button>
                 <button
                   type="button"
-                  className="w-full sm:w-auto px-4 py-2 text-sm rounded-md bg-white border border-gray-300 hover:bg-gray-50 text-gray-800"
+                  className="w-full sm:w-auto px-4 py-2 text-sm rounded-md bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 disabled:opacity-60"
                   onClick={() => setStep(1)}
+                  disabled={submitting}
                 >
                   Wstecz
                 </button>
                 <button
                   type="button"
-                  className="w-full sm:w-auto px-4 py-2 text-sm rounded-md bg-red-600 hover:bg-red-700 text-white"
+                  className="w-full sm:w-auto px-4 py-2 text-sm rounded-md bg-red-600 hover:bg-red-700 text-white disabled:opacity-60"
                   onClick={handleSubmit}
+                  disabled={submitting}
                 >
-                  Oznacz jako zmarłego
+                  {submitting ? "Zapisywanie..." : "Oznacz jako zmarłego"}
                 </button>
               </div>
             </div>

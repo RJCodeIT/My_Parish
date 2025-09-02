@@ -26,6 +26,23 @@ interface Parishioner {
   email?: string;
   notes?: string;
   sacraments: Sacrament[];
+  isDeceased?: boolean;
+  // Deceased
+  deceasedAt?: string | null;
+  placeOfDeath?: string | null;
+  deathCertificateNumber?: string | null;
+  deathCertificateIssuedBy?: string | null;
+  deathReporterName?: string | null;
+  deathReporterRelation?: string | null;
+  deathReporterPhone?: string | null;
+  deathNotes?: string | null;
+  // Funeral
+  funeralDate?: string | null;
+  funeralLocation?: string | null;
+  cemeteryName?: string | null;
+  cremation?: boolean | null;
+  officiant?: string | null;
+  funeralNotes?: string | null;
 }
 
 const sacramentTranslations: Record<string, string> = {
@@ -43,6 +60,8 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
   const [isDeceasedModalOpen, setIsDeceasedModalOpen] = useState(false);
   const alerts = useAlerts();
   const router = useRouter();
+  const isDeceased = Boolean(parishioner.isDeceased);
+  const fmt = (d?: string | null) => (d ? new Date(d).toLocaleDateString() : "");
 
   useEffect(() => {
     axios.get(`/mojaParafia/api/groups?memberId=${parishioner._id}`).then((res) => {
@@ -65,11 +84,11 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
   };
 
   return (
-    <div className="w-full border rounded-lg shadow-md p-3 sm:p-4 bg-white">
+    <div className={`w-full border rounded-lg shadow-md p-3 sm:p-4 bg-white ${isDeceased ? "opacity-75" : ""}`}>
       <div className="flex flex-row justify-between items-center">
         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
           <h3 className="text-base sm:text-lg font-semibold">
-            {parishioner.firstName} {parishioner.lastName}
+            {isDeceased ? "+ " : ""}{parishioner.firstName} {parishioner.lastName}
           </h3>
           {/* Numer telefonu widoczny tylko na większych ekranach */}
           <p className="hidden sm:block text-sm text-gray-600">{parishioner.phoneNumber || "Brak telefonu"}</p>
@@ -126,19 +145,53 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
               <p className="text-xs sm:text-sm text-gray-500 mt-1">Nie należy do żadnej grupy</p>
             )}
           </div>
-          <div className="mt-4">
-            <button
-              type="button"
-              className="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm"
-              onClick={() => setIsDeceasedModalOpen(true)}
-            >
-              Oznacz jako zmarłego
-            </button>
-          </div>
+          {isDeceased && (
+            <div className="mt-3 sm:mt-4 space-y-2">
+              <h4 className="text-base sm:text-lg font-semibold text-red-700">Informacje o zgonie</h4>
+              <div className="text-xs sm:text-sm text-gray-700 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <p><span className="font-medium">Data zgonu:</span> {fmt(parishioner.deceasedAt) || "—"}</p>
+                <p><span className="font-medium">Miejsce zgonu:</span> {parishioner.placeOfDeath || "—"}</p>
+                <p><span className="font-medium">Nr aktu zgonu:</span> {parishioner.deathCertificateNumber || "—"}</p>
+                <p><span className="font-medium">Wystawca aktu:</span> {parishioner.deathCertificateIssuedBy || "—"}</p>
+                <p><span className="font-medium">Zgłaszający:</span> {parishioner.deathReporterName || "—"}</p>
+                <p><span className="font-medium">Relacja:</span> {parishioner.deathReporterRelation || "—"}</p>
+                <p><span className="font-medium">Telefon zgłaszającego:</span> {parishioner.deathReporterPhone || "—"}</p>
+              </div>
+              {parishioner.deathNotes && (
+                <p className="text-xs sm:text-sm text-gray-700"><span className="font-medium">Uwagi:</span> {parishioner.deathNotes}</p>
+              )}
+
+              <h4 className="text-base sm:text-lg font-semibold text-red-700 mt-3">Informacje o pogrzebie</h4>
+              <div className="text-xs sm:text-sm text-gray-700 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <p><span className="font-medium">Data pogrzebu:</span> {fmt(parishioner.funeralDate) || "—"}</p>
+                <p><span className="font-medium">Miejsce liturgii:</span> {parishioner.funeralLocation || "—"}</p>
+                <p><span className="font-medium">Cmentarz:</span> {parishioner.cemeteryName || "—"}</p>
+                <p><span className="font-medium">Kremacja:</span> {parishioner.cremation === true ? "Tak" : parishioner.cremation === false ? "Nie" : "—"}</p>
+                <p><span className="font-medium">Celebrans:</span> {parishioner.officiant || "—"}</p>
+              </div>
+              {parishioner.funeralNotes && (
+                <p className="text-xs sm:text-sm text-gray-700"><span className="font-medium">Uwagi dot. pogrzebu:</span> {parishioner.funeralNotes}</p>
+              )}
+            </div>
+          )}
+          {!isDeceased && (
+            <div className="mt-4">
+              <button
+                type="button"
+                className="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm"
+                onClick={() => setIsDeceasedModalOpen(true)}
+              >
+                Oznacz jako zmarłego
+              </button>
+            </div>
+          )}
         </div>
       )}
-      {isDeceasedModalOpen && (
-        <MarkAsDeceasedModal onClose={() => setIsDeceasedModalOpen(false)} />
+      {isDeceasedModalOpen && !isDeceased && (
+        <MarkAsDeceasedModal
+          parishionerId={parishioner.id || parishioner._id}
+          onClose={() => setIsDeceasedModalOpen(false)}
+        />
       )}
     </div>
   );

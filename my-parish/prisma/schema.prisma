@@ -18,6 +18,23 @@ model Parishioner {
   phoneNumber  String?
   email        String?      @unique
   notes        String?      @db.Text
+  // Deceased and funeral data
+  isDeceased   Boolean      @default(false)
+  deceasedAt   DateTime?
+  placeOfDeath String?
+  deathCertificateNumber  String?
+  deathCertificateIssuedBy String?
+  deathReporterName       String?
+  deathReporterRelation   String?
+  deathReporterPhone      String?
+  deathNotes    String?    @db.Text
+
+  funeralDate     DateTime?
+  funeralLocation String?
+  cemeteryName    String?
+  cremation       Boolean   @default(false)
+  officiant       String?
+  funeralNotes    String?   @db.Text
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   sacraments   Sacrament[]
@@ -25,6 +42,8 @@ model Parishioner {
   // Relations
   leadingGroups Group[]     @relation("GroupLeader")
   memberGroups  GroupMember[]
+  
+  @@index([isDeceased])
 }
 
 // Address model (extracted from Parishioner)
