@@ -22,6 +22,7 @@ interface ParishionerApiResponse {
   email?: string;
   notes?: string;
   sacraments: { type: string; date: string }[];
+  isDeceased?: boolean;
 }
 
 // Interface for the component's internal state
@@ -40,11 +41,13 @@ interface Parishioner {
   email?: string;
   notes?: string;
   sacraments: { type: string; date: string }[];
+  isDeceased?: boolean;
 }
 
 export default function Parishioners() {
   const [parishioners, setParishioners] = useState<Parishioner[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'living' | 'deceased' | 'all'>('living');
   const alerts = useAlerts();
 
   useEffect(() => {
@@ -94,19 +97,70 @@ export default function Parishioners() {
     setSearchQuery(query.toLowerCase());
   };
 
-  const filteredParishioners = parishioners.filter((parishioner) => {
-    const searchStr = `${parishioner.firstName} ${parishioner.lastName} ${parishioner.address.street} ${parishioner.address.city} ${parishioner.phoneNumber} ${parishioner.email}`.toLowerCase();
-    return searchStr.includes(searchQuery);
-  });
+  const filteredParishioners = parishioners
+    .filter((p) => {
+      if (statusFilter === 'all') return true;
+      const isDeceased = !!p.isDeceased;
+      return statusFilter === 'deceased' ? isDeceased : !isDeceased;
+    })
+    .filter((parishioner) => {
+      const searchStr = `${parishioner.firstName} ${parishioner.lastName} ${parishioner.address.street} ${parishioner.address.city} ${parishioner.phoneNumber ?? ''} ${parishioner.email ?? ''}`.toLowerCase();
+      return searchStr.includes(searchQuery);
+    });
+
+  const counts = parishioners.reduce(
+    (acc, p) => {
+      if (p.isDeceased) acc.deceased += 1;
+      else acc.living += 1;
+      acc.all += 1;
+      return acc;
+    },
+    { living: 0, deceased: 0, all: 0 }
+  );
 
   return (
     <div>
       <SectionTitle name="Parafianie" />
       <div className="p-3 sm:p-4 md:p-6">
-        <AdminSearchBar 
-          onSearch={handleSearch}
-          placeholder="Szukaj parafian..."
-        />
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+          <AdminSearchBar 
+            onSearch={handleSearch}
+            placeholder="Szukaj parafian..."
+            className="sm:flex-[2] w-full mb-0"
+            inputClassName="h-10"
+          />
+          <div className="sm:flex-[3] w-full flex sm:justify-end">
+            <div className="inline-flex rounded-xl shadow-sm border border-gray-200 overflow-hidden h-10">
+              <button
+                type="button"
+                onClick={() => setStatusFilter('living')}
+                aria-pressed={statusFilter === 'living'}
+                className={`h-10 inline-flex items-center gap-2 px-3 sm:px-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors ${statusFilter === 'living' ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-50'} border-r border-gray-200`}
+              >
+                <span>Żyjący</span>
+                <span className={`${statusFilter === 'living' ? 'text-white/90' : 'text-gray-500'} text-xs`}>({counts.living})</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('deceased')}
+                aria-pressed={statusFilter === 'deceased'}
+                className={`h-10 inline-flex items-center gap-2 px-3 sm:px-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors ${statusFilter === 'deceased' ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-50'} border-r border-gray-200`}
+              >
+                <span>Zmarli</span>
+                <span className={`${statusFilter === 'deceased' ? 'text-white/90' : 'text-gray-500'} text-xs`}>({counts.deceased})</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('all')}
+                aria-pressed={statusFilter === 'all'}
+                className={`h-10 inline-flex items-center gap-2 px-3 sm:px-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors ${statusFilter === 'all' ? 'bg-primary text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+              >
+                <span>Wszyscy</span>
+                <span className={`${statusFilter === 'all' ? 'text-white/90' : 'text-gray-500'} text-xs`}>({counts.all})</span>
+              </button>
+            </div>
+          </div>
+        </div>
         <div className="mt-3 sm:mt-4 space-y-3 sm:space-y-4">
           {filteredParishioners.length > 0 ? (
             filteredParishioners.map((parishioner) => (
