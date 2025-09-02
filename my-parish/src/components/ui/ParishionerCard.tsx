@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { AiOutlineDown, AiOutlineUp, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { useAlerts } from "./Alerts";
 import MarkAsDeceasedModal from "./MarkAsDeceasedModal";
+import CertificateModal from "./CertificateModal";
 
 interface Sacrament {
   type: string;
@@ -58,6 +59,7 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
   const [groups, setGroups] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDeceasedModalOpen, setIsDeceasedModalOpen] = useState(false);
+  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const alerts = useAlerts();
   const router = useRouter();
   const isDeceased = Boolean(parishioner.isDeceased);
@@ -81,6 +83,10 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
     const parishionerId = parishioner.id || parishioner._id;
     console.log("Editing parishioner with ID:", parishionerId);
     router.push(`/admin/dashboard/parafianie/edycja/${parishionerId}`);
+  };
+
+  const handleGenerateCertificate = () => {
+    setIsCertificateModalOpen(true);
   };
 
   return (
@@ -175,13 +181,20 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
             </div>
           )}
           {!isDeceased && (
-            <div className="mt-4">
+            <div className="mt-4 flex flex-col sm:flex-row gap-2">
               <button
                 type="button"
                 className="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm"
                 onClick={() => setIsDeceasedModalOpen(true)}
               >
                 Oznacz jako zmarłego
+              </button>
+              <button
+                type="button"
+                className="w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm"
+                onClick={handleGenerateCertificate}
+              >
+                Generuj zaświadczenie
               </button>
             </div>
           )}
@@ -191,6 +204,12 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
         <MarkAsDeceasedModal
           parishionerId={parishioner.id || parishioner._id}
           onClose={() => setIsDeceasedModalOpen(false)}
+        />
+      )}
+      {isCertificateModalOpen && !isDeceased && (
+        <CertificateModal
+          parishionerId={parishioner.id || parishioner._id}
+          onClose={() => setIsCertificateModalOpen(false)}
         />
       )}
     </div>
