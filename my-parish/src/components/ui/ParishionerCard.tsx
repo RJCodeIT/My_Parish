@@ -3,6 +3,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { AiOutlineDown, AiOutlineUp, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { useAlerts } from "./Alerts";
+import MarkAsDeceasedModal from "./MarkAsDeceasedModal";
 
 interface Sacrament {
   type: string;
@@ -39,6 +40,7 @@ const sacramentTranslations: Record<string, string> = {
 export default function ParishionerCard({ parishioner, onDelete }: { parishioner: Parishioner; onDelete: (id: string) => void }) {
   const [groups, setGroups] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isDeceasedModalOpen, setIsDeceasedModalOpen] = useState(false);
   const alerts = useAlerts();
   const router = useRouter();
 
@@ -124,7 +126,19 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
               <p className="text-xs sm:text-sm text-gray-500 mt-1">Nie należy do żadnej grupy</p>
             )}
           </div>
+          <div className="mt-4">
+            <button
+              type="button"
+              className="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm"
+              onClick={() => setIsDeceasedModalOpen(true)}
+            >
+              Oznacz jako zmarłego
+            </button>
+          </div>
         </div>
+      )}
+      {isDeceasedModalOpen && (
+        <MarkAsDeceasedModal onClose={() => setIsDeceasedModalOpen(false)} />
       )}
     </div>
   );
