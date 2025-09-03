@@ -1,9 +1,31 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export const GET = async () => {
+export const GET = async (request: Request) => {
   try {
+    // Read optional memberId from query string
+    const url = new URL(request.url);
+    const memberId = url.searchParams.get("memberId");
+
     const groups = await prisma.group.findMany({
+      where: memberId
+        ? {
+            OR: [
+              // Is a member of the group
+              {
+                members: {
+                  some: {
+                    parishionerId: memberId,
+                  },
+                },
+              },
+              // Is the leader of the group
+              {
+                leaderId: memberId,
+              },
+            ],
+          }
+        : undefined,
       include: {
         leader: true,
         members: {
