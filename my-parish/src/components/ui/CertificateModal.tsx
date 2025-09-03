@@ -7,6 +7,23 @@ export default function CertificateModal({ parishionerId, onClose }: { parishion
   const [error, setError] = React.useState<string>("");
   const alerts = useAlerts();
 
+  // Loaded parishioner data for prefill
+  const [parishioner, setParishioner] = React.useState<null | {
+    firstName: string;
+    lastName: string;
+    sacraments: Array<{
+      type: string;
+      date: string;
+      godfather?: string | null;
+      godmother?: string | null;
+      witness?: string | null;
+      spouse?: string | null;
+      witnessMan?: string | null;
+      witnessWoman?: string | null;
+    }>;
+  }>(null);
+  const [loadingParishioner, setLoadingParishioner] = React.useState<boolean>(false);
+
   // Step 1: wybór typu (wartości muszą odpowiadać backendowi: baptism | confirmation | marriage)
   const [certificateType, setCertificateType] = React.useState<string>("");
 
@@ -31,6 +48,49 @@ export default function CertificateModal({ parishionerId, onClose }: { parishion
   const [spouse1, setSpouse1] = React.useState<string>("");
   const [spouse2, setSpouse2] = React.useState<string>("");
   const [witnesses, setWitnesses] = React.useState<string>("");
+
+  // Fetch parishioner data on open
+  React.useEffect(() => {
+    let ignore = false;
+    (async () => {
+      try {
+        setLoadingParishioner(true);
+        const res = await fetch(`/mojaParafia/api/parishioners/${parishionerId}`);
+        if (!res.ok) throw new Error("Nie udało się pobrać danych parafianina");
+        const data = await res.json();
+        if (!ignore) setParishioner(data);
+      } catch (e) {
+        // pokaż tylko alert, ale pozwól dalej edytować ręcznie
+        const message = e instanceof Error ? e.message : "Błąd pobierania danych";
+        alerts.showWarning?.(message);
+      } finally {
+        if (!ignore) setLoadingParishioner(false);
+      }
+    })();
+    return () => { ignore = true; };
+  }, [parishionerId, alerts]);
+
+  // Prefill fields when type is chosen or parishioner data arrives
+  React.useEffect(() => {
+    if (!parishioner || !certificateType) return;
+    const baptism = parishioner.sacraments?.find(s => s.type === 'baptism');
+    const marriage = parishioner.sacraments?.find(s => s.type === 'marriage');
+
+    if (certificateType === 'baptism') {
+      setGodfatherName(baptism?.godfather || "");
+      setGodmotherName(baptism?.godmother || "");
+      // Brak danych o parafii, miejscu urodzenia i rodzicach – pozostawiamy puste
+    } else if (certificateType === 'confirmation') {
+      // Pola parafii do uzupełnienia ręcznie
+      // Można ewentualnie przepisać parafię chrztu z domyślnej wartości, ale brak jej w modelu
+    } else if (certificateType === 'marriage') {
+      const fullName = `${parishioner.firstName} ${parishioner.lastName}`.trim();
+      setSpouse1(fullName);
+      setSpouse2(marriage?.spouse || "");
+      const ws = [marriage?.witnessMan || '', marriage?.witnessWoman || ''].filter(Boolean).join(', ');
+      setWitnesses(ws);
+    }
+  }, [certificateType, parishioner]);
 
   const handleCancel = () => {
     alerts.showConfirmation(
@@ -150,6 +210,7 @@ export default function CertificateModal({ parishionerId, onClose }: { parishion
               </select>
 
               {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+              {loadingParishioner && <p className="mt-3 text-sm text-gray-500">Ładowanie danych parafianina…</p>}
 
               <div className="mt-6 flex flex-col sm:flex-row gap-2 sm:justify-end">
                 <button
