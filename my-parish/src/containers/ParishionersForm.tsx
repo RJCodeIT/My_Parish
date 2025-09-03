@@ -11,12 +11,18 @@ const SACRAMENT_LABELS: { [key: string]: string } = {
   confirmation: "Bierzmowanie",
   marriage: "Małżeństwo",
   holyOrders: "Święcenia Kapłańskie",
-  anointingOfTheSick: "Namaszczenie Chorych",
 };
 
 interface Sacrament {
   type: string;
   date: string;
+  // Dodatkowe pola dla wybranych sakramentów (frontend-only)
+  godfather?: string; // Chrzest: ojciec chrzestny
+  godmother?: string; // Chrzest: matka chrzestna
+  witness?: string; // Bierzmowanie: świadek
+  spouse?: string; // Małżeństwo: małżonek
+  witnessMan?: string; // Małżeństwo: świadek
+  witnessWoman?: string; // Małżeństwo: świadkowa
 }
 
 interface Address {
@@ -159,6 +165,19 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
     setFormData((prev) => {
       const newSacraments = [...prev.sacraments];
       newSacraments[index].date = date;
+      return { ...prev, sacraments: newSacraments };
+    });
+  };
+
+  const handleSacramentFieldChange = (
+    index: number,
+    field: keyof Sacrament,
+    value: string
+  ) => {
+    setFormData((prev) => {
+      const newSacraments = [...prev.sacraments];
+      // ensure the object exists
+      newSacraments[index] = { ...newSacraments[index], [field]: value } as Sacrament;
       return { ...prev, sacraments: newSacraments };
     });
   };
@@ -358,7 +377,7 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
           <h3 className="text-lg font-medium text-gray-900">Sakramenty</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
             {formData.sacraments.map((sacrament, index) => (
-              <div key={sacrament.type}>
+              <div key={sacrament.type} className="space-y-3">
                 <Input
                   label={SACRAMENT_LABELS[sacrament.type]}
                   name={sacrament.type}
@@ -366,6 +385,53 @@ export default function ParishionersForm({ initialData, isEditMode = false }: Pa
                   value={sacrament.date}
                   onChange={(e) => handleSacramentChange(index, e.target.value)}
                 />
+                {/* Pola dodatkowe widoczne po uzupełnieniu daty */}
+                {sacrament.date && sacrament.type === "baptism" && (
+                  <div className="space-y-3">
+                    <Input
+                      label="Ojciec chrzestny"
+                      name={`baptism_godfather_${index}`}
+                      value={sacrament.godfather || ""}
+                      onChange={(e) => handleSacramentFieldChange(index, "godfather", e.target.value)}
+                    />
+                    <Input
+                      label="Matka chrzestna"
+                      name={`baptism_godmother_${index}`}
+                      value={sacrament.godmother || ""}
+                      onChange={(e) => handleSacramentFieldChange(index, "godmother", e.target.value)}
+                    />
+                  </div>
+                )}
+                {sacrament.date && sacrament.type === "confirmation" && (
+                  <Input
+                    label="Świadek"
+                    name={`confirmation_witness_${index}`}
+                    value={sacrament.witness || ""}
+                    onChange={(e) => handleSacramentFieldChange(index, "witness", e.target.value)}
+                  />
+                )}
+                {sacrament.date && sacrament.type === "marriage" && (
+                  <div className="space-y-3">
+                    <Input
+                      label="Małżonek"
+                      name={`marriage_spouse_${index}`}
+                      value={sacrament.spouse || ""}
+                      onChange={(e) => handleSacramentFieldChange(index, "spouse", e.target.value)}
+                    />
+                    <Input
+                      label="Świadek"
+                      name={`marriage_witnessMan_${index}`}
+                      value={sacrament.witnessMan || ""}
+                      onChange={(e) => handleSacramentFieldChange(index, "witnessMan", e.target.value)}
+                    />
+                    <Input
+                      label="Świadkowa"
+                      name={`marriage_witnessWoman_${index}`}
+                      value={sacrament.witnessWoman || ""}
+                      onChange={(e) => handleSacramentFieldChange(index, "witnessWoman", e.target.value)}
+                    />
+                  </div>
+                )}
               </div>
             ))}
           </div>

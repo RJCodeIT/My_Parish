@@ -6,6 +6,13 @@ import { Prisma } from "@prisma/client";
 interface SacramentData {
   type: string;
   date: string;
+  // Additional optional fields depending on type
+  godfather?: string;
+  godmother?: string;
+  witness?: string;
+  spouse?: string;
+  witnessMan?: string;
+  witnessWoman?: string;
 }
 
 // Pobranie wszystkich parafian
@@ -113,6 +120,28 @@ export const POST = async (req: Request) => {
     if (!firstName || !lastName || !dateOfBirth) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
+
+    // Validate sacrament-specific required fields
+    for (const s of sacramentsData) {
+      if (!s.type || !s.date) {
+        return NextResponse.json({ error: "Each sacrament must include type and date" }, { status: 400 });
+      }
+      if (s.type === 'baptism') {
+        if (!s.godfather || !s.godmother) {
+          return NextResponse.json({ error: "Chrzest wymaga podania Ojca chrzestnego i Matki chrzestnej" }, { status: 400 });
+        }
+      }
+      if (s.type === 'confirmation') {
+        if (!s.witness) {
+          return NextResponse.json({ error: "Bierzmowanie wymaga podania świadka" }, { status: 400 });
+        }
+      }
+      if (s.type === 'marriage') {
+        if (!s.spouse || !s.witnessMan || !s.witnessWoman) {
+          return NextResponse.json({ error: "Małżeństwo wymaga podania małżonka oraz świadka i świadkowej" }, { status: 400 });
+        }
+      }
+    }
     
     console.log('Creating parishioner with address data:', { street, houseNumber, postalCode, city });
     
@@ -154,7 +183,13 @@ export const POST = async (req: Request) => {
             data: {
               type: sacrament.type,
               date: new Date(sacrament.date),
-              parishionerId: parishioner.id
+              parishionerId: parishioner.id,
+              godfather: sacrament.godfather || undefined,
+              godmother: sacrament.godmother || undefined,
+              witness: sacrament.witness || undefined,
+              spouse: sacrament.spouse || undefined,
+              witnessMan: sacrament.witnessMan || undefined,
+              witnessWoman: sacrament.witnessWoman || undefined,
             }
           });
         }));

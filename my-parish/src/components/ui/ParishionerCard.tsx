@@ -9,6 +9,13 @@ import CertificateModal from "./CertificateModal";
 interface Sacrament {
   type: string;
   date: string;
+  // additional fields returned from API
+  godfather?: string;
+  godmother?: string;
+  witness?: string;
+  spouse?: string;
+  witnessMan?: string;
+  witnessWoman?: string;
 }
 
 interface Parishioner {
@@ -129,11 +136,28 @@ export default function ParishionerCard({ parishioner, onDelete }: { parishioner
             <h4 className="text-base sm:text-lg font-semibold">Sakramenty:</h4>
             {parishioner.sacraments.length > 0 ? (
               <ul className="list-disc list-inside text-xs sm:text-sm text-gray-700 mt-1">
-                {parishioner.sacraments.map((sacrament, index) => (
-                  <li key={index}>
-                    {sacramentTranslations[sacrament.type] || sacrament.type} – {new Date(sacrament.date).toLocaleDateString()}
-                  </li>
-                ))}
+                {parishioner.sacraments.map((sacrament, index) => {
+                  const label = sacramentTranslations[sacrament.type] || sacrament.type;
+                  const date = new Date(sacrament.date).toLocaleDateString();
+                  let extra = "";
+                  if (sacrament.type === "baptism") {
+                    const parents = [sacrament.godfather, sacrament.godmother].filter(Boolean).join(", ");
+                    if (parents) extra = ` – chrzestni: ${parents}`;
+                  } else if (sacrament.type === "confirmation") {
+                    if (sacrament.witness) extra = ` – świadek: ${sacrament.witness}`;
+                  } else if (sacrament.type === "marriage") {
+                    const parts: string[] = [];
+                    if (sacrament.spouse) parts.push(`małżonek: ${sacrament.spouse}`);
+                    const witnesses = [sacrament.witnessMan, sacrament.witnessWoman].filter(Boolean).join(", ");
+                    if (witnesses) parts.push(`świadkowie: ${witnesses}`);
+                    if (parts.length) extra = ` – ${parts.join(", ")}`;
+                  }
+                  return (
+                    <li key={index}>
+                      {label} – {date}{extra}
+                    </li>
+                  );
+                })}
               </ul>
             ) : (
               <p className="text-xs sm:text-sm text-gray-500 mt-1">Brak sakramentów</p>

@@ -64,6 +64,17 @@ model Sacrament {
   parishioner   Parishioner @relation(fields: [parishionerId], references: [id], onDelete: Cascade)
   parishionerId String
 
+  // Additional details per sacrament type
+  // Baptism
+  godfather     String?
+  godmother     String?
+  // Confirmation
+  witness       String?
+  // Marriage
+  spouse        String?
+  witnessMan    String?
+  witnessWoman  String?
+
   @@index([parishionerId])
 }
 

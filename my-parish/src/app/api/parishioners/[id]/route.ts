@@ -52,6 +52,29 @@ export async function PUT(_request: NextRequest, { params }: { params: { id: str
 
   try {
     const body = await _request.json();
+    // Pre-validate sacrament-specific required fields to return 400 on failure
+    if (body.sacraments && Array.isArray(body.sacraments)) {
+      for (const s of body.sacraments as Array<{ type: string; date: string; godfather?: string; godmother?: string; witness?: string; spouse?: string; witnessMan?: string; witnessWoman?: string }>) {
+        if (!s.type || !s.date) {
+          return NextResponse.json({ error: "Each sacrament must include type and date" }, { status: 400 });
+        }
+        if (s.type === 'baptism') {
+          if (!s.godfather || !s.godmother) {
+            return NextResponse.json({ error: "Chrzest wymaga podania Ojca chrzestnego i Matki chrzestnej" }, { status: 400 });
+          }
+        }
+        if (s.type === 'confirmation') {
+          if (!s.witness) {
+            return NextResponse.json({ error: "Bierzmowanie wymaga podania świadka" }, { status: 400 });
+          }
+        }
+        if (s.type === 'marriage') {
+          if (!s.spouse || !s.witnessMan || !s.witnessWoman) {
+            return NextResponse.json({ error: "Małżeństwo wymaga podania małżonka oraz świadka i świadkowej" }, { status: 400 });
+          }
+        }
+      }
+    }
     
     // Użyj transakcji Prisma do aktualizacji parafianina i jego danych
     const updatedParishioner = await prisma.$transaction(async (prismaTransaction: TransactionClient) => {
@@ -136,12 +159,18 @@ export async function PUT(_request: NextRequest, { params }: { params: { id: str
         
         // Utwórz nowe sakramenty
         if (body.sacraments.length > 0) {
-          await Promise.all(body.sacraments.map((sacrament: { type: string; date: string }) => {
+          await Promise.all(body.sacraments.map((sacrament: { type: string; date: string; godfather?: string; godmother?: string; witness?: string; spouse?: string; witnessMan?: string; witnessWoman?: string }) => {
             return prismaTransaction.sacrament.create({
               data: {
                 type: sacrament.type,
                 date: new Date(sacrament.date),
-                parishionerId: id
+                parishionerId: id,
+                godfather: sacrament.godfather || undefined,
+                godmother: sacrament.godmother || undefined,
+                witness: sacrament.witness || undefined,
+                spouse: sacrament.spouse || undefined,
+                witnessMan: sacrament.witnessMan || undefined,
+                witnessWoman: sacrament.witnessWoman || undefined,
               }
             });
           }));
