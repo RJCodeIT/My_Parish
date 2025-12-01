@@ -215,7 +215,7 @@ export default function Navbar() {
         
         {/* Mobile Navigation - Full Screen */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 top-0 left-0 w-screen h-screen bg-white/98 backdrop-blur-md z-[9999] overflow-y-auto">
+          <div className="lg:hidden fixed inset-0 top-0 left-0 w-screen h-screen bg-white z-[9999] overflow-y-auto">
             <div className="flex justify-between items-center p-6 border-b border-gray-200 bg-white sticky top-0 z-10 shadow-sm">
               <div className="flex items-center space-x-3">
                 <div className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary/30 shadow-md bg-primary/5">

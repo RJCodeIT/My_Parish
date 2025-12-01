@@ -64,7 +64,7 @@ export default function HomeHero({
               </div>
 
               {/* Actions */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 -mt-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mt-4 md:mt-2">
                 <Link href="/ogloszenia" className="group relative flex items-center justify-between gap-3 px-5 py-4 rounded-xl bg-white/90 backdrop-blur-lg shadow-xl border border-white/40 hover:bg-white transition-all">
                   <span className="inline-flex w-10 h-10 rounded-full bg-primary/10 items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
